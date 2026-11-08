@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 4 of 17: The client opens the latest checkpoint and verifies its signature and origin.
+Step 5 of 17: The client proves an entry is included in a checkpoint.
 
 ## Status
 
@@ -13,8 +13,8 @@ Step 4 of 17: The client opens the latest checkpoint and verifies its signature 
 - [x] Step 1: consistency proofs from tiles
 - [x] Step 2: HTTP fetcher
 - [x] Step 3: partial tile fallback
-- [ ] Step 4: open the latest checkpoint ← current
-- [ ] Step 5: prove inclusion
+- [x] Step 4: open the latest checkpoint
+- [ ] Step 5: prove inclusion ← current
 - [ ] Step 6: check consistency
 - [ ] Step 7: stream verified entries
 - [ ] Step 8: CI workflow
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing latestCheckpoint tests.
+Write failing proveInclusion tests.
