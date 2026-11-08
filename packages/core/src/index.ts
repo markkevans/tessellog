@@ -31,6 +31,15 @@ export {
   parseCosignerVerifierKey,
   type Clock,
 } from "./cosignatures.js";
+export {
+  parsePolicy,
+  policySatisfied,
+  type Policy,
+  type PolicyLog,
+  type PolicyWitness,
+  type QuorumRule,
+} from "./policy.js";
+export type { KeyReference } from "./note-format.js";
 export { signNote } from "./sign-note.js";
 export {
   openNote,
