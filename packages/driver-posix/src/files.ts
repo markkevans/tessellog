@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, open, readFile, rename } from "node:fs/promises";
+import { mkdir, open, readdir, readFile, rename } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 const isNotFound = (error: unknown): boolean =>
@@ -7,7 +7,9 @@ const isNotFound = (error: unknown): boolean =>
 
 export type LogFiles = {
   readonly read: (relativePath: string) => Promise<Uint8Array | undefined>;
+  readonly readExisting: (relativePath: string) => Promise<Uint8Array>;
   readonly write: (relativePath: string, data: Uint8Array) => Promise<void>;
+  readonly list: (relativeDirectory: string) => Promise<readonly string[]>;
 };
 
 export const logFiles = (root: string): LogFiles => ({
@@ -21,6 +23,7 @@ export const logFiles = (root: string): LogFiles => ({
       throw error;
     }
   },
+  readExisting: async (relativePath) => new Uint8Array(await readFile(join(root, relativePath))),
   write: async (relativePath, data) => {
     const target = join(root, relativePath);
     await mkdir(dirname(target), { recursive: true });
@@ -33,5 +36,17 @@ export const logFiles = (root: string): LogFiles => ({
       await handle.close();
     }
     await rename(temporary, target);
+  },
+  list: async (relativeDirectory) => {
+    try {
+      return (await readdir(join(root, relativeDirectory)))
+        .filter((name) => !name.includes(".tmp-"))
+        .sort();
+    } catch (error) {
+      if (isNotFound(error)) {
+        return [];
+      }
+      throw error;
+    }
   },
 });

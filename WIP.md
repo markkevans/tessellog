@@ -32,6 +32,10 @@ Step 11 of 17: The POSIX driver keeps sequencing and tree state across restarts.
 
 None. Mark is installing Go locally, so step 16 runs locally first and then in GitHub Actions. I'll check `go version` before starting it.
 
+## Follow-ups noted
+
+- POSIX sequenced batch files are never deleted after integration, and the driver holds every batch in memory. Prune integrated batches with garbage collection (phase 8).
+
 ## Next Action
 
 Write failing restart tests.

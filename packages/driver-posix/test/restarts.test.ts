@@ -127,7 +127,7 @@ describe("refusing corrupt state", () => {
     await session(root, (driver) => driver.sequence([entry(0)]));
     const stateDir = join(root, ".state");
     const files = await readdir(stateDir, { recursive: true });
-    const match = files.find((file) => file.includes(name));
+    const match = files.find((file) => file.startsWith(`${name}/`));
     if (match === undefined) {
       throw new Error(`no ${name} state file in ${files.join(", ")}`);
     }
@@ -141,10 +141,30 @@ describe("refusing corrupt state", () => {
       await expect(openPosixDriver({ root })).rejects.toThrow(/corrupt tree state/);
     }));
 
-  it("refuses to open with a truncated sequenced batch", () =>
+  it.each([
+    ["an entry longer than the file", Uint8Array.of(0, 0, 0, 9, 1)],
+    ["a truncated length prefix", Uint8Array.of(0, 0)],
+  ])("refuses to open with a sequenced batch holding %s", (_, contents) =>
     withTempLog(async (root) => {
       const batch = await stateFile(root, "sequenced");
-      await writeFile(batch, Uint8Array.of(0, 0, 0, 9, 1));
+      await writeFile(batch, contents);
       await expect(openPosixDriver({ root })).rejects.toThrow(/corrupt sequenced batch/);
+    }));
+
+  it("refuses to open when the tree state belongs to something else", () =>
+    withTempLog(async (root) => {
+      await mkdir(join(root, ".state"), { recursive: true });
+      await writeFile(
+        join(root, ".state", "tree"),
+        "example.com/log\n0\n47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\n",
+      );
+      await expect(openPosixDriver({ root })).rejects.toThrow(/corrupt tree state: unexpected origin/);
+    }));
+
+  it("refuses to open when the sequenced directory is not a directory", () =>
+    withTempLog(async (root) => {
+      await mkdir(join(root, ".state"), { recursive: true });
+      await writeFile(join(root, ".state", "sequenced"), "not a directory");
+      await expect(openPosixDriver({ root })).rejects.toThrow(/ENOTDIR/);
     }));
 });

@@ -71,6 +71,9 @@ importers:
 
   packages/driver-posix:
     dependencies:
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@tessellog/appender':
         specifier: workspace:*
         version: link:../appender

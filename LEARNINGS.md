@@ -4,6 +4,14 @@ Earlier learnings live in `CLAUDE.md` and `docs/adr/`.
 
 ## Gotchas
 
+### A failed `grep` guard silently skips a chained `cd`
+- **Context**: `grep ... && cd dir && python3 - <<EOF` with relative paths.
+- **Issue**: The grep didn't match, so the `cd` was skipped and the script wrote `state.ts` to the repo root.
+- **Solution**: Use absolute paths in edit scripts, and check `git status` after multi-file edits.
+
+### Treating a missing file as empty is a recurring trap
+- The POSIX batch reader had the same `?? new Uint8Array()` shape as the earlier bundle bug. Storage reads that must exist now use `readExisting`, which throws.
+
 ## Patterns That Worked
 
 ## Decisions Made

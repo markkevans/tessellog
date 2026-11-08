@@ -6,8 +6,11 @@
   "repository": "github:markkevans/tessellog",
   "description": "Stores a tessellog transparency log in a POSIX directory at tlog-tiles paths.",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
+    "@noble/hashes": "^1.8.0",
     "@tessellog/appender": "workspace:*",
     "@tessellog/core": "workspace:*"
   },
