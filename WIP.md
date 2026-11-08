@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 7 of 14: Core parses cosigner keys and opens notes with Ed25519 checkpoint cosignatures.
+Step 8 of 14: Core parses `tlog-policy` files and evaluates quorums.
 
 ## Status
 
@@ -16,8 +16,8 @@ Step 7 of 14: Core parses cosigner keys and opens notes with Ed25519 checkpoint 
 - [x] Step 4: antispam pushback (Tessera default 2048, lag > threshold)
 - [x] Step 5: antispam options and store conformance (characterisation, passed on first run)
 - [x] Step 6: POSIX antispam store
-- [ ] Step 7: Ed25519 checkpoint cosignatures ← current
-- [ ] Step 8: tlog-policy parsing and quorum
+- [x] Step 7: Ed25519 checkpoint cosignatures (byte-identical with Go formats/note)
+- [ ] Step 8: tlog-policy parsing and quorum ← current
 - [ ] Step 9: witness add-checkpoint server
 - [ ] Step 10: witness client with 409 recovery
 - [ ] Step 11: appender publishes only witnessed checkpoints
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing cosignature tests against Go-generated vectors.
+Write failing policy parsing and quorum tests.
