@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 3 of 17: The fetcher falls back to the full tile when a partial tile is missing.
+Step 4 of 17: The client opens the latest checkpoint and verifies its signature and origin.
 
 ## Status
 
@@ -12,8 +12,8 @@ Step 3 of 17: The fetcher falls back to the full tile when a partial tile is mis
 
 - [x] Step 1: consistency proofs from tiles
 - [x] Step 2: HTTP fetcher
-- [ ] Step 3: partial tile fallback ← current
-- [ ] Step 4: open the latest checkpoint
+- [x] Step 3: partial tile fallback
+- [ ] Step 4: open the latest checkpoint ← current
 - [ ] Step 5: prove inclusion
 - [ ] Step 6: check consistency
 - [ ] Step 7: stream verified entries
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing fallback tests.
+Write failing latestCheckpoint tests.

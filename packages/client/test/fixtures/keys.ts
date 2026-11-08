@@ -16,6 +16,8 @@ export const SECOND_LOG_VKEY =
   "PeterNeumann+6155a6c9+AdVUUgD7WjSuwxeRDSZS0RNZi2pWj/unjyIhR5pJDXzG";
 export const WITNESS_SKEY =
   "PRIVATE+KEY+WitnessOne+73f152b1+AaA1V+rFd0kL2T2VE6eN8l3w436FpdT7Gv8oGE1lCS4H";
+export const WITNESS_VKEY =
+  "WitnessOne+73f152b1+AW/0vdadeZvB98cEdVaMBfkts+OT6iw8cVehe9i4nUTx";
 
 export const signerFor = (skey: string): NoteSigner => {
   const parsed = parseSignerKey(skey);
