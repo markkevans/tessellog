@@ -1,6 +1,6 @@
 export { leafHash, nodeHash, rootHash } from "./merkle.js";
 export { entriesPath, tilePath } from "./tiles.js";
-export { decodeBundle, encodeBundle, type DecodedBundle } from "./bundles.js";
+export { decodeBundle, encodeBundle } from "./bundles.js";
 export {
   parseSignerKey,
   parseVerifierKey,
