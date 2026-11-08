@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 9 of 11: Too many outstanding entries are refused with pushback.
+Step 10 of 11: Shutdown integrates and publishes everything outstanding.
 
 ## Status
 
@@ -18,8 +18,8 @@ Step 9 of 11: Too many outstanding entries are refused with pushback.
 - [x] Step 6: checkpoint publication
 - [x] Step 7: inclusion proofs from tiles
 - [x] Step 8: batching by size and age
-- [ ] Step 9: pushback ← current
-- [ ] Step 10: graceful shutdown
+- [x] Step 9: pushback
+- [ ] Step 10: graceful shutdown ← current
 - [ ] Step 11: options validation
 
 ## Blockers
@@ -33,4 +33,4 @@ None.
 
 ## Next Action
 
-Write failing pushback tests with a gated integration driver.
+Write failing shutdown tests.
