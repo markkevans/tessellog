@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 6 of 17: The client checks that a newer checkpoint is consistent with an older one.
+Step 7 of 17: The client streams entries in a range and verifies them against the tiles.
 
 ## Status
 
@@ -15,8 +15,8 @@ Step 6 of 17: The client checks that a newer checkpoint is consistent with an ol
 - [x] Step 3: partial tile fallback
 - [x] Step 4: open the latest checkpoint
 - [x] Step 5: prove inclusion
-- [ ] Step 6: check consistency ← current
-- [ ] Step 7: stream verified entries
+- [x] Step 6: check consistency
+- [ ] Step 7: stream verified entries ← current
 - [ ] Step 8: CI workflow
 - [ ] Step 9: driver conformance suite
 - [ ] Step 10: POSIX driver
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing checkConsistency tests.
+Write failing entry streaming tests.

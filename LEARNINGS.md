@@ -18,4 +18,8 @@ Earlier learnings live in `CLAUDE.md` and `docs/adr/`.
 - **Decision**: `failureFrom(error: Error)` is the rejection handler, with no `instanceof` check.
 - **Rationale**: Every rejection on that path comes from our `Error`-throwing tile reader or from `fetch`, which throws `TypeError`. A non-`Error` branch would be dead code, and the 100% coverage rule would flag it.
 
+### Streamed entries are verified by inclusion proofs, not tile comparison
+- **Issue**: Comparing an entry's leaf hash with its level-0 tile trusts the tile. A malicious server can serve a matching fake tile and bundle.
+- **Decision**: Every streamed entry is proven against the signed checkpoint. Tile reads are cached for the duration of the stream.
+
 ## Edge Cases
