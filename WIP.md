@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 1 of 14: In-memory dedup returns the original index for a repeated entry.
+Step 2 of 14: A persistent antispam store is consulted before sequencing.
 
 ## Status
 
@@ -10,8 +10,8 @@ Step 1 of 14: In-memory dedup returns the original index for a repeated entry.
 
 ## Completed
 
-- [ ] Step 1: in-memory dedup ← current
-- [ ] Step 2: persistent store lookup
+- [x] Step 1: in-memory dedup
+- [ ] Step 2: persistent store lookup ← current
 - [ ] Step 3: follower populates the store
 - [ ] Step 4: antispam pushback
 - [ ] Step 5: antispam options and store conformance
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing in-memory dedup tests.
+Write failing persistent lookup tests.

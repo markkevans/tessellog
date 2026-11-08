@@ -1,7 +1,10 @@
+import { sha256 } from "@noble/hashes/sha2";
+import { toHex } from "@tessellog/core";
 import { describe, expect, it } from "vitest";
 import {
   createAppender,
   createMemoryDriver,
+  type AntispamStore,
   type AppenderOptions,
   type LogDriver,
 } from "../src/index.js";
@@ -99,5 +102,41 @@ describe("deduplicating recently added entries", () => {
     });
     await appender.add(entry("a"));
     expect(await appender.add(entry("a"))).toEqual({ index: 1n, isDup: false });
+  });
+});
+
+const identityOf = (text: string): string => toHex(sha256(entry(text)));
+
+const storeKnowing = (known: Readonly<Record<string, bigint>>): AntispamStore => ({
+  lookup: async (identity) => known[toHex(identity)],
+});
+
+describe("consulting a persistent antispam store", () => {
+  it("returns the stored index for an entry the store already knows", async () => {
+    const { driver, sequenced } = countingSequencer();
+    const appender = appenderWith({
+      driver,
+      antispam: { store: storeKnowing({ [identityOf("a")]: 7n }) },
+    });
+    expect(await appender.add(entry("a"))).toEqual({ index: 7n, isDup: true });
+    expect(sequenced()).toBe(0);
+  });
+
+  it("sequences entries the store does not know", async () => {
+    const appender = appenderWith({ antispam: { store: storeKnowing({}) } });
+    expect(await appender.add(entry("a"))).toEqual({ index: 0n, isDup: false });
+  });
+
+  it("rejects the add when the store cannot be consulted", async () => {
+    const appender = appenderWith({
+      antispam: {
+        store: {
+          lookup: async () => {
+            throw new Error("antispam store unavailable");
+          },
+        },
+      },
+    });
+    await expect(appender.add(entry("a"))).rejects.toThrow("antispam store unavailable");
   });
 });
