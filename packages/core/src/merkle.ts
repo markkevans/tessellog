@@ -8,7 +8,7 @@ export const leafHash = (entry: Uint8Array): Uint8Array =>
   sha256(concatBytes(Uint8Array.of(LEAF_PREFIX), entry));
 
 export const nodeHash = (left: Uint8Array, right: Uint8Array): Uint8Array =>
-  sha256(Uint8Array.of(NODE_PREFIX, ...left, ...right));
+  sha256(concatBytes(Uint8Array.of(NODE_PREFIX), left, right));
 
 const largestPowerOfTwoBelow = (n: number): number =>
   2 ** Math.floor(Math.log2(n - 1));

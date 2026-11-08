@@ -1,3 +1,4 @@
+import { concatBytes } from "@noble/hashes/utils";
 import { TILE_WIDTH } from "./tiles.js";
 
 const LENGTH_PREFIX_BYTES = 2;
@@ -13,17 +14,14 @@ const lengthPrefixed = (entry: Uint8Array): Uint8Array => {
       `entry of ${entry.length} bytes exceeds ${MAX_ENTRY_BYTES}`,
     );
   }
-  return Uint8Array.of(entry.length >> 8, entry.length & 0xff, ...entry);
+  return concatBytes(Uint8Array.of(entry.length >> 8, entry.length & 0xff), entry);
 };
-
-const concat = (parts: readonly Uint8Array[]): Uint8Array =>
-  Uint8Array.from(parts.flatMap((part) => Array.from(part)));
 
 export const encodeBundle = (entries: readonly Uint8Array[]): Uint8Array => {
   if (entries.length > TILE_WIDTH) {
     throw new RangeError(`bundle of ${entries.length} entries exceeds ${TILE_WIDTH}`);
   }
-  return concat(entries.map(lengthPrefixed));
+  return concatBytes(...entries.map(lengthPrefixed));
 };
 
 const decodeFrom = (
