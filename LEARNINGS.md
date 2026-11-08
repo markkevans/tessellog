@@ -29,6 +29,11 @@
 - **Issue**: It passed in 0.6s normally but timed out under `--coverage`.
 - **Solution**: Test tile-boundary sizes (0–3, 127, 255–257, 511–513) instead of exhaustive sweeps.
 
+### A `??` fallback on storage reads can hide data loss
+- **Context**: Reading the partial entry bundle before appending to it.
+- **Issue**: `(await readBundle(a)) ?? new Uint8Array()` decoded a missing bundle as empty, so the next integration rewrote it without its earlier entries.
+- **Solution**: A missing partial tile or bundle is an error. The uncovered `??` branch was the clue.
+
 ## Patterns That Worked
 
 ### Import reference vectors, never trust memory

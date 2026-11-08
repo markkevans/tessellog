@@ -145,10 +145,13 @@ describe("reporting integration failures", () => {
     const appender = createAppender({
       driver: { ...createMemoryDriver(), readTile: async () => undefined },
     });
-    await addAll(appender, entries(2));
-    await vi.waitFor(() => {
-      expect(consoleError).toHaveBeenCalled();
-    });
-    consoleError.mockRestore();
+    try {
+      await addAll(appender, entries(2));
+      await vi.waitFor(() => {
+        expect(consoleError).toHaveBeenCalled();
+      });
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });
