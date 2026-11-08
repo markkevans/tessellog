@@ -8,6 +8,7 @@ import {
 import { bundleEntries } from "./bundling.js";
 import type { BundleAddress, LogDriver } from "./driver.js";
 import { createPublisher } from "./publishing.js";
+import { serialTasks } from "./serial-tasks.js";
 
 const DEFAULT_CHECKPOINT_INTERVAL_MS = 10_000;
 const DEFAULT_REPUBLISH_INTERVAL_MS = 600_000;
@@ -75,24 +76,21 @@ export const createAppender = ({
   checkpointRepublishInterval = DEFAULT_REPUBLISH_INTERVAL_MS,
   onError = (error) => console.error("tessellog background task failed", error),
 }: AppenderOptions): Appender => {
-  let integration: Promise<void> = Promise.resolve();
-  const scheduleIntegration = (): void => {
-    integration = integration.then(() => integrateOutstanding(driver)).catch(onError);
-  };
+  const integration = serialTasks(onError);
+  const publication = serialTasks(onError);
   const publish = createPublisher({
     driver,
     signer,
     origin,
     republishInterval: checkpointRepublishInterval,
   });
-  let publication: Promise<void> = Promise.resolve();
   setInterval(() => {
-    publication = publication.then(() => publish(Date.now())).catch(onError);
+    publication.run(() => publish(Date.now()));
   }, checkpointInterval);
   return {
     add: async (entry) => {
       const index = await driver.sequence([entry]);
-      scheduleIntegration();
+      integration.run(() => integrateOutstanding(driver));
       return { index, isDup: false };
     },
     reader: {
