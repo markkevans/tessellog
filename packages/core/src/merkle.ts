@@ -1,10 +1,11 @@
 import { sha256 } from "@noble/hashes/sha2";
+import { concatBytes } from "@noble/hashes/utils";
 
 const LEAF_PREFIX = 0x00;
 const NODE_PREFIX = 0x01;
 
 export const leafHash = (entry: Uint8Array): Uint8Array =>
-  sha256(Uint8Array.of(LEAF_PREFIX, ...entry));
+  sha256(concatBytes(Uint8Array.of(LEAF_PREFIX), entry));
 
 export const nodeHash = (left: Uint8Array, right: Uint8Array): Uint8Array =>
   sha256(Uint8Array.of(NODE_PREFIX, ...left, ...right));
