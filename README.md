@@ -41,11 +41,27 @@ tessellog implements these C2SP specifications:
 
 | Package | Status | Purpose |
 |---|---|---|
-| `@tessellog/core` | in progress | RFC 6962 hashing, tiles, signed notes, checkpoints and proofs. It does no I/O. |
-| `@tessellog/appender` | planned | Sequences, integrates and publishes entries. |
-| `@tessellog/client` | planned | Fetches tiles and verifies inclusion and consistency proofs. Works in browsers. |
+| `@tessellog/core` | usable | RFC 6962 hashing, tile layout, entry bundles, signed notes, checkpoints, building and verifying proofs, integrating leaves into tiles, and inclusion proofs from tiles. It does no I/O. |
+| `@tessellog/appender` | usable (in-memory driver) | Batching, sequencing, background integration, signed checkpoint publishing, pushback, graceful shutdown and validated options. |
+| `@tessellog/client` | planned | Fetches tiles over HTTP and verifies inclusion and consistency proofs. Works in browsers. |
 | `@tessellog/witness` | planned | Witness cosigning and policy. |
-| `@tessellog/driver-*` | planned | Storage drivers: memory, POSIX, AWS, Cloudflare. |
+| `@tessellog/driver-*` | planned | POSIX, AWS and Cloudflare storage drivers. |
+
+## Example
+
+```ts
+import { createAppender, createMemoryDriver } from "@tessellog/appender";
+import { parseSignerKey } from "@tessellog/core";
+
+const signer = parseSignerKey(process.env.LOG_PRIVATE_KEY ?? "");
+if (!signer.ok) throw new Error(signer.error);
+
+const log = createAppender({ driver: createMemoryDriver(), signer: signer.value });
+const { index } = await log.add(new TextEncoder().encode("hello, log"));
+await log.shutdown();
+```
+
+Architectural decisions are recorded in [`docs/adr`](./docs/adr).
 
 ## Development
 
