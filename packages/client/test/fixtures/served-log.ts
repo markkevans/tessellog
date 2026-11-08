@@ -74,7 +74,7 @@ export const fakeServer = (
         return new Response(null, { status: forced });
       }
       const body = files.get(path);
-      return body === undefined ? new Response(null, { status: 404 }) : new Response(body);
+      return body === undefined ? new Response(null, { status: 404 }) : new Response(new Uint8Array(body));
     },
     requested: () => requested,
   };
