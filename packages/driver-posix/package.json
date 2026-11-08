@@ -1,0 +1,17 @@
+{
+  "name": "@tessellog/driver-posix",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "repository": "github:markkevans/tessellog",
+  "description": "Stores a tessellog transparency log in a POSIX directory at tlog-tiles paths.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@tessellog/driver-conformance": "workspace:*"
+  }
+}

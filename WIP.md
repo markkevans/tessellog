@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 9 of 17: A shared conformance suite specifies the driver contract and passes for the memory driver.
+Step 10 of 17: The POSIX driver stores a log in a directory at tlog-tiles paths and passes conformance.
 
 ## Status
 
@@ -18,8 +18,8 @@ Step 9 of 17: A shared conformance suite specifies the driver contract and passe
 - [x] Step 6: check consistency
 - [x] Step 7: stream verified entries
 - [x] Step 8: CI workflow (Node 22 and 24: Node 20 is end-of-life), green on first run
-- [ ] Step 9: driver conformance suite ← current
-- [ ] Step 10: POSIX driver
+- [x] Step 9: driver conformance suite (coverage exception awaiting approval)
+- [ ] Step 10: POSIX driver ← current
 - [ ] Step 11: POSIX restart persistence
 - [ ] Step 12: POSIX single-writer lock
 - [ ] Step 13: tile length validation
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write the conformance suite and run it against the memory driver.
+Write failing POSIX driver tests (public files only; sequencing state stays in memory until step 11).
