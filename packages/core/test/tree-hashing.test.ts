@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { leafHash, rootHash, toHex } from "../src/index.js";
 
@@ -57,5 +58,14 @@ describe("RFC 6962 hashing", () => {
     expect(rootOfFirst(8)).toBe(
       "5dc9da79a70659a9ad559cb701ded9a2ab9d823aad2f4960cfe370eff4604328",
     );
+  });
+
+  it("hashes entries as large as the static-CT limit of 256 KiB", () => {
+    const entry = new Uint8Array(256 * 1024).fill(0x5a);
+    const independentlyComputed = createHash("sha256")
+      .update(Uint8Array.of(0x00))
+      .update(entry)
+      .digest("hex");
+    expect(toHex(leafHash(entry))).toBe(independentlyComputed);
   });
 });

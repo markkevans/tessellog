@@ -10,6 +10,7 @@
     "noImplicitOverride": true,
     "declaration": true,
     "composite": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node"]
   }
 }
