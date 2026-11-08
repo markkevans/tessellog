@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 1 of 17: Core builds consistency proofs from tiles.
+Step 2 of 17: An HTTP fetcher reads checkpoints, tiles and bundles through an injected `fetch`.
 
 ## Status
 
@@ -10,8 +10,8 @@ Step 1 of 17: Core builds consistency proofs from tiles.
 
 ## Completed
 
-- [ ] Step 1: consistency proofs from tiles ← current
-- [ ] Step 2: HTTP fetcher
+- [x] Step 1: consistency proofs from tiles
+- [ ] Step 2: HTTP fetcher ← current
 - [ ] Step 3: partial tile fallback
 - [ ] Step 4: open the latest checkpoint
 - [ ] Step 5: prove inclusion
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write the failing consistencyProofFromTiles test.
+Scaffold @tessellog/client and write failing fetcher tests.
