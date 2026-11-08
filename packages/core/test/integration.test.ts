@@ -1,6 +1,14 @@
 import { concatBytes } from "@noble/hashes/utils";
 import { describe, expect, it } from "vitest";
-import { integrate, leafHash, rootHash, toHex, type TileAddress } from "../src/index.js";
+import {
+  integrate,
+  leafHash,
+  rootHash,
+  tilePath,
+  toHex,
+  type Tile,
+  type TileAddress,
+} from "../src/index.js";
 
 const leafHashesFor = (count: number): readonly Uint8Array[] =>
   Array.from({ length: count }, (_, i) => leafHash(new TextEncoder().encode(`leaf ${i}`)));
@@ -59,5 +67,77 @@ describe("integrating leaves into an empty tree", () => {
       width: 1,
       hashes: rootHash(leafHashes.slice(0, 65_536)),
     });
+  });
+});
+
+type TileStore = ReadonlyMap<string, Uint8Array>;
+
+const storeTiles = (store: TileStore, tiles: readonly Tile[]): TileStore =>
+  new Map([...store, ...tiles.map((tile) => [tilePath(tile), tile.hashes] as const)]);
+
+const readFrom =
+  (store: TileStore) =>
+  async (address: TileAddress): Promise<Uint8Array> => {
+    const hashes = store.get(tilePath(address));
+    if (hashes === undefined) {
+      throw new Error(`missing tile ${tilePath(address)}`);
+    }
+    return hashes;
+  };
+
+type Batched = { readonly store: TileStore; readonly size: bigint; readonly rootHash: Uint8Array };
+
+const integrateInBatches = (
+  leafHashes: readonly Uint8Array[],
+  batchSizes: readonly number[],
+): Promise<Batched> =>
+  batchSizes.reduce<Promise<Batched>>(
+    async (pending, batchSize) => {
+      const { store, size } = await pending;
+      const start = Number(size);
+      const result = await integrate({
+        fromSize: size,
+        leafHashes: leafHashes.slice(start, start + batchSize),
+        readTile: readFrom(store),
+      });
+      return { store: storeTiles(store, result.tiles), size: result.size, rootHash: result.rootHash };
+    },
+    Promise.resolve({ store: new Map(), size: 0n, rootHash: new Uint8Array() }),
+  );
+
+describe("integrating leaves in batches", () => {
+  const TOTAL = 1000;
+
+  it.each<[string, readonly number[]]>([
+    ["one batch", [TOTAL]],
+    ["tile-aligned batches", [256, 256, 256, 232]],
+    ["batches straddling tile boundaries", [255, 1, 1, 743]],
+    ["batches of 100", Array.from({ length: 10 }, () => 100)],
+    ["single leaves then the rest", [...Array.from({ length: 300 }, () => 1), 700]],
+  ])("gives the same tiles and root using %s", async (_, batchSizes) => {
+    const leafHashes = leafHashesFor(TOTAL);
+    const allAtOnce = await integrateIntoEmptyTree(leafHashes);
+    const batched = await integrateInBatches(leafHashes, batchSizes);
+    expect(batched.size).toBe(BigInt(TOTAL));
+    expect(toHex(batched.rootHash)).toBe(toHex(allAtOnce.rootHash));
+    expect(
+      allAtOnce.tiles.filter((tile) => {
+        const stored = batched.store.get(tilePath(tile));
+        return stored === undefined || toHex(stored) !== toHex(tile.hashes);
+      }),
+    ).toEqual([]);
+  });
+
+  it("returns only the tiles that changed", async () => {
+    const leafHashes = leafHashesFor(601);
+    const { store } = await integrateInBatches(leafHashes, [600]);
+    const { tiles } = await integrate({
+      fromSize: 600n,
+      leafHashes: leafHashes.slice(600),
+      readTile: readFrom(store),
+    });
+    expect(tiles).toEqual([
+      { level: 0, index: 2n, width: 89, hashes: concatBytes(...leafHashes.slice(512, 601)) },
+    ]);
   });
 });
