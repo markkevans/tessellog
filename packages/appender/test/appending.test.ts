@@ -122,6 +122,14 @@ describe("reporting integration failures", () => {
     });
   });
 
+  it("reports a partial entry bundle missing from storage", async () => {
+    const { appender, reported } = failingWith({ readEntryBundle: async () => undefined });
+    await addAll(appender, entries(2));
+    await vi.waitFor(() => {
+      expect(String(reported[0])).toContain("missing entry bundle tile/entries/000.p/1");
+    });
+  });
+
   it("reports a corrupt entry bundle in storage", async () => {
     const { appender, reported } = failingWith({
       readEntryBundle: async () => Uint8Array.of(0x00),

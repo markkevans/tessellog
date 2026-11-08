@@ -3,6 +3,7 @@ export { consistencyProof, inclusionProof } from "./proof-building.js";
 export { verifyConsistency, verifyInclusion } from "./proofs.js";
 export {
   entriesPath,
+  TILE_WIDTH,
   tileLayout,
   tilePath,
   type TileAddress,
