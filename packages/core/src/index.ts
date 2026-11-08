@@ -7,6 +7,7 @@ export {
   TILE_WIDTH,
   tileLayout,
   tilePath,
+  type BundleAddress,
   type TileAddress,
   type TileLevel,
 } from "./tiles.js";

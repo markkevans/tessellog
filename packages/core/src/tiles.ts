@@ -9,6 +9,11 @@ type IndexAddress = {
   readonly width?: number;
 };
 
+export type BundleAddress = {
+  readonly index: bigint;
+  readonly width: number;
+};
+
 export type TileAddress = {
   readonly level: number;
   readonly index: bigint;

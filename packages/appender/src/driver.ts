@@ -1,9 +1,6 @@
-import type { Tile, TileAddress } from "@tessellog/core";
+import type { BundleAddress, Tile, TileAddress } from "@tessellog/core";
 
-export type BundleAddress = {
-  readonly index: bigint;
-  readonly width: number;
-};
+export type { BundleAddress } from "@tessellog/core";
 
 export type EntryBundle = BundleAddress & { readonly data: Uint8Array };
 
