@@ -13,18 +13,14 @@ const integrateIntoEmptyTree = (leafHashes: readonly Uint8Array[]) =>
   integrate({ fromSize: 0n, leafHashes, readTile: noExistingTiles });
 
 describe("integrating leaves into an empty tree", () => {
-  it("has the RFC 6962 root for every size up to 600", async () => {
-    const leafHashes = leafHashesFor(600);
-    const mismatches = await Promise.all(
-      Array.from({ length: 601 }, async (_, size) => {
-        const result = await integrateIntoEmptyTree(leafHashes.slice(0, size));
-        return toHex(result.rootHash) === toHex(rootHash(leafHashes.slice(0, size)))
-          ? []
-          : [size];
-      }),
-    );
-    expect(mismatches.flat()).toEqual([]);
-  });
+  it.each([0, 1, 2, 3, 127, 255, 256, 257, 511, 512, 513, 600])(
+    "has the RFC 6962 root for a tree of %i leaves",
+    async (size) => {
+      const leafHashes = leafHashesFor(size);
+      const result = await integrateIntoEmptyTree(leafHashes);
+      expect(toHex(result.rootHash)).toBe(toHex(rootHash(leafHashes)));
+    },
+  );
 
   it("reports the new tree size", async () => {
     expect((await integrateIntoEmptyTree(leafHashesFor(600))).size).toBe(600n);

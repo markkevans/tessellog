@@ -4,9 +4,15 @@ const GROUP_DIGITS = 3;
 export const TILE_WIDTH = 256;
 const MAX_LEVEL = 63;
 
-type TileAddress = {
+type IndexAddress = {
   readonly index: bigint;
   readonly width?: number;
+};
+
+export type TileAddress = {
+  readonly level: number;
+  readonly index: bigint;
+  readonly width: number;
 };
 
 const isIntegerInRange = (value: number, min: number, max: number): boolean =>
@@ -43,7 +49,7 @@ const encodeIndex = (index: bigint): string => {
 const partialSuffix = (width: number): string =>
   width < TILE_WIDTH ? `.p/${width}` : "";
 
-const encodeAddress = ({ index, width = TILE_WIDTH }: TileAddress): string => {
+const encodeAddress = ({ index, width = TILE_WIDTH }: IndexAddress): string => {
   assertIndex(index);
   assertWidth(width);
   return `${encodeIndex(index)}${partialSuffix(width)}`;
@@ -52,12 +58,12 @@ const encodeAddress = ({ index, width = TILE_WIDTH }: TileAddress): string => {
 export const tilePath = ({
   level,
   ...address
-}: TileAddress & { readonly level: number }): string => {
+}: IndexAddress & { readonly level: number }): string => {
   assertLevel(level);
   return `tile/${level}/${encodeAddress(address)}`;
 };
 
-export const entriesPath = (address: TileAddress): string =>
+export const entriesPath = (address: IndexAddress): string =>
   `tile/entries/${encodeAddress(address)}`;
 
 export type TileLevel = {

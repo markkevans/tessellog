@@ -24,6 +24,11 @@
 ### `git add -A` committed generated coverage reports
 - **Solution**: `coverage` is now in `.gitignore`. Stage explicit paths.
 
+### Coverage instrumentation can push heavy tests past the 5s timeout
+- **Context**: Sweeping every tree size 0–600 with full re-hashing.
+- **Issue**: It passed in 0.6s normally but timed out under `--coverage`.
+- **Solution**: Test tile-boundary sizes (0–3, 127, 255–257, 511–513) instead of exhaustive sweeps.
+
 ## Patterns That Worked
 
 ### Import reference vectors, never trust memory
