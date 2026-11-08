@@ -37,12 +37,12 @@ describe("decoding entry bundles from untrusted bytes", () => {
     const entries = [bytes(0x61), bytes(), entryOfLength(300)];
     expect(decodeBundle(encodeBundle(entries))).toEqual({
       ok: true,
-      entries,
+      value: entries,
     });
   });
 
   it("decodes an empty bundle to no entries", () => {
-    expect(decodeBundle(bytes())).toEqual({ ok: true, entries: [] });
+    expect(decodeBundle(bytes())).toEqual({ ok: true, value: [] });
   });
 
   it("reports a truncated length prefix", () => {
