@@ -1,0 +1,19 @@
+{
+  "name": "@tessellog/interop",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "description": "Checks that tessellog and Tessera (Go) read each other's logs.",
+  "type": "module",
+  "scripts": {
+    "interop": "bash run.sh"
+  },
+  "dependencies": {
+    "@tessellog/client": "workspace:*",
+    "@tessellog/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  }
+}

@@ -40,6 +40,19 @@ importers:
         specifier: ^4.20.0
         version: 4.23.15
 
+  interop:
+    dependencies:
+      '@tessellog/client':
+        specifier: workspace:*
+        version: link:../packages/client
+      '@tessellog/core':
+        specifier: workspace:*
+        version: link:../packages/core
+    devDependencies:
+      tsx:
+        specifier: ^4.20.0
+        version: 4.23.15
+
   packages/appender:
     dependencies:
       '@tessellog/core':

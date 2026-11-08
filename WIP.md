@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 15 of 17: A `posix-oneshot` example adds files to a log directory.
+Step 16 of 17: CI proves interop with Tessera's Go implementation.
 
 ## Status
 
@@ -24,8 +24,8 @@ Step 15 of 17: A `posix-oneshot` example adds files to a log directory.
 - [x] Step 12: POSIX single-writer lock (also fixed: lock released when opening fails)
 - [x] Step 13: tile length validation
 - [x] Step 14: client file fetcher
-- [ ] Step 15: posix-oneshot example ← current
-- [ ] Step 16: Go interop CI
+- [x] Step 15: posix-oneshot example
+- [ ] Step 16: Go interop CI (Go 1.27.3 installed locally; Tessera v1.0.4) ← current
 - [ ] Step 17: driver contract ADR
 
 ## Blockers
@@ -38,4 +38,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing posix-oneshot tests.
+Write interop/run.sh, see it fail, then write the Go and TypeScript verifiers.
