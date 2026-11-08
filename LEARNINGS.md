@@ -4,6 +4,10 @@ Earlier learnings live in `CLAUDE.md` and `docs/adr/`.
 
 ## Gotchas
 
+### A `grep` on coverage output does not gate a commit
+- **Issue**: `pnpm test:coverage | grep ...; ... && git commit` committed and pushed with coverage at 99.9%, because the `grep` succeeded.
+- **Solution**: Gate commits on the command itself: `pnpm test:coverage >/dev/null && pnpm typecheck >/dev/null && git commit ...`.
+
 ## Patterns That Worked
 
 ## Decisions Made

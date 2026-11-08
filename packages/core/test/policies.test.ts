@@ -114,6 +114,12 @@ describe("rejecting invalid policies", () => {
     ["a witness key that is not a cosignature key", `witness X1 ${PETER_VKEY}\nquorum X1`, "witness X1: PeterNeumann is not an Ed25519 cosignature (0x04) key"],
     ["a log key that is not an Ed25519 key", `log ${W.x1.vkey}\nquorum none`, "log: unsupported key encoding for x1.example/w"],
     ["a reserved name", `witness none ${W.x1.vkey}\nquorum none`, 'name "none" is reserved'],
+    ["a group with a reserved name", `witness X1 ${W.x1.vkey}\ngroup all any X1\nquorum X1`, 'name "all" is reserved'],
+    [
+      "a group reusing a witness's name",
+      `witness X1 ${W.x1.vkey}\ngroup X1 any X1\nquorum X1`,
+      'name "X1" is defined more than once',
+    ],
     ["a control character", `witness X1 ${W.x1.vkey}\r\nquorum X1`, "policy contains a control character"],
     ["a witness line with too many fields", `witness X1 ${W.x1.vkey} https://x/ extra\nquorum X1`, "witness line must be: witness <name> <vkey> [<url>]"],
     ["a log line with no key", "log\nquorum none", "log line must be: log <vkey> [<url>]"],
