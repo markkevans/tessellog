@@ -30,4 +30,7 @@ Earlier learnings live in `CLAUDE.md` and `docs/adr/`.
 - **Issue**: Comparing an entry's leaf hash with its level-0 tile trusts the tile. A malicious server can serve a matching fake tile and bundle.
 - **Decision**: Every streamed entry is proven against the signed checkpoint. Tile reads are cached for the duration of the stream.
 
+### "ENOENT means missing" is written twice on purpose
+- It appears in `driver-posix/src/files.ts` and `client/src/file-fetcher.ts`. The client must not depend on the driver, and the predicate is two lines.
+
 ## Edge Cases

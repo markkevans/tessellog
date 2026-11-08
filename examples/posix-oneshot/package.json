@@ -1,0 +1,22 @@
+{
+  "name": "@tessellog/example-posix-oneshot",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "description": "Adds files to a tessellog log stored in a POSIX directory, like Tessera's posix-oneshot.",
+  "type": "module",
+  "bin": { "posix-oneshot": "./bin/posix-oneshot.ts" },
+  "scripts": {
+    "oneshot": "tsx bin/posix-oneshot.ts"
+  },
+  "dependencies": {
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/core": "workspace:*",
+    "@tessellog/driver-posix": "workspace:*"
+  },
+  "devDependencies": {
+    "@tessellog/client": "workspace:*",
+    "tsx": "^4.20.0"
+  }
+}

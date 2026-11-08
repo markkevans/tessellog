@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 14 of 17: The client reads a POSIX log directly from disk.
+Step 15 of 17: A `posix-oneshot` example adds files to a log directory.
 
 ## Status
 
@@ -23,8 +23,8 @@ Step 14 of 17: The client reads a POSIX log directly from disk.
 - [x] Step 11: POSIX restart persistence (CI actions moved to their Node 24 releases at Mark's request)
 - [x] Step 12: POSIX single-writer lock (also fixed: lock released when opening fails)
 - [x] Step 13: tile length validation
-- [ ] Step 14: client file fetcher ← current
-- [ ] Step 15: posix-oneshot example
+- [x] Step 14: client file fetcher
+- [ ] Step 15: posix-oneshot example ← current
 - [ ] Step 16: Go interop CI
 - [ ] Step 17: driver contract ADR
 
@@ -38,4 +38,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing file fetcher tests.
+Write failing posix-oneshot tests.
