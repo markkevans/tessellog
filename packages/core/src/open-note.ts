@@ -80,7 +80,7 @@ const parseNote = (message: Uint8Array): Result<ParsedNote> => {
   });
 };
 
-const keyLabel = ({ name, keyId }: KeyReference): string =>
+export const keyLabel = ({ name, keyId }: KeyReference): string =>
   `${name}+${keyId.toString(16).padStart(8, "0")}`;
 
 type KeyReference = Pick<NoteSignature, "name" | "keyId">;

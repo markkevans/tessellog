@@ -18,5 +18,9 @@ export {
   parseCheckpoint,
   type Checkpoint,
 } from "./checkpoint.js";
+export {
+  openCheckpoint,
+  type OpenedCheckpoint,
+} from "./signed-checkpoint.js";
 export type { Result } from "./result.js";
 export { toHex } from "./hex.js";
