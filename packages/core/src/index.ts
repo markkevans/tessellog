@@ -25,6 +25,12 @@ export {
   type NoteSigner,
   type NoteVerifier,
 } from "./note-keys.js";
+export {
+  cosignatureVerifierKeyFrom,
+  parseCosignerKey,
+  parseCosignerVerifierKey,
+  type Clock,
+} from "./cosignatures.js";
 export { signNote } from "./sign-note.js";
 export {
   openNote,

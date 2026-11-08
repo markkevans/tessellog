@@ -23,7 +23,7 @@ export interface NoteVerifier {
   verify(message: Uint8Array, signature: Uint8Array): Promise<boolean>;
 }
 
-type KeyFields = {
+export type KeyFields = {
   readonly name: string;
   readonly keyId: number;
   readonly keyMaterial: Uint8Array;
@@ -32,20 +32,30 @@ type KeyFields = {
 export const isValidKeyName = (name: string): boolean =>
   name !== "" && !name.includes("+") && !WHITESPACE.test(name);
 
-const computeKeyId = (name: string, publicKey: Uint8Array): number =>
+export const computeKeyId = (name: string, publicKey: Uint8Array): number =>
   new DataView(
     sha256(concatBytes(new TextEncoder().encode(`${name}\n`), publicKey)).buffer,
   ).getUint32(0);
 
-const splitKey = (key: string): Result<KeyFields> => {
+type KeyAlgorithm = {
+  readonly algorithm: number;
+  readonly unsupported: (name: string) => string;
+};
+
+const ED25519: KeyAlgorithm = {
+  algorithm: ALGORITHM_ED25519,
+  unsupported: (name) => `unsupported key encoding for ${name}`,
+};
+
+export const splitKey = (key: string, { algorithm, unsupported }: KeyAlgorithm): Result<KeyFields> => {
   const [name = "", keyIdHex = "", ...rest] = key.split("+");
   const encoded = rest.join("+");
   if (rest.length === 0 || !isValidKeyName(name) || !KEY_ID_HEX.test(keyIdHex)) {
     return failure(`malformed key ${key}`);
   }
   const keyMaterial = decodeBase64(encoded);
-  if (keyMaterial === undefined || keyMaterial[0] !== ALGORITHM_ED25519) {
-    return failure(`unsupported key encoding for ${name}`);
+  if (keyMaterial === undefined || keyMaterial[0] !== algorithm) {
+    return failure(unsupported(name));
   }
   if (keyMaterial.length !== ED25519_KEY_BYTES + 1) {
     return failure(`wrong key length for ${name}`);
@@ -53,7 +63,7 @@ const splitKey = (key: string): Result<KeyFields> => {
   return success({ name, keyId: parseInt(keyIdHex, 16), keyMaterial });
 };
 
-const checkKeyId = <T>(
+export const checkKeyId = <T>(
   { name, keyId }: KeyFields,
   publicKey: Uint8Array,
   build: () => T,
@@ -65,39 +75,75 @@ const checkKeyId = <T>(
 const ed25519PublicKey = (raw: Uint8Array): Uint8Array =>
   concatBytes(Uint8Array.of(ALGORITHM_ED25519), raw);
 
-export const parseVerifierKey = (vkey: string): Result<NoteVerifier> => {
-  const fields = splitKey(vkey);
+export type VerifierKeyFields = {
+  readonly name: string;
+  readonly keyId: number;
+  readonly publicKey: Uint8Array;
+};
+
+export type SignerKeyFields = {
+  readonly name: string;
+  readonly keyId: number;
+  readonly seed: Uint8Array;
+};
+
+export const verifyEd25519 = (
+  signature: Uint8Array,
+  message: Uint8Array,
+  publicKey: Uint8Array,
+): boolean =>
+  signature.length === ED25519_SIGNATURE_BYTES &&
+  ed25519.verify(signature, message, publicKey, { zip215: false });
+
+export const ed25519VerifierFields = (vkey: string): Result<VerifierKeyFields> => {
+  const fields = splitKey(vkey, ED25519);
   if (!fields.ok) {
     return fields;
   }
   const { name, keyId, keyMaterial } = fields.value;
-  const raw = keyMaterial.slice(1);
-  return checkKeyId(fields.value, keyMaterial, () => ({
-    name,
-    keyId,
-    verify: async (message: Uint8Array, signature: Uint8Array) =>
-      signature.length === ED25519_SIGNATURE_BYTES &&
-      ed25519.verify(signature, message, raw, { zip215: false }),
-  }));
+  return checkKeyId(fields.value, keyMaterial, () => ({ name, keyId, publicKey: keyMaterial.slice(1) }));
 };
 
-export const parseSignerKey = (skey: string): Result<NoteSigner> => {
+export const ed25519SignerFields = (skey: string): Result<SignerKeyFields> => {
   if (!skey.startsWith(SIGNER_KEY_PREFIX)) {
     return failure("signer key must start with PRIVATE+KEY+");
   }
-  const fields = splitKey(skey.slice(SIGNER_KEY_PREFIX.length));
+  const fields = splitKey(skey.slice(SIGNER_KEY_PREFIX.length), ED25519);
   if (!fields.ok) {
     return fields;
   }
   const { name, keyId, keyMaterial } = fields.value;
   const seed = keyMaterial.slice(1);
-  return checkKeyId(
-    fields.value,
-    ed25519PublicKey(ed25519.getPublicKey(seed)),
-    () => ({
-      name,
-      keyId,
-      sign: async (message: Uint8Array) => ed25519.sign(message, seed),
-    }),
-  );
+  return checkKeyId(fields.value, ed25519PublicKey(ed25519.getPublicKey(seed)), () => ({
+    name,
+    keyId,
+    seed,
+  }));
+};
+
+export const parseVerifierKey = (vkey: string): Result<NoteVerifier> => {
+  const fields = ed25519VerifierFields(vkey);
+  if (!fields.ok) {
+    return fields;
+  }
+  const { name, keyId, publicKey } = fields.value;
+  return success({
+    name,
+    keyId,
+    verify: async (message: Uint8Array, signature: Uint8Array) =>
+      verifyEd25519(signature, message, publicKey),
+  });
+};
+
+export const parseSignerKey = (skey: string): Result<NoteSigner> => {
+  const fields = ed25519SignerFields(skey);
+  if (!fields.ok) {
+    return fields;
+  }
+  const { name, keyId, seed } = fields.value;
+  return success({
+    name,
+    keyId,
+    sign: async (message: Uint8Array) => ed25519.sign(message, seed),
+  });
 };
