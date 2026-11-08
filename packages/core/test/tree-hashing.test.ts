@@ -1,21 +1,7 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { leafHash, rootHash, toHex } from "../src/index.js";
-
-const fromHex = (hex: string): Uint8Array =>
-  Uint8Array.from(hex.match(/../g) ?? [], (b) => parseInt(b, 16));
-
-const rfc6962Leaves = (): readonly Uint8Array[] =>
-  [
-    "",
-    "00",
-    "10",
-    "2021",
-    "3031",
-    "40414243",
-    "5051525354555657",
-    "606162636465666768696a6b6c6d6e6f",
-  ].map(fromHex);
+import { rfc6962Leaves } from "./fixtures/rfc6962.js";
 
 const rootOfFirst = (n: number): string =>
   toHex(rootHash(rfc6962Leaves().slice(0, n).map(leafHash)));

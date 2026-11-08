@@ -1,9 +1,9 @@
 import { decodeBase64, encodeBase64 } from "./base64.js";
+import { HASH_BYTES } from "./merkle.js";
 import { hasControlCharacters } from "./note-format.js";
 import { failure, success, type Result } from "./result.js";
 import { isUint64 } from "./uint64.js";
 
-const HASH_BYTES = 32;
 const DECIMAL_WITHOUT_LEADING_ZEROS = /^(0|[1-9][0-9]*)$/;
 
 export type Checkpoint = {

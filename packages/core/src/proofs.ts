@@ -1,7 +1,6 @@
-import { nodeHash } from "./merkle.js";
+import { equalBytes } from "@noble/curves/utils";
+import { HASH_BYTES, nodeHash } from "./merkle.js";
 import { failure, success, type Result } from "./result.js";
-
-const HASH_BYTES = 32;
 
 type Proof = readonly Uint8Array[];
 
@@ -40,9 +39,6 @@ const decomposeInclusionProof = (
   const inner = bitLength(index ^ (size - 1n));
   return { inner, border: onesCount(index >> BigInt(inner)) };
 };
-
-const equalBytes = (a: Uint8Array, b: Uint8Array): boolean =>
-  a.length === b.length && a.every((byte, i) => byte === b[i]);
 
 const matchRoot = (calculated: Uint8Array, expected: Uint8Array): Result<void> =>
   equalBytes(calculated, expected)

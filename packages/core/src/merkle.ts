@@ -1,6 +1,8 @@
 import { sha256 } from "@noble/hashes/sha2";
 import { concatBytes } from "@noble/hashes/utils";
 
+export const HASH_BYTES = 32;
+
 const LEAF_PREFIX = 0x00;
 const NODE_PREFIX = 0x01;
 

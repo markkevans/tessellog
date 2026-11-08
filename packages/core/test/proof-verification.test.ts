@@ -2,7 +2,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { leafHash, rootHash, verifyConsistency, verifyInclusion } from "../src/index.js";
+import { verifyConsistency, verifyInclusion } from "../src/index.js";
+import { rfc6962SubtreeHash as subtreeHash } from "./fixtures/rfc6962.js";
 
 const VECTOR_ROOT = fileURLToPath(new URL("./vectors/merkle/", import.meta.url));
 
@@ -89,14 +90,6 @@ describe("verifying consistency proofs (transparency-dev/merkle vectors)", () =>
 });
 
 describe("verifying consistency between trees of non-power-of-two size", () => {
-  const rfc6962LeafHashes = (): readonly Uint8Array[] =>
-    ["", "00", "10", "2021", "3031", "40414243", "5051525354555657", "606162636465666768696a6b6c6d6e6f"]
-      .map((hex) => Uint8Array.from(Buffer.from(hex, "hex")))
-      .map(leafHash);
-
-  const subtreeHash = (start: number, end: number): Uint8Array =>
-    rootHash(rfc6962LeafHashes().slice(start, end));
-
   const proofFromSixToEight = (): readonly Uint8Array[] => [
     subtreeHash(4, 6),
     subtreeHash(6, 8),
