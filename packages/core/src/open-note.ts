@@ -1,7 +1,9 @@
 import { decodeBase64 } from "./base64.js";
 import {
   hasControlCharacters,
+  keyLabel,
   MALFORMED_NOTE,
+  sameKey,
   SIGNATURE_PREFIX,
   splitKeyIdPrefix,
 } from "./note-format.js";
@@ -79,14 +81,6 @@ const parseNote = (message: Uint8Array): Result<ParsedNote> => {
     signatures: signatures.filter((s): s is ParsedSignature => s !== undefined),
   });
 };
-
-export const keyLabel = ({ name, keyId }: KeyReference): string =>
-  `${name}+${keyId.toString(16).padStart(8, "0")}`;
-
-type KeyReference = Pick<NoteSignature, "name" | "keyId">;
-
-const sameKey = (a: KeyReference, b: KeyReference): boolean =>
-  a.name === b.name && a.keyId === b.keyId;
 
 const sameLine = (a: NoteSignature, b: NoteSignature): boolean =>
   a.name === b.name && a.base64 === b.base64;

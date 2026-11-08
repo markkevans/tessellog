@@ -1,19 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { openNote, signNote, type NoteSigner } from "../src/index.js";
 import {
-  openNote,
-  parseSignerKey,
-  parseVerifierKey,
-  signNote,
-  type NoteSigner,
-  type NoteVerifier,
-} from "../src/index.js";
+  ENOCH_VKEY,
+  PETER_SKEY,
+  PETER_VKEY,
+  signerFor,
+  verifierFor,
+} from "./fixtures/keys.js";
 
-const PETER_SKEY =
-  "PRIVATE+KEY+PeterNeumann+c74f20a3+AYEKFALVFGyNhPJEMzD1QIDr+Y7hfZx09iUvxdXHKDFz";
-const PETER_VKEY =
-  "PeterNeumann+c74f20a3+ARpc2QcUPDhMQegwxbzhKqiBfsVkmqq/LDE4izWy10TW";
-const ENOCH_VKEY =
-  "EnochRoot+af0cfe78+ATtqJ7zOtqQtYqOo0CpvDXNlMhV3HeJDpjrASKGLWdop";
 const ENOCH_SIGNATURE_LINE =
   "— EnochRoot rwz+eBzmZa0SO3NbfRGzPCpDckykFXSdeX+MNtCOXm2/5n2tiOHp+vAF1aGrQ5ovTG01oOTGwnWLox33WWd1RvMc+QQ=\n";
 const PETER_SIGNATURE_LINE =
@@ -22,21 +16,7 @@ const NEUMANN_TEXT =
   "If you think cryptography is the answer to your problem,\n" +
   "then you don't know what your problem is.\n";
 
-const peterSigner = (): NoteSigner => {
-  const parsed = parseSignerKey(PETER_SKEY);
-  if (!parsed.ok) {
-    throw new Error(parsed.error);
-  }
-  return parsed.value;
-};
-
-const verifierFor = (vkey: string): NoteVerifier => {
-  const parsed = parseVerifierKey(vkey);
-  if (!parsed.ok) {
-    throw new Error(parsed.error);
-  }
-  return parsed.value;
-};
+const peterSigner = (): NoteSigner => signerFor(PETER_SKEY);
 
 const utf8 = (text: string): Uint8Array => new TextEncoder().encode(text);
 

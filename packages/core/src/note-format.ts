@@ -19,3 +19,11 @@ export const splitKeyIdPrefix = (
         signature: raw.slice(KEY_ID_BYTES),
       }
     : undefined;
+
+export type KeyReference = { readonly name: string; readonly keyId: number };
+
+export const sameKey = (a: KeyReference, b: KeyReference): boolean =>
+  a.name === b.name && a.keyId === b.keyId;
+
+export const keyLabel = ({ name, keyId }: KeyReference): string =>
+  `${name}+${keyId.toString(16).padStart(8, "0")}`;

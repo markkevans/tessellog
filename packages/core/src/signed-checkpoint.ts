@@ -1,6 +1,7 @@
 import { parseCheckpoint, type Checkpoint } from "./checkpoint.js";
+import { keyLabel, sameKey } from "./note-format.js";
 import type { NoteVerifier } from "./note-keys.js";
-import { keyLabel, openNote, type OpenedNote } from "./open-note.js";
+import { openNote, type OpenedNote } from "./open-note.js";
 import { failure, success, type Result } from "./result.js";
 
 export type OpenedCheckpoint = {
@@ -23,8 +24,8 @@ export const openCheckpoint = async ({
   if (!note.ok) {
     return note;
   }
-  const signedByLog = note.value.verifiedSignatures.some(
-    ({ name, keyId }) => name === logVerifier.name && keyId === logVerifier.keyId,
+  const signedByLog = note.value.verifiedSignatures.some((signature) =>
+    sameKey(signature, logVerifier),
   );
   if (!signedByLog) {
     return failure(`checkpoint is not signed by log key ${keyLabel(logVerifier)}`);

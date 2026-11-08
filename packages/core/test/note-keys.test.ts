@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseSignerKey, parseVerifierKey } from "../src/index.js";
-
-const PETER_VKEY =
-  "PeterNeumann+c74f20a3+ARpc2QcUPDhMQegwxbzhKqiBfsVkmqq/LDE4izWy10TW";
-const PETER_SKEY =
-  "PRIVATE+KEY+PeterNeumann+c74f20a3+AYEKFALVFGyNhPJEMzD1QIDr+Y7hfZx09iUvxdXHKDFz";
+import { PETER_SKEY, PETER_VKEY, signerFor, verifierFor } from "./fixtures/keys.js";
 
 const message = (text: string): Uint8Array => new TextEncoder().encode(text);
 
@@ -26,22 +22,6 @@ const singleCharacterIncrements = (key: string): readonly string[] =>
     (char, i) =>
       key.slice(0, i) + String.fromCharCode(char.charCodeAt(0) + 1) + key.slice(i + 1),
   );
-
-const verifierFor = (vkey: string) => {
-  const parsed = parseVerifierKey(vkey);
-  if (!parsed.ok) {
-    throw new Error(parsed.error);
-  }
-  return parsed.value;
-};
-
-const signerFor = (skey: string) => {
-  const parsed = parseSignerKey(skey);
-  if (!parsed.ok) {
-    throw new Error(parsed.error);
-  }
-  return parsed.value;
-};
 
 describe("parsing note verifier keys (signed-note)", () => {
   it("reads the name and key ID from a Go-generated verifier key", () => {
