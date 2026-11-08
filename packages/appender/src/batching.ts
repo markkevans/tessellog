@@ -3,9 +3,9 @@ export type AddResult = {
   readonly isDup: boolean;
 };
 
-export type BatchingOptions = {
-  readonly maxSize?: number;
-  readonly maxAge?: number;
+type BatchingSettings = {
+  readonly maxSize: number;
+  readonly maxAge: number;
 };
 
 type Pending = {
@@ -14,19 +14,16 @@ type Pending = {
   readonly reject: (error: unknown) => void;
 };
 
-export const DEFAULT_BATCH_MAX_SIZE = 256;
-export const DEFAULT_BATCH_MAX_AGE_MS = 250;
-
 export type Batcher = {
   readonly add: (entry: Uint8Array) => Promise<AddResult>;
   readonly drain: () => Promise<void>;
 };
 
 export const createBatcher = ({
-  maxSize = DEFAULT_BATCH_MAX_SIZE,
-  maxAge = DEFAULT_BATCH_MAX_AGE_MS,
+  maxSize,
+  maxAge,
   sequence,
-}: BatchingOptions & {
+}: BatchingSettings & {
   readonly sequence: (entries: readonly Uint8Array[]) => Promise<bigint>;
 }): Batcher => {
   let pending: readonly Pending[] = [];

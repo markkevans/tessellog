@@ -1,12 +1,11 @@
+export { createAppender, type Appender, type LogReader } from "./appender.js";
 export {
-  createAppender,
-  type Appender,
+  AppenderOptionsSchema,
   type AppenderOptions,
-  type LogReader,
-} from "./appender.js";
-export type { PushbackOptions } from "./pushback.js";
+  type ResolvedAppenderOptions,
+} from "./options.js";
 export { PushbackError } from "./errors.js";
-export type { AddResult, BatchingOptions } from "./batching.js";
+export type { AddResult } from "./batching.js";
 export type {
   BundleAddress,
   EntryBundle,

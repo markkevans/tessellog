@@ -10,7 +10,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@tessellog/core": "workspace:*"
+    "@tessellog/core": "workspace:*",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@noble/hashes": "^1.8.0"

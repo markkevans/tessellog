@@ -3,7 +3,7 @@ import type { LogDriver } from "./driver.js";
 
 export type PublisherOptions = {
   readonly driver: LogDriver;
-  readonly signer: NoteSigner;
+  readonly signers: readonly NoteSigner[];
   readonly origin: string;
   readonly republishInterval: number;
 };
@@ -12,7 +12,7 @@ type Publication = { readonly size: bigint; readonly at: number };
 
 export const createPublisher = ({
   driver,
-  signer,
+  signers,
   origin,
   republishInterval,
 }: PublisherOptions): ((now: number) => Promise<void>) => {
@@ -26,7 +26,7 @@ export const createPublisher = ({
     }
     const signed = await signNote({
       text: formatCheckpoint({ origin, size, rootHash, extensions: [] }),
-      signers: [signer],
+      signers,
     });
     if (!signed.ok) {
       throw new Error(`cannot sign checkpoint: ${signed.error}`);

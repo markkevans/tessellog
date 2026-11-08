@@ -1,11 +1,6 @@
 import type { AddResult } from "./batching.js";
 import { PushbackError } from "./errors.js";
 
-export type PushbackOptions = {
-  readonly maxOutstanding?: number;
-};
-
-export const DEFAULT_MAX_OUTSTANDING = 4096;
 
 export type Pushback = {
   readonly guard: (add: () => Promise<AddResult>) => Promise<AddResult>;
@@ -13,8 +8,10 @@ export type Pushback = {
 };
 
 export const createPushback = ({
-  maxOutstanding = DEFAULT_MAX_OUTSTANDING,
-}: PushbackOptions): Pushback => {
+  maxOutstanding,
+}: {
+  readonly maxOutstanding: number;
+}): Pushback => {
   let outstanding = 0n;
   return {
     guard: async (add) => {

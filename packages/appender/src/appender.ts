@@ -1,20 +1,11 @@
-import {
-  integrate,
-  leafHash,
-  tilePath,
-  type NoteSigner,
-  type TileAddress,
-} from "@tessellog/core";
-import { createBatcher, type AddResult, type BatchingOptions } from "./batching.js";
+import { integrate, leafHash, tilePath, type TileAddress } from "@tessellog/core";
+import { createBatcher, type AddResult } from "./batching.js";
 import { bundleEntries } from "./bundling.js";
-import { createPushback, type PushbackOptions } from "./pushback.js";
 import type { BundleAddress, LogDriver } from "./driver.js";
+import { resolveAppenderOptions, type AppenderOptions } from "./options.js";
 import { createPublisher } from "./publishing.js";
+import { createPushback } from "./pushback.js";
 import { serialTasks } from "./serial-tasks.js";
-
-const DEFAULT_CHECKPOINT_INTERVAL_MS = 10_000;
-const DEFAULT_REPUBLISH_INTERVAL_MS = 600_000;
-
 
 export type LogReader = {
   readonly integratedSize: () => Promise<bigint>;
@@ -27,17 +18,6 @@ export type Appender = {
   readonly add: (entry: Uint8Array) => Promise<AddResult>;
   readonly shutdown: () => Promise<void>;
   readonly reader: LogReader;
-};
-
-export type AppenderOptions = {
-  readonly driver: LogDriver;
-  readonly signer: NoteSigner;
-  readonly origin?: string;
-  readonly checkpointInterval?: number;
-  readonly checkpointRepublishInterval?: number;
-  readonly batching?: BatchingOptions;
-  readonly pushback?: PushbackOptions;
-  readonly onError?: (error: unknown) => void;
 };
 
 const requireTile =
@@ -77,21 +57,23 @@ const readerFor = (driver: LogDriver): LogReader => ({
   readCheckpoint: () => driver.readCheckpoint(),
 });
 
-export const createAppender = ({
-  driver,
-  signer,
-  origin = signer.name,
-  checkpointInterval = DEFAULT_CHECKPOINT_INTERVAL_MS,
-  checkpointRepublishInterval = DEFAULT_REPUBLISH_INTERVAL_MS,
-  batching = {},
-  pushback = {},
-  onError = (error) => console.error("tessellog background task failed", error),
-}: AppenderOptions): Appender => {
+export const createAppender = (options: AppenderOptions): Appender => {
+  const {
+    driver,
+    signer,
+    additionalSigners,
+    origin = signer.name,
+    checkpointInterval,
+    checkpointRepublishInterval,
+    batching,
+    pushback,
+    onError,
+  } = resolveAppenderOptions(options);
   const integration = serialTasks(onError);
   const publication = serialTasks(onError);
   const publish = createPublisher({
     driver,
-    signer,
+    signers: [signer, ...additionalSigners],
     origin,
     republishInterval: checkpointRepublishInterval,
   });
