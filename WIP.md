@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 8 of 11: Batches are flushed by size or by age.
+Step 9 of 11: Too many outstanding entries are refused with pushback.
 
 ## Status
 
@@ -17,8 +17,8 @@ Step 8 of 11: Batches are flushed by size or by age.
 - [x] Step 5: integration loop (with `onError` reporting; fixed a missing-bundle data-loss bug)
 - [x] Step 6: checkpoint publication
 - [x] Step 7: inclusion proofs from tiles
-- [ ] Step 8: batching by size and age ← current
-- [ ] Step 9: pushback
+- [x] Step 8: batching by size and age
+- [ ] Step 9: pushback ← current
 - [ ] Step 10: graceful shutdown
 - [ ] Step 11: options validation
 
@@ -33,4 +33,4 @@ None.
 
 ## Next Action
 
-Write failing batching tests with fake timers.
+Write failing pushback tests with a gated integration driver.
