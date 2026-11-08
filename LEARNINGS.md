@@ -46,6 +46,11 @@
 - Notes: base64 must be canonical, and `signNote` rejects text that `Open` would reject.
 - **Trade-off**: We may reject a log that Go accepts but that violates the spec.
 
+### Stateful runtime code reassigns, never mutates
+- **Context**: Drivers and the appender runtime are inherently stateful.
+- **Decision**: Keep state in closure-scoped `let` bindings that are replaced with new immutable values (`state = [...state, x]`). Never mutate arrays or objects in place. `core` stays pure.
+- **Trade-off**: The memory driver copies on every write, O(n) per batch. That's fine for tests. Real drivers persist rather than copy.
+
 ## Edge Cases
 
 - A consistency proof from size 0 is an error, as in Go.
