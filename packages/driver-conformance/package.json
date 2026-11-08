@@ -6,10 +6,13 @@
   "author": "Mark Evans",
   "description": "Shared Vitest suite that every tessellog storage driver must pass.",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
     "@tessellog/appender": "workspace:*",
     "@tessellog/core": "workspace:*",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@noble/hashes": "^1.8.0"
   }
 }

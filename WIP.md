@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 4 of 14: Adds push back when the follower lags.
+Step 5 of 14: Antispam options are validated and the memory store passes a conformance suite.
 
 ## Status
 
@@ -13,8 +13,8 @@ Step 4 of 14: Adds push back when the follower lags.
 - [x] Step 1: in-memory dedup
 - [x] Step 2: persistent store lookup
 - [x] Step 3: follower populates the store
-- [ ] Step 4: antispam pushback (Tessera default 2048, lag > threshold) ← current
-- [ ] Step 5: antispam options and store conformance
+- [x] Step 4: antispam pushback (Tessera default 2048, lag > threshold)
+- [ ] Step 5: antispam options and store conformance ← current
 - [ ] Step 6: POSIX antispam store
 - [ ] Step 7: Ed25519 checkpoint cosignatures
 - [ ] Step 8: tlog-policy parsing and quorum
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing antispam pushback tests.
+Write options validation and store conformance tests.

@@ -76,3 +76,21 @@ describe("validating appender options", () => {
     expect(opened && opened.ok && opened.value.note.verifiedSignatures.length).toBe(2);
   });
 });
+
+describe("validating antispam options", () => {
+  it.each<[string, Partial<AppenderOptions>]>([
+    ["a zero in-memory capacity", { antispam: { inMemoryEntries: 0 } }],
+    ["a zero pushback threshold", { antispam: { pushbackThreshold: 0 } }],
+  ])("rejects %s", (_, overrides) => {
+    expect(() => createAppender(validOptions(overrides))).toThrow(/invalid appender options/);
+  });
+
+  it("rejects a store that does not implement the AntispamStore contract", () => {
+    expect(() =>
+      createFromUntypedCaller({
+        ...validOptions(),
+        antispam: { store: { lookup: async () => undefined } },
+      }),
+    ).toThrow("antispam store must implement lookup, followedSize and record");
+  });
+});
