@@ -1,9 +1,9 @@
-import { entriesPath, tilePath } from "@tessellog/core";
-import type { LogDriver } from "./driver.js";
+import { entriesPath, rootHash, tilePath } from "@tessellog/core";
+import type { LogDriver, TreeState } from "./driver.js";
 
 export const createMemoryDriver = (): LogDriver => {
   let sequenced: readonly Uint8Array[] = [];
-  let integrated = 0n;
+  let treeState: TreeState = { size: 0n, rootHash: rootHash([]) };
   let objects: ReadonlyMap<string, Uint8Array> = new Map();
   return {
     sequence: async (entries) => {
@@ -12,16 +12,16 @@ export const createMemoryDriver = (): LogDriver => {
       return firstIndex;
     },
     readSequenced: async (fromIndex) => sequenced.slice(Number(fromIndex)),
-    integratedSize: async () => integrated,
+    readTreeState: async () => treeState,
     readTile: async (address) => objects.get(tilePath(address)),
     readEntryBundle: async (address) => objects.get(entriesPath(address)),
-    writeIntegration: async ({ size, tiles, bundles }) => {
+    writeIntegration: async ({ size, rootHash: root, tiles, bundles }) => {
       objects = new Map([
         ...objects,
         ...tiles.map((tile) => [tilePath(tile), tile.hashes] as const),
         ...bundles.map((bundle) => [entriesPath(bundle), bundle.data] as const),
       ]);
-      integrated = size;
+      treeState = { size, rootHash: root };
     },
   };
 };

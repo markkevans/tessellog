@@ -10,5 +10,6 @@ export type {
   EntryBundle,
   IntegrationUpdate,
   LogDriver,
+  TreeState,
 } from "./driver.js";
 export { createMemoryDriver } from "./memory-driver.js";

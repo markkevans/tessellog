@@ -34,7 +34,7 @@ const requireTile =
   };
 
 const integrateOutstanding = async (driver: LogDriver): Promise<void> => {
-  const fromSize = await driver.integratedSize();
+  const { size: fromSize } = await driver.readTreeState();
   const entries = await driver.readSequenced(fromSize);
   if (entries.length === 0) {
     return;
@@ -67,7 +67,7 @@ export const createAppender = ({
       return { index, isDup: false };
     },
     reader: {
-      integratedSize: () => driver.integratedSize(),
+      integratedSize: async () => (await driver.readTreeState()).size,
       readTile: (address) => driver.readTile(address),
       readEntryBundle: (address) => driver.readEntryBundle(address),
     },

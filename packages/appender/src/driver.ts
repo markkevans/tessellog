@@ -14,10 +14,15 @@ export type IntegrationUpdate = {
   readonly bundles: readonly EntryBundle[];
 };
 
+export type TreeState = {
+  readonly size: bigint;
+  readonly rootHash: Uint8Array;
+};
+
 export interface LogDriver {
   sequence(entries: readonly Uint8Array[]): Promise<bigint>;
   readSequenced(fromIndex: bigint): Promise<readonly Uint8Array[]>;
-  integratedSize(): Promise<bigint>;
+  readTreeState(): Promise<TreeState>;
   readTile(address: TileAddress): Promise<Uint8Array | undefined>;
   readEntryBundle(address: BundleAddress): Promise<Uint8Array | undefined>;
   writeIntegration(update: IntegrationUpdate): Promise<void>;
