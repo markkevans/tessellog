@@ -8,6 +8,7 @@ import {
   withoutDeduplication,
   type Deduplicate,
 } from "./dedup.js";
+import { createFollower, noFollower } from "./follower.js";
 import { createIntegrator } from "./integrator.js";
 import {
   resolveAppenderOptions,
@@ -62,7 +63,18 @@ export const createAppender = (options: AppenderOptions): Appender => {
   } = resolveAppenderOptions(options);
   const deduplicate = deduplicationFor(antispam);
   const outstanding = createPushback(pushback);
-  const integrator = createIntegrator({ driver, onError, onIntegrated: outstanding.integrated });
+  const follower =
+    antispam?.store === undefined
+      ? noFollower
+      : createFollower({ driver, store: antispam.store, onError });
+  const integrator = createIntegrator({
+    driver,
+    onError,
+    onIntegrated: (count) => {
+      outstanding.integrated(count);
+      follower.schedule();
+    },
+  });
   const publishing = startPublishing({
     driver,
     signers: [signer, ...additionalSigners],
@@ -91,6 +103,8 @@ export const createAppender = (options: AppenderOptions): Appender => {
       shutDown = true;
       await batch.drain();
       await integrator.idle();
+      follower.schedule();
+      await follower.idle();
       await publishing.stop();
     },
     reader: readerFor(driver),

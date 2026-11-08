@@ -7,16 +7,12 @@ import {
 } from "@tessellog/core";
 import type { BundleAddress, EntryBundle } from "./driver.js";
 
-type BundleReader = (address: BundleAddress) => Promise<Uint8Array | undefined>;
+export type BundleReader = (address: BundleAddress) => Promise<Uint8Array | undefined>;
 
-const readPartialBundle = async (
-  fromSize: bigint,
+export const readBundleEntries = async (
   readBundle: BundleReader,
+  address: BundleAddress,
 ): Promise<readonly Uint8Array[]> => {
-  const address = { index: fromSize / WIDTH, width: Number(fromSize % WIDTH) };
-  if (address.width === 0) {
-    return [];
-  }
   const stored = await readBundle(address);
   if (stored === undefined) {
     throw new Error(`missing entry bundle ${entriesPath(address)}`);
@@ -26,6 +22,14 @@ const readPartialBundle = async (
     throw new Error(`corrupt entry bundle ${entriesPath(address)}: ${decoded.error}`);
   }
   return decoded.value;
+};
+
+const readPartialBundle = async (
+  fromSize: bigint,
+  readBundle: BundleReader,
+): Promise<readonly Uint8Array[]> => {
+  const address = { index: fromSize / WIDTH, width: Number(fromSize % WIDTH) };
+  return address.width === 0 ? [] : readBundleEntries(readBundle, address);
 };
 
 export const bundleEntries = async ({

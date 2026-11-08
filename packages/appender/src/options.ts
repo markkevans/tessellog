@@ -40,8 +40,10 @@ const errorHandlerSchema = z.custom<(error: unknown) => void>(
 );
 
 const antispamStoreSchema = z.custom<AntispamStore>(
-  (value) => isRecord(value) && typeof value["lookup"] === "function",
-  { message: "antispam store must implement lookup" },
+  (value) =>
+    isRecord(value) &&
+    ["lookup", "followedSize", "record"].every((method) => typeof value[method] === "function"),
+  { message: "antispam store must implement lookup, followedSize and record" },
 );
 
 const positiveInteger = z.number().int().positive();
