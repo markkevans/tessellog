@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 6 of 14: The POSIX driver offers a persistent antispam store.
+Step 7 of 14: Core parses cosigner keys and opens notes with Ed25519 checkpoint cosignatures.
 
 ## Status
 
@@ -15,8 +15,8 @@ Step 6 of 14: The POSIX driver offers a persistent antispam store.
 - [x] Step 3: follower populates the store
 - [x] Step 4: antispam pushback (Tessera default 2048, lag > threshold)
 - [x] Step 5: antispam options and store conformance (characterisation, passed on first run)
-- [ ] Step 6: POSIX antispam store ← current
-- [ ] Step 7: Ed25519 checkpoint cosignatures
+- [x] Step 6: POSIX antispam store
+- [ ] Step 7: Ed25519 checkpoint cosignatures ← current
 - [ ] Step 8: tlog-policy parsing and quorum
 - [ ] Step 9: witness add-checkpoint server
 - [ ] Step 10: witness client with 409 recovery
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing POSIX antispam store tests.
+Write failing cosignature tests against Go-generated vectors.
