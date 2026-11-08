@@ -25,6 +25,7 @@ export type LogReader = {
 
 export type Appender = {
   readonly add: (entry: Uint8Array) => Promise<AddResult>;
+  readonly shutdown: () => Promise<void>;
   readonly reader: LogReader;
 };
 
@@ -94,7 +95,7 @@ export const createAppender = ({
     origin,
     republishInterval: checkpointRepublishInterval,
   });
-  setInterval(() => {
+  const publishing = setInterval(() => {
     publication.run(() => publish(Date.now()));
   }, checkpointInterval);
   const outstanding = createPushback(pushback);
@@ -108,8 +109,22 @@ export const createAppender = ({
       return firstIndex;
     },
   });
+  let shutDown = false;
   return {
-    add: (entry) => outstanding.guard(() => batch(entry)),
+    add: async (entry) => {
+      if (shutDown) {
+        throw new Error("appender has been shut down");
+      }
+      return outstanding.guard(() => batch.add(entry));
+    },
+    shutdown: async () => {
+      shutDown = true;
+      clearInterval(publishing);
+      await batch.drain();
+      await integration.idle();
+      publication.run(() => publish(Date.now()));
+      await publication.idle();
+    },
     reader: readerFor(driver),
   };
 };

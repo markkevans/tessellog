@@ -1,5 +1,6 @@
 export type SerialTasks = {
   readonly run: (task: () => Promise<void>) => void;
+  readonly idle: () => Promise<void>;
 };
 
 export const serialTasks = (onError: (error: unknown) => void): SerialTasks => {
@@ -8,5 +9,6 @@ export const serialTasks = (onError: (error: unknown) => void): SerialTasks => {
     run: (task) => {
       tail = tail.then(task).catch(onError);
     },
+    idle: () => tail,
   };
 };

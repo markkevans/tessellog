@@ -17,13 +17,18 @@ type Pending = {
 export const DEFAULT_BATCH_MAX_SIZE = 256;
 export const DEFAULT_BATCH_MAX_AGE_MS = 250;
 
+export type Batcher = {
+  readonly add: (entry: Uint8Array) => Promise<AddResult>;
+  readonly drain: () => Promise<void>;
+};
+
 export const createBatcher = ({
   maxSize = DEFAULT_BATCH_MAX_SIZE,
   maxAge = DEFAULT_BATCH_MAX_AGE_MS,
   sequence,
 }: BatchingOptions & {
   readonly sequence: (entries: readonly Uint8Array[]) => Promise<bigint>;
-}): ((entry: Uint8Array) => Promise<AddResult>) => {
+}): Batcher => {
   let pending: readonly Pending[] = [];
   let timer: ReturnType<typeof setTimeout> | undefined;
   let sequencing: Promise<void> = Promise.resolve();
@@ -45,13 +50,19 @@ export const createBatcher = ({
     sequencing = sequencing.then(() => sequenceBatch(batch));
   };
 
-  return (entry) =>
-    new Promise<AddResult>((resolve, reject) => {
-      pending = [...pending, { entry, resolve, reject }];
-      if (pending.length >= maxSize) {
-        flush();
-        return;
-      }
-      timer ??= setTimeout(flush, maxAge);
-    });
+  return {
+    add: (entry) =>
+      new Promise<AddResult>((resolve, reject) => {
+        pending = [...pending, { entry, resolve, reject }];
+        if (pending.length >= maxSize) {
+          flush();
+          return;
+        }
+        timer ??= setTimeout(flush, maxAge);
+      }),
+    drain: () => {
+      flush();
+      return sequencing;
+    },
+  };
 };
