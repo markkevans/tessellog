@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 2 of 14: A persistent antispam store is consulted before sequencing.
+Step 3 of 14: A follower populates the store from integrated entry bundles.
 
 ## Status
 
@@ -11,8 +11,8 @@ Step 2 of 14: A persistent antispam store is consulted before sequencing.
 ## Completed
 
 - [x] Step 1: in-memory dedup
-- [ ] Step 2: persistent store lookup ← current
-- [ ] Step 3: follower populates the store
+- [x] Step 2: persistent store lookup
+- [ ] Step 3: follower populates the store ← current
 - [ ] Step 4: antispam pushback
 - [ ] Step 5: antispam options and store conformance
 - [ ] Step 6: POSIX antispam store
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing persistent lookup tests.
+Write failing follower tests.

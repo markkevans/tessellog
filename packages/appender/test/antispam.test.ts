@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   createAppender,
   createMemoryDriver,
+  createMemoryAntispamStore,
   type AntispamStore,
   type AppenderOptions,
   type LogDriver,
@@ -107,9 +108,14 @@ describe("deduplicating recently added entries", () => {
 
 const identityOf = (text: string): string => toHex(sha256(entry(text)));
 
-const storeKnowing = (known: Readonly<Record<string, bigint>>): AntispamStore => ({
-  lookup: async (identity) => known[toHex(identity)],
+const lookupOnly = (lookup: AntispamStore["lookup"]): AntispamStore => ({
+  lookup,
+  followedSize: async () => 0n,
+  record: async () => undefined,
 });
+
+const storeKnowing = (known: Readonly<Record<string, bigint>>): AntispamStore =>
+  lookupOnly(async (identity) => known[toHex(identity)]);
 
 describe("consulting a persistent antispam store", () => {
   it("returns the stored index for an entry the store already knows", async () => {
@@ -130,13 +136,64 @@ describe("consulting a persistent antispam store", () => {
   it("rejects the add when the store cannot be consulted", async () => {
     const appender = appenderWith({
       antispam: {
-        store: {
-          lookup: async () => {
-            throw new Error("antispam store unavailable");
-          },
-        },
+        store: lookupOnly(async () => {
+          throw new Error("antispam store unavailable");
+        }),
       },
     });
     await expect(appender.add(entry("a"))).rejects.toThrow("antispam store unavailable");
+  });
+});
+
+describe("following the log into the antispam store", () => {
+  it("records integrated entries in the store", async () => {
+    const store = createMemoryAntispamStore();
+    const appender = appenderWith({ antispam: { store } });
+    await appender.add(entry("a"));
+    await appender.add(entry("b"));
+    await appender.shutdown();
+    expect(await store.followedSize()).toBe(2n);
+    expect(await store.lookup(sha256(entry("b")))).toBe(1n);
+  });
+
+  it("catches a duplicate from an earlier appender session", async () => {
+    const driver = createMemoryDriver();
+    const store = createMemoryAntispamStore();
+    const first = appenderWith({ driver, antispam: { store } });
+    await first.add(entry("a"));
+    await first.shutdown();
+    const second = appenderWith({ driver, antispam: { store } });
+    expect(await second.add(entry("a"))).toEqual({ index: 0n, isDup: true });
+    expect(await second.add(entry("b"))).toEqual({ index: 1n, isDup: false });
+  });
+
+  it("follows entries spread across several bundles", async () => {
+    const store = createMemoryAntispamStore();
+    const appender = appenderWith({ batching: { maxSize: 256, maxAge: 0 }, antispam: { store } });
+    await Promise.all(Array.from({ length: 300 }, (_, i) => appender.add(entry(`e${i}`))));
+    await appender.shutdown();
+    expect(await store.followedSize()).toBe(300n);
+    expect(await store.lookup(sha256(entry("e299")))).toBeDefined();
+  });
+
+  it("reports a store that fails to record", async () => {
+    const reported: unknown[] = [];
+    const store = createMemoryAntispamStore();
+    const appender = appenderWith({
+      antispam: {
+        store: {
+          ...store,
+          record: async () => {
+            throw new Error("antispam store is read-only");
+          },
+        },
+      },
+      onError: (error) => {
+        reported.push(error);
+      },
+    });
+    await appender.add(entry("a"));
+    await appender.shutdown();
+    expect(String(reported[0])).toContain("antispam store is read-only");
   });
 });
