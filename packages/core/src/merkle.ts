@@ -12,7 +12,7 @@ export const leafHash = (entry: Uint8Array): Uint8Array =>
 export const nodeHash = (left: Uint8Array, right: Uint8Array): Uint8Array =>
   sha256(concatBytes(Uint8Array.of(NODE_PREFIX), left, right));
 
-const largestPowerOfTwoBelow = (n: number): number =>
+export const largestPowerOfTwoBelow = (n: number): number =>
   2 ** Math.floor(Math.log2(n - 1));
 
 export const rootHash = (leafHashes: readonly Uint8Array[]): Uint8Array => {

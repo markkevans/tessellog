@@ -1,4 +1,5 @@
 export { leafHash, nodeHash, rootHash } from "./merkle.js";
+export { consistencyProof, inclusionProof } from "./proof-building.js";
 export { verifyConsistency, verifyInclusion } from "./proofs.js";
 export { entriesPath, tilePath } from "./tiles.js";
 export { decodeBundle, encodeBundle } from "./bundles.js";

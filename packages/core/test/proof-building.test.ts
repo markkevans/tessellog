@@ -102,6 +102,12 @@ describe("refusing proofs that cannot exist", () => {
     ).toThrow(RangeError);
   });
 
+  it("refuses an inclusion proof for a negative leaf index", () => {
+    expect(() =>
+      inclusionProof({ leafHashes: syntheticLeafHashes(3), leafIndex: -1n }),
+    ).toThrow(RangeError);
+  });
+
   it("refuses a consistency proof from an empty tree", () => {
     expect(() =>
       consistencyProof({ leafHashes: syntheticLeafHashes(3), oldSize: 0n }),
