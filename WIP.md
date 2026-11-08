@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 4 of 11: Scaffold `@tessellog/appender` with an in-memory driver that sequences entries.
+Step 7 of 11: Entries are proven included using only published tiles and the checkpoint.
 
 ## Status
 
@@ -13,10 +13,10 @@ Step 4 of 11: Scaffold `@tessellog/appender` with an in-memory driver that seque
 - [x] Step 1: tile layout (`tileLayout`, per-level summary rather than an enumeration)
 - [x] Step 2: integrate into empty tree
 - [x] Step 3: batched integration equivalence
-- [ ] Step 4: appender scaffold + sequencing ← current
-- [ ] Step 5: integration loop
-- [ ] Step 6: checkpoint publication
-- [ ] Step 7: inclusion proofs from tiles
+- [x] Step 4: appender scaffold + sequencing
+- [x] Step 5: integration loop (with `onError` reporting; fixed a missing-bundle data-loss bug)
+- [x] Step 6: checkpoint publication
+- [ ] Step 7: inclusion proofs from tiles ← current
 - [ ] Step 8: batching by size and age
 - [ ] Step 9: pushback
 - [ ] Step 10: graceful shutdown
@@ -33,4 +33,4 @@ None.
 
 ## Next Action
 
-Scaffold the appender package and write the failing sequencing test.
+Write failing tests for `inclusionProofFromTiles` (core) and the end-to-end inclusion check (appender).
