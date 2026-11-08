@@ -163,3 +163,25 @@ describe("reporting integration failures", () => {
     }
   });
 });
+
+describe("reporting tiles of the wrong length", () => {
+  it("reports a truncated partial tile in storage", async () => {
+    const reported: unknown[] = [];
+    const memory = createMemoryDriver();
+    const appender = createAppender({
+      driver: {
+        ...memory,
+        readTile: async (address) => (await memory.readTile(address))?.slice(1),
+      },
+      signer: logSigner(),
+      batching: UNBATCHED,
+      onError: (error) => {
+        reported.push(error);
+      },
+    });
+    await addAll(appender, entries(2));
+    await vi.waitFor(() => {
+      expect(String(reported[0])).toContain("tile tile/0/000.p/1 has 31 bytes, want 32");
+    });
+  });
+});

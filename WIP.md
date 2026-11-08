@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 12 of 17: The POSIX driver refuses a second writer on the same directory.
+Step 13 of 17: Integration rejects tiles from storage with the wrong length.
 
 ## Status
 
@@ -21,8 +21,8 @@ Step 12 of 17: The POSIX driver refuses a second writer on the same directory.
 - [x] Step 9: driver conformance suite (coverage exception awaiting approval)
 - [x] Step 10: POSIX driver
 - [x] Step 11: POSIX restart persistence (CI actions moved to their Node 24 releases at Mark's request)
-- [ ] Step 12: POSIX single-writer lock ← current
-- [ ] Step 13: tile length validation
+- [x] Step 12: POSIX single-writer lock (also fixed: lock released when opening fails)
+- [ ] Step 13: tile length validation ← current
 - [ ] Step 14: client file fetcher
 - [ ] Step 15: posix-oneshot example
 - [ ] Step 16: Go interop CI
@@ -38,4 +38,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing lock tests.
+Write failing tile length tests.
