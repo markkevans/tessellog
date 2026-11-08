@@ -1,7 +1,8 @@
+import { isUint64 } from "./uint64.js";
+
 const GROUP_DIGITS = 3;
 export const TILE_WIDTH = 256;
 const MAX_LEVEL = 63;
-const MAX_INDEX = 2n ** 64n - 1n;
 
 type TileAddress = {
   readonly index: bigint;
@@ -12,7 +13,7 @@ const isIntegerInRange = (value: number, min: number, max: number): boolean =>
   Number.isInteger(value) && value >= min && value <= max;
 
 const assertIndex = (index: bigint): void => {
-  if (index < 0n || index > MAX_INDEX) {
+  if (!isUint64(index)) {
     throw new RangeError(`tile index ${index} is outside uint64`);
   }
 };

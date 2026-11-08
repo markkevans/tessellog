@@ -1,9 +1,9 @@
 import { decodeBase64, encodeBase64 } from "./base64.js";
 import { hasControlCharacters } from "./note-format.js";
 import { failure, success, type Result } from "./result.js";
+import { isUint64 } from "./uint64.js";
 
 const HASH_BYTES = 32;
-const MAX_SIZE = 2n ** 64n - 1n;
 const DECIMAL_WITHOUT_LEADING_ZEROS = /^(0|[1-9][0-9]*)$/;
 
 export type Checkpoint = {
@@ -16,8 +16,6 @@ export type Checkpoint = {
 const isSingleLine = (text: string): boolean =>
   text !== "" && !text.includes("\n") && !hasControlCharacters(text);
 
-const isValidSize = (size: bigint): boolean => size >= 0n && size <= MAX_SIZE;
-
 export const formatCheckpoint = ({
   origin,
   size,
@@ -27,7 +25,7 @@ export const formatCheckpoint = ({
   if (!isSingleLine(origin)) {
     throw new RangeError("checkpoint origin must be a single non-empty line");
   }
-  if (!isValidSize(size)) {
+  if (!isUint64(size)) {
     throw new RangeError(`checkpoint size ${size} is outside uint64`);
   }
   if (rootHash.length !== HASH_BYTES) {
@@ -46,7 +44,7 @@ const parseSize = (text: string): bigint | undefined => {
     return undefined;
   }
   const size = BigInt(text);
-  return isValidSize(size) ? size : undefined;
+  return isUint64(size) ? size : undefined;
 };
 
 export const parseCheckpoint = (text: string): Result<Checkpoint> => {
