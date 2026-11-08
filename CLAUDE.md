@@ -15,7 +15,7 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 
 ## Coverage exceptions
 
-- `packages/driver-conformance` is excluded from coverage. It is test infrastructure, a Vitest suite run against each driver, and is never shipped. Its only uncovered lines are guards that fail a test loudly when a fixture is broken. (Added 2026-11-08, awaiting Mark's explicit approval.)
+- `packages/driver-conformance` is excluded from coverage. It is test infrastructure, a Vitest suite run against each driver, and is never shipped. Its only uncovered lines are guards that fail a test loudly when a fixture is broken. (Approved by Mark, 2026-11-08.)
 
 ## Commands
 
