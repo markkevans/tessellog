@@ -7,10 +7,11 @@ import {
   type Appender,
   type LogDriver,
 } from "../src/index.js";
+import { logSigner } from "./fixtures/keys.js";
 
 const entry = (text: string): Uint8Array => new TextEncoder().encode(text);
 
-const newAppender = () => createAppender({ driver: createMemoryDriver() });
+const newAppender = () => createAppender({ driver: createMemoryDriver(), signer: logSigner() });
 
 describe("appending entries", () => {
   it("assigns contiguous indices from zero", async () => {
@@ -107,6 +108,7 @@ describe("reporting integration failures", () => {
     const reported: unknown[] = [];
     const appender = createAppender({
       driver: { ...createMemoryDriver(), ...overrides },
+      signer: logSigner(),
       onError: (error) => {
         reported.push(error);
       },
@@ -144,6 +146,7 @@ describe("reporting integration failures", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const appender = createAppender({
       driver: { ...createMemoryDriver(), readTile: async () => undefined },
+      signer: logSigner(),
     });
     try {
       await addAll(appender, entries(2));
