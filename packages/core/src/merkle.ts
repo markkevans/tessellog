@@ -12,10 +12,23 @@ export const leafHash = (entry: Uint8Array): Uint8Array =>
 export const nodeHash = (left: Uint8Array, right: Uint8Array): Uint8Array =>
   sha256(concatBytes(Uint8Array.of(NODE_PREFIX), left, right));
 
-export const largestPowerOfTwoBelow = (n: number): number =>
+const largestPowerOfTwoBelow = (n: number): number =>
   2 ** Math.floor(Math.log2(n - 1));
 
-export const rootHash = (leafHashes: readonly Uint8Array[]): Uint8Array => {
+type Hashes = readonly Uint8Array[];
+
+export type TreeSplit = {
+  readonly split: number;
+  readonly left: Hashes;
+  readonly right: Hashes;
+};
+
+export const splitTree = (leafHashes: Hashes): TreeSplit => {
+  const split = largestPowerOfTwoBelow(leafHashes.length);
+  return { split, left: leafHashes.slice(0, split), right: leafHashes.slice(split) };
+};
+
+export const rootHash = (leafHashes: Hashes): Uint8Array => {
   const [first] = leafHashes;
   if (first === undefined) {
     return sha256(new Uint8Array());
@@ -23,9 +36,6 @@ export const rootHash = (leafHashes: readonly Uint8Array[]): Uint8Array => {
   if (leafHashes.length === 1) {
     return first;
   }
-  const split = largestPowerOfTwoBelow(leafHashes.length);
-  return nodeHash(
-    rootHash(leafHashes.slice(0, split)),
-    rootHash(leafHashes.slice(split)),
-  );
+  const { left, right } = splitTree(leafHashes);
+  return nodeHash(rootHash(left), rootHash(right));
 };

@@ -1,4 +1,4 @@
-import { largestPowerOfTwoBelow, rootHash } from "./merkle.js";
+import { rootHash, splitTree } from "./merkle.js";
 
 type Hashes = readonly Uint8Array[];
 
@@ -6,9 +6,7 @@ const path = (index: number, leafHashes: Hashes): Hashes => {
   if (leafHashes.length <= 1) {
     return [];
   }
-  const split = largestPowerOfTwoBelow(leafHashes.length);
-  const left = leafHashes.slice(0, split);
-  const right = leafHashes.slice(split);
+  const { split, left, right } = splitTree(leafHashes);
   return index < split
     ? [...path(index, left), rootHash(right)]
     : [...path(index - split, right), rootHash(left)];
@@ -18,9 +16,7 @@ const subproof = (oldSize: number, leafHashes: Hashes, isWholeOldTree: boolean):
   if (oldSize === leafHashes.length) {
     return isWholeOldTree ? [] : [rootHash(leafHashes)];
   }
-  const split = largestPowerOfTwoBelow(leafHashes.length);
-  const left = leafHashes.slice(0, split);
-  const right = leafHashes.slice(split);
+  const { split, left, right } = splitTree(leafHashes);
   return oldSize <= split
     ? [...subproof(oldSize, left, isWholeOldTree), rootHash(right)]
     : [...subproof(oldSize - split, right, false), rootHash(left)];
