@@ -1,53 +1,5 @@
-import { HASH_BYTES, nodeHash, rootHash } from "./merkle.js";
-import { TILE_WIDTH } from "./tiles.js";
-import type { TileReader } from "./integration.js";
-
-type Hashes = readonly Uint8Array[];
-
-const WIDTH = BigInt(TILE_WIDTH);
-const BITS_PER_LEVEL = 8;
-
-const bitLength = (n: bigint): number => n.toString(2).length;
-
-const isPowerOfTwo = (n: bigint): boolean => (n & (n - 1n)) === 0n;
-
-const largestPowerOfTwoBelow = (n: bigint): bigint => 1n << BigInt(bitLength(n - 1n) - 1);
-
-const splitHashes = (bytes: Uint8Array): Hashes =>
-  Array.from({ length: bytes.length / HASH_BYTES }, (_, i) =>
-    bytes.slice(i * HASH_BYTES, (i + 1) * HASH_BYTES),
-  );
-
-type SubtreeHasher = (start: bigint, end: bigint) => Promise<Uint8Array>;
-
-const tileWidth = (treeSize: bigint, level: number, index: bigint): number => {
-  const hashesAtLevel = treeSize >> BigInt(BITS_PER_LEVEL * level);
-  return index < hashesAtLevel / WIDTH ? TILE_WIDTH : Number(hashesAtLevel % WIDTH);
-};
-
-const subtreeHasher = (treeSize: bigint, readTile: TileReader): SubtreeHasher => {
-  const perfectSubtree = async (start: bigint, size: bigint): Promise<Uint8Array> => {
-    const height = bitLength(size) - 1;
-    const level = Math.floor(height / BITS_PER_LEVEL);
-    const count = 2 ** (height % BITS_PER_LEVEL);
-    const position = start >> BigInt(BITS_PER_LEVEL * level);
-    const index = position / WIDTH;
-    const offset = Number(position % WIDTH);
-    const tile = splitHashes(
-      await readTile({ level, index, width: tileWidth(treeSize, level, index) }),
-    );
-    return rootHash(tile.slice(offset, offset + count));
-  };
-  const rangeHash: SubtreeHasher = async (start, end) => {
-    const size = end - start;
-    if (isPowerOfTwo(size)) {
-      return perfectSubtree(start, size);
-    }
-    const middle = start + largestPowerOfTwoBelow(size);
-    return nodeHash(await rangeHash(start, middle), await rangeHash(middle, end));
-  };
-  return rangeHash;
-};
+import { largestPowerOfTwoBelow } from "./bits.js";
+import { subtreeHasher, type Hashes, type SubtreeHasher, type TileReader } from "./tile-hashes.js";
 
 const path = async (
   index: bigint,

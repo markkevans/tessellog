@@ -1,18 +1,9 @@
 import { equalBytes } from "@noble/curves/utils";
+import { bitLength, onesCount, trailingZeros } from "./bits.js";
 import { HASH_BYTES, nodeHash } from "./merkle.js";
 import { failure, success, type Result } from "./result.js";
 
 type Proof = readonly Uint8Array[];
-
-const bitLength = (n: bigint): number => (n === 0n ? 0 : n.toString(2).length);
-
-const onesCount = (n: bigint): number =>
-  Array.from(n.toString(2)).filter((digit) => digit === "1").length;
-
-const trailingZeros = (n: bigint): number => {
-  const binary = n.toString(2);
-  return binary.length - 1 - binary.lastIndexOf("1");
-};
 
 const bitAt = (n: bigint, position: number): bigint => (n >> BigInt(position)) & 1n;
 

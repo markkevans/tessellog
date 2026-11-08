@@ -1,5 +1,6 @@
 import { sha256 } from "@noble/hashes/sha2";
 import { concatBytes } from "@noble/hashes/utils";
+import { largestPowerOfTwoBelow } from "./bits.js";
 
 export const HASH_BYTES = 32;
 
@@ -12,9 +13,6 @@ export const leafHash = (entry: Uint8Array): Uint8Array =>
 export const nodeHash = (left: Uint8Array, right: Uint8Array): Uint8Array =>
   sha256(concatBytes(Uint8Array.of(NODE_PREFIX), left, right));
 
-const largestPowerOfTwoBelow = (n: number): number =>
-  2 ** Math.floor(Math.log2(n - 1));
-
 type Hashes = readonly Uint8Array[];
 
 export type TreeSplit = {
@@ -24,7 +22,7 @@ export type TreeSplit = {
 };
 
 export const splitTree = (leafHashes: Hashes): TreeSplit => {
-  const split = largestPowerOfTwoBelow(leafHashes.length);
+  const split = Number(largestPowerOfTwoBelow(BigInt(leafHashes.length)));
   return { split, left: leafHashes.slice(0, split), right: leafHashes.slice(split) };
 };
 
