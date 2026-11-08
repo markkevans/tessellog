@@ -59,3 +59,28 @@ export const tilePath = ({
 
 export const entriesPath = (address: TileAddress): string =>
   `tile/entries/${encodeAddress(address)}`;
+
+export type TileLevel = {
+  readonly level: number;
+  readonly fullTiles: bigint;
+  readonly partialWidth: number;
+};
+
+const WIDTH = BigInt(TILE_WIDTH);
+
+const levelsFrom = (hashesAtLevel: bigint, level: number): readonly TileLevel[] =>
+  hashesAtLevel === 0n
+    ? []
+    : [
+        {
+          level,
+          fullTiles: hashesAtLevel / WIDTH,
+          partialWidth: Number(hashesAtLevel % WIDTH),
+        },
+        ...levelsFrom(hashesAtLevel / WIDTH, level + 1),
+      ];
+
+export const tileLayout = (size: bigint): readonly TileLevel[] => {
+  assertIndex(size);
+  return levelsFrom(size, 0);
+};
