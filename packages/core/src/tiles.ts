@@ -1,5 +1,5 @@
 const GROUP_DIGITS = 3;
-const TILE_WIDTH = 256;
+export const TILE_WIDTH = 256;
 const MAX_LEVEL = 63;
 const MAX_INDEX = 2n ** 64n - 1n;
 
