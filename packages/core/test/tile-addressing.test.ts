@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { tilePath } from "../src/index.js";
+import { entriesPath, tilePath } from "../src/index.js";
 
 describe("addressing hash tiles (tlog-tiles)", () => {
   it("writes the level and a zero-padded three-digit index", () => {
@@ -18,5 +18,27 @@ describe("addressing hash tiles (tlog-tiles)", () => {
     expect(tilePath({ level: 0, index: 2n ** 64n - 1n })).toBe(
       "tile/0/x018/x446/x744/x073/x709/x551/615",
     );
+  });
+
+  it("marks partial tiles with their width", () => {
+    expect(tilePath({ level: 0, index: 273n, width: 112 })).toBe(
+      "tile/0/273.p/112",
+    );
+  });
+
+  it("omits the partial suffix for a full-width tile", () => {
+    expect(tilePath({ level: 0, index: 7n, width: 256 })).toBe("tile/0/007");
+  });
+});
+
+describe("addressing entry bundles (tlog-tiles)", () => {
+  it("uses the same index encoding under tile/entries", () => {
+    expect(entriesPath({ index: 1_234_067n })).toBe(
+      "tile/entries/x001/x234/067",
+    );
+  });
+
+  it("marks partial bundles with their width", () => {
+    expect(entriesPath({ index: 0n, width: 1 })).toBe("tile/entries/000.p/1");
   });
 });
