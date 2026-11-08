@@ -8,6 +8,7 @@ import {
 import { checkConsistencyWith } from "./consistency.js";
 import type { LogFetcher } from "./fetcher.js";
 import { proveInclusionWith, type InclusionClaim } from "./inclusion.js";
+import { streamEntries, type EntryRange, type StreamedEntry } from "./streaming.js";
 
 export type LogClientOptions = {
   readonly fetcher: LogFetcher;
@@ -20,6 +21,7 @@ export type LogClient = {
   readonly latestCheckpoint: () => Promise<Result<OpenedCheckpoint>>;
   readonly proveInclusion: (claim: InclusionClaim) => Promise<Result<void>>;
   readonly checkConsistency: (older: Checkpoint, newer: Checkpoint) => Promise<Result<void>>;
+  readonly entries: (range: EntryRange) => AsyncIterable<Result<StreamedEntry>>;
 };
 
 export const createLogClient = ({
@@ -37,4 +39,5 @@ export const createLogClient = ({
   },
   proveInclusion: proveInclusionWith(fetcher),
   checkConsistency: checkConsistencyWith(fetcher),
+  entries: (range) => streamEntries(fetcher, range),
 });
