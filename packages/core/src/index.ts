@@ -13,5 +13,10 @@ export {
   type NoteSignature,
   type OpenedNote,
 } from "./open-note.js";
+export {
+  formatCheckpoint,
+  parseCheckpoint,
+  type Checkpoint,
+} from "./checkpoint.js";
 export type { Result } from "./result.js";
 export { toHex } from "./hex.js";
