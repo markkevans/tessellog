@@ -29,7 +29,7 @@ type KeyFields = {
   readonly keyMaterial: Uint8Array;
 };
 
-const isValidKeyName = (name: string): boolean =>
+export const isValidKeyName = (name: string): boolean =>
   name !== "" && !name.includes("+") && !WHITESPACE.test(name);
 
 const computeKeyId = (name: string, publicKey: Uint8Array): number =>

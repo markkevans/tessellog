@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1794170841150" clover="3.2.0">
-  <project timestamp="1794170841150" name="All files">
-    <metrics statements="213" coveredstatements="213" conditionals="87" coveredconditionals="87" methods="31" coveredmethods="31" elements="331" coveredelements="331" complexity="0" loc="213" ncloc="213" packages="1" files="8" classes="8"/>
+<coverage generated="1794170899872" clover="3.2.0">
+  <project timestamp="1794170899872" name="All files">
+    <metrics statements="255" coveredstatements="255" conditionals="99" coveredconditionals="99" methods="35" coveredmethods="35" elements="389" coveredelements="389" complexity="0" loc="255" ncloc="255" packages="1" files="9" classes="9"/>
     <file name="base64.ts" path="/Users/markevans/code/tessera_logs/packages/core/src/base64.ts">
       <metrics statements="10" coveredstatements="10" conditionals="8" coveredconditionals="8" methods="2" coveredmethods="2"/>
       <line num="1" count="1" type="stmt"/>
       <line num="3" count="1" type="cond" truecount="1" falsecount="0"/>
-      <line num="4" count="284" type="cond" truecount="1" falsecount="0"/>
+      <line num="4" count="290" type="cond" truecount="1" falsecount="0"/>
       <line num="6" count="1" type="cond" truecount="1" falsecount="0"/>
-      <line num="7" count="720" type="cond" truecount="1" falsecount="0"/>
+      <line num="7" count="725" type="cond" truecount="1" falsecount="0"/>
       <line num="8" count="436" type="stmt"/>
       <line num="9" count="436" type="cond" truecount="1" falsecount="0"/>
-      <line num="10" count="284" type="cond" truecount="1" falsecount="0"/>
-      <line num="11" count="720" type="cond" truecount="2" falsecount="0"/>
-      <line num="12" count="720" type="stmt"/>
+      <line num="10" count="289" type="cond" truecount="1" falsecount="0"/>
+      <line num="11" count="725" type="cond" truecount="2" falsecount="0"/>
+      <line num="12" count="725" type="stmt"/>
     </file>
     <file name="bundles.ts" path="/Users/markevans/code/tessera_logs/packages/core/src/bundles.ts">
       <metrics statements="48" coveredstatements="48" conditionals="16" coveredconditionals="16" methods="4" coveredmethods="4"/>
@@ -72,12 +72,13 @@
       <line num="2" count="8" type="cond" truecount="1" falsecount="0"/>
     </file>
     <file name="index.ts" path="/Users/markevans/code/tessera_logs/packages/core/src/index.ts">
-      <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <line num="1" count="1" type="stmt"/>
       <line num="2" count="1" type="stmt"/>
       <line num="3" count="1" type="stmt"/>
       <line num="4" count="1" type="stmt"/>
-      <line num="11" count="1" type="stmt"/>
+      <line num="10" count="1" type="stmt"/>
+      <line num="12" count="1" type="stmt"/>
     </file>
     <file name="merkle.ts" path="/Users/markevans/code/tessera_logs/packages/core/src/merkle.ts">
       <metrics statements="24" coveredstatements="24" conditionals="8" coveredconditionals="8" methods="4" coveredmethods="4"/>
@@ -120,35 +121,35 @@
       <line num="11" count="1" type="stmt"/>
       <line num="12" count="1" type="stmt"/>
       <line num="32" count="1" type="cond" truecount="1" falsecount="0"/>
-      <line num="33" count="769" type="cond" truecount="2" falsecount="0"/>
+      <line num="33" count="776" type="cond" truecount="2" falsecount="0"/>
       <line num="35" count="1" type="cond" truecount="1" falsecount="0"/>
-      <line num="36" count="137" type="stmt"/>
-      <line num="37" count="137" type="stmt"/>
-      <line num="38" count="137" type="stmt"/>
+      <line num="36" count="142" type="stmt"/>
+      <line num="37" count="142" type="stmt"/>
+      <line num="38" count="142" type="stmt"/>
       <line num="40" count="1" type="cond" truecount="1" falsecount="0"/>
-      <line num="41" count="2419" type="stmt"/>
-      <line num="42" count="2419" type="stmt"/>
-      <line num="43" count="2419" type="cond" truecount="3" falsecount="0"/>
+      <line num="41" count="2424" type="stmt"/>
+      <line num="42" count="2424" type="stmt"/>
+      <line num="43" count="2424" type="cond" truecount="3" falsecount="0"/>
       <line num="44" count="1699" type="stmt"/>
       <line num="45" count="1699" type="cond" truecount="1" falsecount="0"/>
-      <line num="46" count="720" type="stmt"/>
-      <line num="47" count="2419" type="cond" truecount="2" falsecount="0"/>
+      <line num="46" count="725" type="stmt"/>
+      <line num="47" count="2424" type="cond" truecount="2" falsecount="0"/>
       <line num="48" count="453" type="stmt"/>
       <line num="49" count="453" type="cond" truecount="1" falsecount="0"/>
-      <line num="50" count="2419" type="cond" truecount="1" falsecount="0"/>
+      <line num="50" count="2424" type="cond" truecount="1" falsecount="0"/>
       <line num="51" count="130" type="stmt"/>
       <line num="52" count="130" type="cond" truecount="1" falsecount="0"/>
-      <line num="53" count="137" type="stmt"/>
-      <line num="54" count="137" type="stmt"/>
+      <line num="53" count="142" type="stmt"/>
+      <line num="54" count="142" type="stmt"/>
       <line num="56" count="1" type="cond" truecount="1" falsecount="0"/>
-      <line num="57" count="137" type="stmt"/>
-      <line num="58" count="137" type="stmt"/>
-      <line num="59" count="137" type="stmt"/>
-      <line num="61" count="137" type="cond" truecount="1" falsecount="0"/>
-      <line num="62" count="9" type="cond" truecount="1" falsecount="0"/>
+      <line num="57" count="142" type="stmt"/>
+      <line num="58" count="142" type="stmt"/>
+      <line num="59" count="142" type="stmt"/>
+      <line num="61" count="142" type="cond" truecount="1" falsecount="0"/>
+      <line num="62" count="14" type="cond" truecount="1" falsecount="0"/>
       <line num="63" count="128" type="stmt"/>
       <line num="65" count="1" type="cond" truecount="1" falsecount="0"/>
-      <line num="66" count="61" type="stmt"/>
+      <line num="66" count="66" type="stmt"/>
       <line num="68" count="1" type="cond" truecount="1" falsecount="0"/>
       <line num="69" count="2283" type="stmt"/>
       <line num="70" count="2283" type="cond" truecount="1" falsecount="0"/>
@@ -165,25 +166,69 @@
       <line num="81" count="76" type="stmt"/>
       <line num="82" count="76" type="stmt"/>
       <line num="84" count="1" type="cond" truecount="1" falsecount="0"/>
-      <line num="85" count="3162" type="cond" truecount="1" falsecount="0"/>
+      <line num="85" count="3167" type="cond" truecount="1" falsecount="0"/>
       <line num="86" count="3026" type="stmt"/>
       <line num="87" count="3026" type="cond" truecount="1" falsecount="0"/>
-      <line num="88" count="136" type="stmt"/>
-      <line num="89" count="3162" type="cond" truecount="1" falsecount="0"/>
+      <line num="88" count="141" type="stmt"/>
+      <line num="89" count="3167" type="cond" truecount="1" falsecount="0"/>
       <line num="90" count="75" type="stmt"/>
       <line num="91" count="75" type="cond" truecount="1" falsecount="0"/>
-      <line num="92" count="61" type="stmt"/>
-      <line num="93" count="61" type="stmt"/>
-      <line num="94" count="61" type="stmt"/>
-      <line num="95" count="61" type="stmt"/>
-      <line num="96" count="61" type="stmt"/>
-      <line num="97" count="61" type="cond" truecount="1" falsecount="0"/>
-      <line num="98" count="4" type="stmt"/>
-      <line num="99" count="4" type="stmt"/>
-      <line num="100" count="4" type="cond" truecount="1" falsecount="0"/>
-      <line num="101" count="4" type="stmt"/>
-      <line num="102" count="61" type="stmt"/>
-      <line num="103" count="61" type="stmt"/>
+      <line num="92" count="66" type="stmt"/>
+      <line num="93" count="66" type="stmt"/>
+      <line num="94" count="66" type="stmt"/>
+      <line num="95" count="66" type="stmt"/>
+      <line num="96" count="66" type="stmt"/>
+      <line num="97" count="66" type="cond" truecount="1" falsecount="0"/>
+      <line num="98" count="9" type="stmt"/>
+      <line num="99" count="9" type="stmt"/>
+      <line num="100" count="9" type="cond" truecount="1" falsecount="0"/>
+      <line num="101" count="9" type="stmt"/>
+      <line num="102" count="66" type="stmt"/>
+      <line num="103" count="66" type="stmt"/>
+    </file>
+    <file name="notes.ts" path="/Users/markevans/code/tessera_logs/packages/core/src/notes.ts">
+      <metrics statements="41" coveredstatements="41" conditionals="12" coveredconditionals="12" methods="4" coveredmethods="4"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="2" count="1" type="stmt"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="4" count="1" type="stmt"/>
+      <line num="6" count="1" type="stmt"/>
+      <line num="7" count="1" type="stmt"/>
+      <line num="9" count="1" type="cond" truecount="1" falsecount="0"/>
+      <line num="10" count="6" type="cond" truecount="1" falsecount="0"/>
+      <line num="11" count="5" type="cond" truecount="1" falsecount="0"/>
+      <line num="12" count="4" type="stmt"/>
+      <line num="14" count="1" type="cond" truecount="1" falsecount="0"/>
+      <line num="15" count="1" type="stmt"/>
+      <line num="17" count="1" type="cond" truecount="1" falsecount="0"/>
+      <line num="18" count="1" type="stmt"/>
+      <line num="19" count="1" type="stmt"/>
+      <line num="20" count="1" type="stmt"/>
+      <line num="21" count="1" type="stmt"/>
+      <line num="22" count="1" type="stmt"/>
+      <line num="23" count="1" type="stmt"/>
+      <line num="24" count="1" type="stmt"/>
+      <line num="26" count="1" type="cond" truecount="1" falsecount="0"/>
+      <line num="27" count="6" type="stmt"/>
+      <line num="28" count="6" type="stmt"/>
+      <line num="29" count="6" type="stmt"/>
+      <line num="32" count="6" type="stmt"/>
+      <line num="33" count="6" type="cond" truecount="1" falsecount="0"/>
+      <line num="34" count="3" type="stmt"/>
+      <line num="35" count="3" type="stmt"/>
+      <line num="36" count="6" type="cond" truecount="1" falsecount="0"/>
+      <line num="37" count="1" type="stmt"/>
+      <line num="38" count="1" type="cond" truecount="1" falsecount="0"/>
+      <line num="39" count="2" type="cond" truecount="1" falsecount="0"/>
+      <line num="40" count="6" type="cond" truecount="1" falsecount="0"/>
+      <line num="41" count="1" type="stmt"/>
+      <line num="42" count="1" type="stmt"/>
+      <line num="43" count="1" type="stmt"/>
+      <line num="44" count="1" type="stmt"/>
+      <line num="45" count="1" type="cond" truecount="1" falsecount="0"/>
+      <line num="46" count="1" type="stmt"/>
+      <line num="47" count="1" type="stmt"/>
+      <line num="48" count="1" type="stmt"/>
     </file>
     <file name="result.ts" path="/Users/markevans/code/tessera_logs/packages/core/src/result.ts">
       <metrics statements="2" coveredstatements="2" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>

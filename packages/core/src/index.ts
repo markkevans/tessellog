@@ -7,5 +7,6 @@ export {
   type NoteSigner,
   type NoteVerifier,
 } from "./note-keys.js";
+export { signNote } from "./notes.js";
 export type { Result } from "./result.js";
 export { toHex } from "./hex.js";
