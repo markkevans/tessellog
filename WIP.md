@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 3 of 14: A follower populates the store from integrated entry bundles.
+Step 4 of 14: Adds push back when the follower lags.
 
 ## Status
 
@@ -12,8 +12,8 @@ Step 3 of 14: A follower populates the store from integrated entry bundles.
 
 - [x] Step 1: in-memory dedup
 - [x] Step 2: persistent store lookup
-- [ ] Step 3: follower populates the store ← current
-- [ ] Step 4: antispam pushback
+- [x] Step 3: follower populates the store
+- [ ] Step 4: antispam pushback (Tessera default 2048, lag > threshold) ← current
 - [ ] Step 5: antispam options and store conformance
 - [ ] Step 6: POSIX antispam store
 - [ ] Step 7: Ed25519 checkpoint cosignatures
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing follower tests.
+Write failing antispam pushback tests.

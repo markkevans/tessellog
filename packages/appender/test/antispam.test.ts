@@ -1,6 +1,6 @@
 import { sha256 } from "@noble/hashes/sha2";
 import { toHex } from "@tessellog/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   createAppender,
   createMemoryDriver,
@@ -196,4 +196,76 @@ describe("following the log into the antispam store", () => {
     await appender.shutdown();
     expect(String(reported[0])).toContain("antispam store is read-only");
   });
+});
+
+const DEFAULT_ANTISPAM_PUSHBACK_THRESHOLD = 2048;
+
+const gatedStore = (): { store: AntispamStore; release: () => void } => {
+  const memory = createMemoryAntispamStore();
+  let release: () => void = () => undefined;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return {
+    store: {
+      ...memory,
+      record: async (entries, followedSize) => {
+        await gate;
+        await memory.record(entries, followedSize);
+      },
+    },
+    release: () => release(),
+  };
+};
+
+const integratedTo = async (appender: { reader: { integratedSize: () => Promise<bigint> } }, size: bigint) => {
+  await vi.waitFor(async () => {
+    expect(await appender.reader.integratedSize()).toBe(size);
+  });
+};
+
+describe("pushing back when the antispam follower lags", () => {
+  it("refuses entries while the follower is beyond the threshold", async () => {
+    const { store } = gatedStore();
+    const appender = appenderWith({ antispam: { store, pushbackThreshold: 2 } });
+    await appender.add(entry("a"));
+    await appender.add(entry("b"));
+    await appender.add(entry("c"));
+    await integratedTo(appender, 3n);
+    const refused = appender.add(entry("d"));
+    await expect(refused).rejects.toBeInstanceOf(PushbackAntispamError);
+    await expect(refused).rejects.toBeInstanceOf(PushbackError);
+  });
+
+  it("accepts entries again once the follower catches up", async () => {
+    const { store, release } = gatedStore();
+    const appender = appenderWith({ antispam: { store, pushbackThreshold: 2 } });
+    await appender.add(entry("a"));
+    await appender.add(entry("b"));
+    await appender.add(entry("c"));
+    await integratedTo(appender, 3n);
+    release();
+    await vi.waitFor(async () => {
+      expect(await store.followedSize()).toBe(3n);
+    });
+    expect(await appender.add(entry("d"))).toEqual({ index: 3n, isDup: false });
+  });
+
+  it(
+    "allows a lag of exactly 2048 entries by default, and refuses beyond it",
+    async () => {
+      const { store } = gatedStore();
+      const appender = appenderWith({ batching: { maxSize: 256, maxAge: 0 }, antispam: { store } });
+      const addMany = (from: number, count: number) =>
+        Promise.all(Array.from({ length: count }, (_, i) => appender.add(entry(`e${from + i}`))));
+      await addMany(0, DEFAULT_ANTISPAM_PUSHBACK_THRESHOLD);
+      await integratedTo(appender, BigInt(DEFAULT_ANTISPAM_PUSHBACK_THRESHOLD));
+      await addMany(DEFAULT_ANTISPAM_PUSHBACK_THRESHOLD, 1);
+      await integratedTo(appender, BigInt(DEFAULT_ANTISPAM_PUSHBACK_THRESHOLD + 1));
+      await expect(appender.add(entry("one too many"))).rejects.toThrow(
+        "antispam follower is too far behind",
+      );
+    },
+    20_000,
+  );
 });
