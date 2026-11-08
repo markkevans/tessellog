@@ -47,7 +47,7 @@ export const parseCosignerVerifierKey = (vkey: string): Result<NoteVerifier> => 
     name,
     keyId,
     verify: async (message: Uint8Array, signature: Uint8Array) =>
-      signature.length === TIMESTAMP_BYTES + 64 &&
+      signature.length > TIMESTAMP_BYTES &&
       verifyEd25519(
         signature.slice(TIMESTAMP_BYTES),
         cosignedMessage(new DataView(signature.buffer, signature.byteOffset).getBigUint64(0), message),
