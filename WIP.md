@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 2 of 17: An HTTP fetcher reads checkpoints, tiles and bundles through an injected `fetch`.
+Step 3 of 17: The fetcher falls back to the full tile when a partial tile is missing.
 
 ## Status
 
@@ -11,8 +11,8 @@ Step 2 of 17: An HTTP fetcher reads checkpoints, tiles and bundles through an in
 ## Completed
 
 - [x] Step 1: consistency proofs from tiles
-- [ ] Step 2: HTTP fetcher ← current
-- [ ] Step 3: partial tile fallback
+- [x] Step 2: HTTP fetcher
+- [ ] Step 3: partial tile fallback ← current
 - [ ] Step 4: open the latest checkpoint
 - [ ] Step 5: prove inclusion
 - [ ] Step 6: check consistency
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Scaffold @tessellog/client and write failing fetcher tests.
+Write failing fallback tests.
