@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 10 of 11: Shutdown integrates and publishes everything outstanding.
+Step 11 of 11: Invalid appender options are rejected.
 
 ## Status
 
@@ -19,8 +19,8 @@ Step 10 of 11: Shutdown integrates and publishes everything outstanding.
 - [x] Step 7: inclusion proofs from tiles
 - [x] Step 8: batching by size and age
 - [x] Step 9: pushback
-- [ ] Step 10: graceful shutdown ← current
-- [ ] Step 11: options validation
+- [x] Step 10: graceful shutdown
+- [ ] Step 11: options validation (adds `additionalSigners`, needed for the signer-name rule) ← current
 
 ## Blockers
 
@@ -33,4 +33,4 @@ None.
 
 ## Next Action
 
-Write failing shutdown tests.
+Write failing options validation tests.
