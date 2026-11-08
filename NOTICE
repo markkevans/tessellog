@@ -18,5 +18,9 @@ tessellog also implements the following C2SP specifications:
   - tlog-checkpoint   https://c2sp.org/tlog-checkpoint
   - signed-note       https://c2sp.org/signed-note
 
+The Merkle proof test vectors in packages/core/test/vectors/merkle are
+copied from transparency-dev/merkle (https://github.com/transparency-dev/merkle),
+Copyright Google LLC, licensed under the Apache License, Version 2.0.
+
 tessellog is an independent project. It is not affiliated with or endorsed
 by the Tessera authors or the transparency-dev project.
