@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 11 of 17: The POSIX driver keeps sequencing and tree state across restarts.
+Step 12 of 17: The POSIX driver refuses a second writer on the same directory.
 
 ## Status
 
@@ -20,8 +20,8 @@ Step 11 of 17: The POSIX driver keeps sequencing and tree state across restarts.
 - [x] Step 8: CI workflow (Node 22 and 24: Node 20 is end-of-life), green on first run
 - [x] Step 9: driver conformance suite (coverage exception awaiting approval)
 - [x] Step 10: POSIX driver
-- [ ] Step 11: POSIX restart persistence ← current
-- [ ] Step 12: POSIX single-writer lock
+- [x] Step 11: POSIX restart persistence (CI actions moved to their Node 24 releases at Mark's request)
+- [ ] Step 12: POSIX single-writer lock ← current
 - [ ] Step 13: tile length validation
 - [ ] Step 14: client file fetcher
 - [ ] Step 15: posix-oneshot example
@@ -38,4 +38,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing restart tests.
+Write failing lock tests.
