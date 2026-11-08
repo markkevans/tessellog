@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 10 of 17: The POSIX driver stores a log in a directory at tlog-tiles paths and passes conformance.
+Step 11 of 17: The POSIX driver keeps sequencing and tree state across restarts.
 
 ## Status
 
@@ -19,8 +19,8 @@ Step 10 of 17: The POSIX driver stores a log in a directory at tlog-tiles paths 
 - [x] Step 7: stream verified entries
 - [x] Step 8: CI workflow (Node 22 and 24: Node 20 is end-of-life), green on first run
 - [x] Step 9: driver conformance suite (coverage exception awaiting approval)
-- [ ] Step 10: POSIX driver ← current
-- [ ] Step 11: POSIX restart persistence
+- [x] Step 10: POSIX driver
+- [ ] Step 11: POSIX restart persistence ← current
 - [ ] Step 12: POSIX single-writer lock
 - [ ] Step 13: tile length validation
 - [ ] Step 14: client file fetcher
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing POSIX driver tests (public files only; sequencing state stays in memory until step 11).
+Write failing restart tests.
