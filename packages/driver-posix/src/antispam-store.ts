@@ -1,7 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { concatBytes } from "@noble/hashes/utils";
-import type { AntispamStore, FollowedEntry } from "@tessellog/appender";
-import { HASH_BYTES, toHex } from "@tessellog/core";
+import { createIdentityIndex, type AntispamStore, type FollowedEntry } from "@tessellog/appender";
+import { HASH_BYTES } from "@tessellog/core";
 import { logFiles } from "./files.js";
 
 const SEGMENTS_DIRECTORY = "segments";
@@ -42,21 +42,15 @@ export const openPosixAntispamStore = async ({
       decodeSegment(name, await files.readExisting(`${SEGMENTS_DIRECTORY}/${name}`)),
     ),
   );
-  const indices = new Map<string, bigint>();
-  const remember = (entries: readonly FollowedEntry[]): void => {
-    entries
-      .map(({ identity, index }) => ({ key: toHex(identity), index }))
-      .filter(({ key }) => !indices.has(key))
-      .forEach(({ key, index }) => indices.set(key, index));
-  };
-  segments.forEach(remember);
+  const index = createIdentityIndex();
+  segments.forEach(index.remember);
   let followed = BigInt(names.at(-1) ?? "0");
   return {
-    lookup: async (identity) => indices.get(toHex(identity)),
+    lookup: async (identity) => index.lookup(identity),
     followedSize: async () => followed,
     record: async (entries, followedSize) => {
       await files.write(segmentPath(followedSize), concatBytes(...entries.map(encodeRecord)));
-      remember(entries);
+      index.remember(entries);
       followed = followedSize;
     },
   };

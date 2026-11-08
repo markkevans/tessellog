@@ -1,17 +1,14 @@
-import { toHex } from "@tessellog/core";
 import type { AntispamStore } from "./antispam-store.js";
+import { createIdentityIndex } from "./identity-index.js";
 
 export const createMemoryAntispamStore = (): AntispamStore => {
-  const indices = new Map<string, bigint>();
+  const index = createIdentityIndex();
   let followed = 0n;
   return {
-    lookup: async (identity) => indices.get(toHex(identity)),
+    lookup: async (identity) => index.lookup(identity),
     followedSize: async () => followed,
     record: async (entries, followedSize) => {
-      entries
-        .map(({ identity, index }) => ({ key: toHex(identity), index }))
-        .filter(({ key }) => !indices.has(key))
-        .forEach(({ key, index }) => indices.set(key, index));
+      index.remember(entries);
       followed = followedSize;
     },
   };
