@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 5 of 14: Antispam options are validated and the memory store passes a conformance suite.
+Step 6 of 14: The POSIX driver offers a persistent antispam store.
 
 ## Status
 
@@ -14,8 +14,8 @@ Step 5 of 14: Antispam options are validated and the memory store passes a confo
 - [x] Step 2: persistent store lookup
 - [x] Step 3: follower populates the store
 - [x] Step 4: antispam pushback (Tessera default 2048, lag > threshold)
-- [ ] Step 5: antispam options and store conformance ← current
-- [ ] Step 6: POSIX antispam store
+- [x] Step 5: antispam options and store conformance (characterisation, passed on first run)
+- [ ] Step 6: POSIX antispam store ← current
 - [ ] Step 7: Ed25519 checkpoint cosignatures
 - [ ] Step 8: tlog-policy parsing and quorum
 - [ ] Step 9: witness add-checkpoint server
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write options validation and store conformance tests.
+Write failing POSIX antispam store tests.
