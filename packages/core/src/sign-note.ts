@@ -1,26 +1,28 @@
 import { concatBytes } from "@noble/hashes/utils";
 import { encodeBase64 } from "./base64.js";
+import {
+  encodeKeyId,
+  hasControlCharacters,
+  MALFORMED_NOTE,
+  SIGNATURE_PREFIX,
+} from "./note-format.js";
 import { isValidKeyName, type NoteSigner } from "./note-keys.js";
 import { failure, success, type Result } from "./result.js";
 
-const CONTROL_EXCEPT_NEWLINE = /[\x00-\x09\x0b-\x1f]/;
 const LONE_SURROGATE = /\p{Surrogate}/u;
 
 const isValidNoteText = (text: string): boolean =>
   text.endsWith("\n") &&
-  !CONTROL_EXCEPT_NEWLINE.test(text) &&
+  !hasControlCharacters(text) &&
   !LONE_SURROGATE.test(text);
-
-const keyIdBytes = (keyId: number): Uint8Array =>
-  Uint8Array.of(keyId >>> 24, (keyId >>> 16) & 0xff, (keyId >>> 8) & 0xff, keyId & 0xff);
 
 const signatureLine = async (
   signer: NoteSigner,
   message: Uint8Array,
 ): Promise<string> => {
   const signature = await signer.sign(message);
-  const encoded = encodeBase64(concatBytes(keyIdBytes(signer.keyId), signature));
-  return `— ${signer.name} ${encoded}\n`;
+  const encoded = encodeBase64(concatBytes(encodeKeyId(signer.keyId), signature));
+  return `${SIGNATURE_PREFIX}${signer.name} ${encoded}\n`;
 };
 
 export const signNote = async ({
@@ -31,7 +33,7 @@ export const signNote = async ({
   readonly signers: readonly NoteSigner[];
 }): Promise<Result<string>> => {
   if (!isValidNoteText(text)) {
-    return failure("malformed note");
+    return failure(MALFORMED_NOTE);
   }
   if (signers.length === 0) {
     return failure("a note needs at least one signer");

@@ -1,13 +1,15 @@
 import { decodeBase64 } from "./base64.js";
+import {
+  hasControlCharacters,
+  MALFORMED_NOTE,
+  SIGNATURE_PREFIX,
+  splitKeyIdPrefix,
+} from "./note-format.js";
 import { isValidKeyName, type NoteVerifier } from "./note-keys.js";
 import { failure, success, type Result } from "./result.js";
 
-const SIGNATURE_PREFIX = "— ";
 const SIGNATURE_BLOCK_SEPARATOR = "\n\n";
 const MAX_SIGNATURES = 100;
-const KEY_ID_BYTES = 4;
-const CONTROL_EXCEPT_NEWLINE = /[\x00-\x09\x0b-\x1f]/;
-const MALFORMED = "malformed note";
 
 export type NoteSignature = {
   readonly name: string;
@@ -50,27 +52,27 @@ const parseSignatureLine = (line: string): ParsedSignature | undefined => {
   const name = body.slice(0, space);
   const base64 = body.slice(space + 1);
   const raw = decodeBase64(base64);
-  if (space < 0 || raw === undefined || raw.length <= KEY_ID_BYTES || !isValidKeyName(name)) {
+  const prefixed = raw === undefined ? undefined : splitKeyIdPrefix(raw);
+  if (space < 0 || prefixed === undefined || !isValidKeyName(name)) {
     return undefined;
   }
-  const keyId = new DataView(raw.buffer, raw.byteOffset).getUint32(0);
-  return { name, keyId, base64, signature: raw.slice(KEY_ID_BYTES) };
+  return { name, base64, ...prefixed };
 };
 
 const parseNote = (message: Uint8Array): Result<ParsedNote> => {
   const decoded = decodeUtf8(message);
-  if (decoded === undefined || CONTROL_EXCEPT_NEWLINE.test(decoded)) {
-    return failure(MALFORMED);
+  if (decoded === undefined || hasControlCharacters(decoded)) {
+    return failure(MALFORMED_NOTE);
   }
   const split = decoded.lastIndexOf(SIGNATURE_BLOCK_SEPARATOR);
   const block = decoded.slice(split + SIGNATURE_BLOCK_SEPARATOR.length);
   if (split < 0 || block === "" || !block.endsWith("\n")) {
-    return failure(MALFORMED);
+    return failure(MALFORMED_NOTE);
   }
   const lines = block.slice(0, -1).split("\n");
   const signatures = lines.map(parseSignatureLine);
   if (lines.length > MAX_SIGNATURES || signatures.includes(undefined)) {
-    return failure(MALFORMED);
+    return failure(MALFORMED_NOTE);
   }
   return success({
     text: decoded.slice(0, split + 1),

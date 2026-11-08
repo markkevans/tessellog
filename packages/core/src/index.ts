@@ -7,7 +7,7 @@ export {
   type NoteSigner,
   type NoteVerifier,
 } from "./note-keys.js";
-export { signNote } from "./notes.js";
+export { signNote } from "./sign-note.js";
 export {
   openNote,
   type NoteSignature,
