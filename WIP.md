@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 7 of 11: Entries are proven included using only published tiles and the checkpoint.
+Step 8 of 11: Batches are flushed by size or by age.
 
 ## Status
 
@@ -16,8 +16,8 @@ Step 7 of 11: Entries are proven included using only published tiles and the che
 - [x] Step 4: appender scaffold + sequencing
 - [x] Step 5: integration loop (with `onError` reporting; fixed a missing-bundle data-loss bug)
 - [x] Step 6: checkpoint publication
-- [ ] Step 7: inclusion proofs from tiles ← current
-- [ ] Step 8: batching by size and age
+- [x] Step 7: inclusion proofs from tiles
+- [ ] Step 8: batching by size and age ← current
 - [ ] Step 9: pushback
 - [ ] Step 10: graceful shutdown
 - [ ] Step 11: options validation
@@ -33,4 +33,4 @@ None.
 
 ## Next Action
 
-Write failing tests for `inclusionProofFromTiles` (core) and the end-to-end inclusion check (appender).
+Write failing batching tests with fake timers.
