@@ -1,7 +1,12 @@
 import { concatBytes } from "@noble/hashes/utils";
 import { decodeBundle, leafHash } from "@tessellog/core";
 import { describe, expect, it, vi } from "vitest";
-import { createAppender, createMemoryDriver, type Appender } from "../src/index.js";
+import {
+  createAppender,
+  createMemoryDriver,
+  type Appender,
+  type LogDriver,
+} from "../src/index.js";
 
 const entry = (text: string): Uint8Array => new TextEncoder().encode(text);
 
@@ -94,5 +99,48 @@ describe("integrating appended entries", () => {
     const appender = newAppender();
     expect(await appender.reader.readTile({ level: 0, index: 0n, width: 1 })).toBeUndefined();
     expect(await appender.reader.readEntryBundle({ index: 0n, width: 1 })).toBeUndefined();
+  });
+});
+
+describe("reporting integration failures", () => {
+  const failingWith = (overrides: Partial<LogDriver>) => {
+    const reported: unknown[] = [];
+    const appender = createAppender({
+      driver: { ...createMemoryDriver(), ...overrides },
+      onError: (error) => {
+        reported.push(error);
+      },
+    });
+    return { appender, reported };
+  };
+
+  it("reports a partial tile missing from storage", async () => {
+    const { appender, reported } = failingWith({ readTile: async () => undefined });
+    await addAll(appender, entries(2));
+    await vi.waitFor(() => {
+      expect(String(reported[0])).toContain("missing tile tile/0/000.p/1");
+    });
+  });
+
+  it("reports a corrupt entry bundle in storage", async () => {
+    const { appender, reported } = failingWith({
+      readEntryBundle: async () => Uint8Array.of(0x00),
+    });
+    await addAll(appender, entries(2));
+    await vi.waitFor(() => {
+      expect(String(reported[0])).toContain("corrupt entry bundle tile/entries/000.p/1");
+    });
+  });
+
+  it("logs failures to the console by default", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const appender = createAppender({
+      driver: { ...createMemoryDriver(), readTile: async () => undefined },
+    });
+    await addAll(appender, entries(2));
+    await vi.waitFor(() => {
+      expect(consoleError).toHaveBeenCalled();
+    });
+    consoleError.mockRestore();
   });
 });
