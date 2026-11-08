@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 7 of 17: The client streams entries in a range and verifies them against the tiles.
+Step 8 of 17: CI runs typecheck and coverage on every push.
 
 ## Status
 
@@ -16,8 +16,8 @@ Step 7 of 17: The client streams entries in a range and verifies them against th
 - [x] Step 4: open the latest checkpoint
 - [x] Step 5: prove inclusion
 - [x] Step 6: check consistency
-- [ ] Step 7: stream verified entries ← current
-- [ ] Step 8: CI workflow
+- [x] Step 7: stream verified entries
+- [ ] Step 8: CI workflow (Node 22 and 24: Node 20 is end-of-life) ← current
 - [ ] Step 9: driver conformance suite
 - [ ] Step 10: POSIX driver
 - [ ] Step 11: POSIX restart persistence
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing entry streaming tests.
+Push the CI workflow and watch the first run.
