@@ -1,5 +1,6 @@
 import { entriesPath, tilePath } from "@tessellog/core";
 import type { LogFetcher } from "./fetcher.js";
+import { withFullTileFallback } from "./partial-fallback.js";
 
 const NOT_FOUND = 404;
 
@@ -24,9 +25,9 @@ export const createHttpFetcher = ({
     }
     return new Uint8Array(await response.arrayBuffer());
   };
-  return {
+  return withFullTileFallback({
     readCheckpoint: () => get("checkpoint"),
     readTile: (address) => get(tilePath(address)),
     readEntryBundle: (address) => get(entriesPath(address)),
-  };
+  });
 };

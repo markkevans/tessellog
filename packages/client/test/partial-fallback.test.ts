@@ -33,6 +33,14 @@ describe("falling back to full tiles when partials are gone", () => {
     ).toBeUndefined();
   });
 
+  it("reports a partial bundle as missing when the full bundle is missing too", async () => {
+    const { files } = await servedLog(entriesFor(300));
+    const withoutPartial = new Map([...files].filter(([path]) => path !== "tile/entries/001.p/44"));
+    expect(
+      await fetcherFor(withoutPartial).readEntryBundle({ index: 1n, width: 44 }),
+    ).toBeUndefined();
+  });
+
   it("rejects a full bundle that cannot be decoded", async () => {
     const files = new Map([["tile/entries/000", Uint8Array.of(0x00)]]);
     await expect(fetcherFor(files).readEntryBundle({ index: 0n, width: 1 })).rejects.toThrow(
