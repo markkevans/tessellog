@@ -8,6 +8,10 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - `packages/appender` (`@tessellog/appender`): batching, sequencing, background integration, checkpoint publishing, pushback, shutdown, a Zod options schema, and the in-memory driver.
 - Architectural decisions are in `docs/adr/`.
 
+## Coverage exceptions
+
+- `packages/driver-conformance` is excluded from coverage. It is test infrastructure, a Vitest suite run against each driver, and is never shipped. Its only uncovered lines are guards that fail a test loudly when a fixture is broken. (Approved within the phase 3/4 plan, 2026-11-08.)
+
 ## Commands
 
 - `pnpm test`, `pnpm test:coverage` (fails below 100% on any metric), `pnpm typecheck` (the whole workspace).

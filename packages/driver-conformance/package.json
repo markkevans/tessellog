@@ -1,0 +1,15 @@
+{
+  "name": "@tessellog/driver-conformance",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "description": "Shared Vitest suite that every tessellog storage driver must pass.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/core": "workspace:*",
+    "vitest": "^3.2.4"
+  }
+}

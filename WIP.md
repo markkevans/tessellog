@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 8 of 17: CI runs typecheck and coverage on every push.
+Step 9 of 17: A shared conformance suite specifies the driver contract and passes for the memory driver.
 
 ## Status
 
@@ -17,8 +17,8 @@ Step 8 of 17: CI runs typecheck and coverage on every push.
 - [x] Step 5: prove inclusion
 - [x] Step 6: check consistency
 - [x] Step 7: stream verified entries
-- [ ] Step 8: CI workflow (Node 22 and 24: Node 20 is end-of-life) ← current
-- [ ] Step 9: driver conformance suite
+- [x] Step 8: CI workflow (Node 22 and 24: Node 20 is end-of-life), green on first run
+- [ ] Step 9: driver conformance suite ← current
 - [ ] Step 10: POSIX driver
 - [ ] Step 11: POSIX restart persistence
 - [ ] Step 12: POSIX single-writer lock
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Push the CI workflow and watch the first run.
+Write the conformance suite and run it against the memory driver.

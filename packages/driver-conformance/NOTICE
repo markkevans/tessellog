@@ -1,0 +1,26 @@
+tessellog
+Copyright 2026 Mark Evans
+
+This product is a TypeScript port of Tessera
+(https://github.com/transparency-dev/tessera),
+Copyright 2024 The Tessera authors, licensed under the Apache License,
+Version 2.0. See the LICENSE file for the full licence text.
+
+tessellog reimplements Tessera's design, concepts and behaviour in
+TypeScript. Tessera's Go source code is not distributed with this product.
+The designs, APIs and algorithms in tessellog are adapted from that source.
+Changes from the original include translation from Go to TypeScript, a
+portable runtime (Node.js, Bun, Deno, Cloudflare Workers and browsers), and
+additional storage drivers.
+
+tessellog also implements the following C2SP specifications:
+  - tlog-tiles        https://c2sp.org/tlog-tiles
+  - tlog-checkpoint   https://c2sp.org/tlog-checkpoint
+  - signed-note       https://c2sp.org/signed-note
+
+The Merkle proof test vectors in packages/core/test/vectors/merkle are
+copied from transparency-dev/merkle (https://github.com/transparency-dev/merkle),
+Copyright Google LLC, licensed under the Apache License, Version 2.0.
+
+tessellog is an independent project. It is not affiliated with or endorsed
+by the Tessera authors or the transparency-dev project.
