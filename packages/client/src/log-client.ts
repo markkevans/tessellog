@@ -1,29 +1,19 @@
 import {
-  consistencyProofFromTiles,
-  inclusionProofFromTiles,
-  leafHash,
   openCheckpoint,
-  verifyConsistency,
-  verifyInclusion,
   type Checkpoint,
   type NoteVerifier,
   type OpenedCheckpoint,
   type Result,
 } from "@tessellog/core";
+import { checkConsistencyWith } from "./consistency.js";
 import type { LogFetcher } from "./fetcher.js";
-import { failureFrom, requireTile } from "./tiles.js";
+import { proveInclusionWith, type InclusionClaim } from "./inclusion.js";
 
 export type LogClientOptions = {
   readonly fetcher: LogFetcher;
   readonly origin: string;
   readonly logVerifier: NoteVerifier;
   readonly otherVerifiers?: readonly NoteVerifier[];
-};
-
-export type InclusionClaim = {
-  readonly entry: Uint8Array;
-  readonly index: bigint;
-  readonly checkpoint: Checkpoint;
 };
 
 export type LogClient = {
@@ -45,40 +35,6 @@ export const createLogClient = ({
     }
     return openCheckpoint({ message, origin, logVerifier, otherVerifiers });
   },
-  proveInclusion: async ({ entry, index, checkpoint: { size, rootHash } }) => {
-    if (index >= size) {
-      return { ok: false, error: `index ${index} is outside a checkpoint of size ${size}` };
-    }
-    return inclusionProofFromTiles({ leafIndex: index, treeSize: size, readTile: requireTile(fetcher) }).then(
-      (proof) =>
-        verifyInclusion({ leafIndex: index, treeSize: size, leafHash: leafHash(entry), proof, rootHash }),
-      failureFrom,
-    );
-  },
-  checkConsistency: async (older, newer) => {
-    if (newer.size < older.size) {
-      return {
-        ok: false,
-        error: `newer checkpoint of size ${newer.size} is smaller than older checkpoint of size ${older.size}`,
-      };
-    }
-    if (older.size === 0n) {
-      return { ok: true, value: undefined };
-    }
-    return consistencyProofFromTiles({
-      oldSize: older.size,
-      newSize: newer.size,
-      readTile: requireTile(fetcher),
-    }).then(
-      (proof) =>
-        verifyConsistency({
-          oldSize: older.size,
-          newSize: newer.size,
-          oldRoot: older.rootHash,
-          newRoot: newer.rootHash,
-          proof,
-        }),
-      failureFrom,
-    );
-  },
+  proveInclusion: proveInclusionWith(fetcher),
+  checkConsistency: checkConsistencyWith(fetcher),
 });
