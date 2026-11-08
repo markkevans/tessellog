@@ -81,6 +81,8 @@ const levelsFrom = (hashesAtLevel: bigint, level: number): readonly TileLevel[] 
       ];
 
 export const tileLayout = (size: bigint): readonly TileLevel[] => {
-  assertIndex(size);
+  if (!isUint64(size)) {
+    throw new RangeError(`tree size ${size} is outside uint64`);
+  }
   return levelsFrom(size, 0);
 };
