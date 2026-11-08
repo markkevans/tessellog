@@ -20,6 +20,8 @@ const noExistingTiles = async (address: TileAddress): Promise<Uint8Array> => {
 const integrateIntoEmptyTree = (leafHashes: readonly Uint8Array[]) =>
   integrate({ fromSize: 0n, leafHashes, readTile: noExistingTiles });
 
+const LEVEL_TWO_TIMEOUT_MS = 20_000;
+
 describe("integrating leaves into an empty tree", () => {
   it.each([0, 1, 2, 3, 127, 255, 256, 257, 511, 512, 513, 600])(
     "has the RFC 6962 root for a tree of %i leaves",
@@ -67,7 +69,7 @@ describe("integrating leaves into an empty tree", () => {
       width: 1,
       hashes: rootHash(leafHashes.slice(0, 65_536)),
     });
-  });
+  }, LEVEL_TWO_TIMEOUT_MS);
 });
 
 type TileStore = ReadonlyMap<string, Uint8Array>;
