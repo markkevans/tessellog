@@ -2,6 +2,7 @@ import { mkdir } from "node:fs/promises";
 import type { LogDriver, TreeState } from "@tessellog/appender";
 import { entriesPath, tilePath } from "@tessellog/core";
 import { logFiles } from "./files.js";
+import { lockDirectory } from "./lock.js";
 import {
   readBatches,
   readTreeState,
@@ -18,6 +19,7 @@ export type PosixDriver = LogDriver & {
 
 export const openPosixDriver = async ({ root }: { readonly root: string }): Promise<PosixDriver> => {
   await mkdir(root, { recursive: true });
+  const lock = await lockDirectory(root);
   const files = logFiles(root);
   let batches: readonly SequencedBatch[] = await readBatches(files);
   let treeState: TreeState = await readTreeState(files);
@@ -52,6 +54,6 @@ export const openPosixDriver = async ({ root }: { readonly root: string }): Prom
     },
     readCheckpoint: () => files.read(CHECKPOINT_PATH),
     writeCheckpoint: (checkpoint) => files.write(CHECKPOINT_PATH, checkpoint),
-    close: async () => undefined,
+    close: () => lock.release(),
   };
 };
