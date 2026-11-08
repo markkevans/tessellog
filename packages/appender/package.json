@@ -6,8 +6,13 @@
   "repository": "github:markkevans/tessellog",
   "description": "Sequences, integrates and publishes entries to a tessellog transparency log.",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
     "@tessellog/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@noble/hashes": "^1.8.0"
   }
 }

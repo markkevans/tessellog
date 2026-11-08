@@ -26,6 +26,10 @@ importers:
       '@tessellog/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
 
   packages/core:
     dependencies:

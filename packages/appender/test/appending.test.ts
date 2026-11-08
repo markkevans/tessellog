@@ -1,5 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { createAppender, createMemoryDriver } from "../src/index.js";
+import { concatBytes } from "@noble/hashes/utils";
+import { decodeBundle, leafHash } from "@tessellog/core";
+import { describe, expect, it, vi } from "vitest";
+import { createAppender, createMemoryDriver, type Appender } from "../src/index.js";
 
 const entry = (text: string): Uint8Array => new TextEncoder().encode(text);
 
@@ -28,5 +30,69 @@ describe("appending entries", () => {
     expect(results.map(({ index }) => index).sort((a, b) => Number(a - b))).toEqual(
       Array.from({ length: 10 }, (_, i) => BigInt(i)),
     );
+  });
+});
+
+const entries = (count: number): readonly Uint8Array[] =>
+  Array.from({ length: count }, (_, i) => entry(`entry ${i}`));
+
+const addAll = async (appender: Appender, toAdd: readonly Uint8Array[]): Promise<void> => {
+  await toAdd.reduce<Promise<unknown>>(
+    async (previous, next) => {
+      await previous;
+      return appender.add(next);
+    },
+    Promise.resolve(),
+  );
+};
+
+const integratedTo = async (appender: Appender, size: bigint): Promise<void> => {
+  await vi.waitFor(async () => {
+    expect(await appender.reader.integratedSize()).toBe(size);
+  });
+};
+
+describe("integrating appended entries", () => {
+  it("starts with an empty integrated tree", async () => {
+    expect(await newAppender().reader.integratedSize()).toBe(0n);
+  });
+
+  it("stores added entries in an entry bundle", async () => {
+    const appender = newAppender();
+    const added = entries(3);
+    await addAll(appender, added);
+    await integratedTo(appender, 3n);
+    const bundle = await appender.reader.readEntryBundle({ index: 0n, width: 3 });
+    expect(bundle && decodeBundle(bundle)).toEqual({ ok: true, value: added });
+  });
+
+  it("stores the leaf hash of each entry in level-0 tiles", async () => {
+    const appender = newAppender();
+    const added = entries(3);
+    await addAll(appender, added);
+    await integratedTo(appender, 3n);
+    expect(await appender.reader.readTile({ level: 0, index: 0n, width: 3 })).toEqual(
+      concatBytes(...added.map(leafHash)),
+    );
+  });
+
+  it("fills a tile and bundle before starting the next", async () => {
+    const appender = newAppender();
+    const added = entries(300);
+    await addAll(appender, added);
+    await integratedTo(appender, 300n);
+    const fullBundle = await appender.reader.readEntryBundle({ index: 0n, width: 256 });
+    const partialBundle = await appender.reader.readEntryBundle({ index: 1n, width: 44 });
+    expect(fullBundle && decodeBundle(fullBundle)).toEqual({ ok: true, value: added.slice(0, 256) });
+    expect(partialBundle && decodeBundle(partialBundle)).toEqual({ ok: true, value: added.slice(256) });
+    expect(await appender.reader.readTile({ level: 0, index: 1n, width: 44 })).toEqual(
+      concatBytes(...added.slice(256).map(leafHash)),
+    );
+  });
+
+  it("reports nothing for tiles and bundles that do not exist", async () => {
+    const appender = newAppender();
+    expect(await appender.reader.readTile({ level: 0, index: 0n, width: 1 })).toBeUndefined();
+    expect(await appender.reader.readEntryBundle({ index: 0n, width: 1 })).toBeUndefined();
   });
 });
