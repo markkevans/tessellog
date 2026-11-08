@@ -2,13 +2,12 @@ import {
   decodeBundle,
   encodeBundle,
   entriesPath,
+  HASH_BYTES,
   TILE_WIDTH,
   type BundleAddress,
   type TileAddress,
 } from "@tessellog/core";
 import type { LogFetcher } from "./fetcher.js";
-
-const HASH_BYTES = 32;
 
 const isPartial = ({ width }: { readonly width: number }): boolean => width < TILE_WIDTH;
 

@@ -1,9 +1,7 @@
-import { decodeBundle, encodeBundle } from "@tessellog/core";
+import { decodeBundle, encodeBundle, HASH_BYTES } from "@tessellog/core";
 import { describe, expect, it } from "vitest";
 import { createHttpFetcher } from "../src/index.js";
 import { BASE_URL, entriesFor, fakeServer, servedLog } from "./fixtures/served-log.js";
-
-const HASH_BYTES = 32;
 
 const fetcherFor = (files: ReadonlyMap<string, Uint8Array>) =>
   createHttpFetcher({ baseUrl: BASE_URL, fetch: fakeServer(files).fetch });
