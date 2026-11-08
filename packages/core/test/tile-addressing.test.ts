@@ -42,3 +42,30 @@ describe("addressing entry bundles (tlog-tiles)", () => {
     expect(entriesPath({ index: 0n, width: 1 })).toBe("tile/entries/000.p/1");
   });
 });
+
+describe("rejecting addresses outside the tlog-tiles spec", () => {
+  it("rejects levels above 63", () => {
+    expect(() => tilePath({ level: 64, index: 0n })).toThrow(RangeError);
+  });
+
+  it("rejects negative or fractional levels", () => {
+    expect(() => tilePath({ level: -1, index: 0n })).toThrow(RangeError);
+    expect(() => tilePath({ level: 1.5, index: 0n })).toThrow(RangeError);
+  });
+
+  it("rejects negative indices", () => {
+    expect(() => entriesPath({ index: -1n })).toThrow(RangeError);
+  });
+
+  it("rejects indices beyond uint64", () => {
+    expect(() => entriesPath({ index: 2n ** 64n })).toThrow(RangeError);
+  });
+
+  it("rejects empty or over-wide tiles", () => {
+    expect(() => entriesPath({ index: 0n, width: 0 })).toThrow(RangeError);
+    expect(() => entriesPath({ index: 0n, width: 257 })).toThrow(RangeError);
+    expect(() => tilePath({ level: 0, index: 0n, width: 2.5 })).toThrow(
+      RangeError,
+    );
+  });
+});
