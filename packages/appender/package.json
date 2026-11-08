@@ -11,9 +11,7 @@
   },
   "dependencies": {
     "@tessellog/core": "workspace:*",
-    "zod": "^3.25.76"
-  },
-  "devDependencies": {
+    "zod": "^3.25.76",
     "@noble/hashes": "^1.8.0"
   }
 }

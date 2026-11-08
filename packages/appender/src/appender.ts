@@ -1,6 +1,7 @@
 import type { TileAddress } from "@tessellog/core";
 import { createBatcher, type AddResult } from "./batching.js";
 import type { BundleAddress, LogDriver } from "./driver.js";
+import { inMemoryDeduplication, withoutDeduplication } from "./dedup.js";
 import { createIntegrator } from "./integrator.js";
 import { resolveAppenderOptions, type AppenderOptions } from "./options.js";
 import { startPublishing } from "./publishing.js";
@@ -36,8 +37,11 @@ export const createAppender = (options: AppenderOptions): Appender => {
     checkpointRepublishInterval,
     batching,
     pushback,
+    antispam,
     onError,
   } = resolveAppenderOptions(options);
+  const deduplicate =
+    antispam === undefined ? withoutDeduplication : inMemoryDeduplication(antispam.inMemoryEntries);
   const outstanding = createPushback(pushback);
   const integrator = createIntegrator({ driver, onError, onIntegrated: outstanding.integrated });
   const publishing = startPublishing({
@@ -62,7 +66,7 @@ export const createAppender = (options: AppenderOptions): Appender => {
       if (shutDown) {
         throw new Error("appender has been shut down");
       }
-      return outstanding.guard(() => batch.add(entry));
+      return deduplicate(entry, (unique) => outstanding.guard(() => batch.add(unique)));
     },
     shutdown: async () => {
       shutDown = true;

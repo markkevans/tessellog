@@ -40,6 +40,8 @@ const errorHandlerSchema = z.custom<(error: unknown) => void>(
 
 const positiveInteger = z.number().int().positive();
 
+export const DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES = 256 << 10;
+
 const logToConsole = (error: unknown): void => {
   console.error("tessellog background task failed", error);
 };
@@ -59,6 +61,9 @@ export const AppenderOptionsSchema = z
       })
       .default({}),
     pushback: z.object({ maxOutstanding: positiveInteger.default(4096) }).default({}),
+    antispam: z
+      .object({ inMemoryEntries: positiveInteger.default(DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES) })
+      .optional(),
     onError: errorHandlerSchema.default(() => logToConsole),
   })
   .superRefine((options, context) => {
