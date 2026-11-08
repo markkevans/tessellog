@@ -178,6 +178,20 @@ describe("opening notes (signed-note)", () => {
     });
   });
 
+  it("rejects the note even when a valid signature follows a bad one", async () => {
+    expect(
+      await openNote({
+        message: utf8(
+          `${NEUMANN_TEXT}\n${corrupt(PETER_SIGNATURE_LINE)}${ENOCH_SIGNATURE_LINE}`,
+        ),
+        verifiers: [verifierFor(PETER_VKEY), verifierFor(ENOCH_VKEY)],
+      }),
+    ).toEqual({
+      ok: false,
+      error: "invalid signature for key PeterNeumann+c74f20a3",
+    });
+  });
+
   it("drops repeated signatures", async () => {
     const message = utf8(
       `${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE}${PETER_SIGNATURE_LINE}` +
@@ -229,7 +243,23 @@ describe("opening notes (signed-note)", () => {
     ],
     [
       "a key name containing a space",
-      utf8(`${NEUMANN_TEXT}\n— Bad Name ${PETER.base64}`),
+      utf8(`${NEUMANN_TEXT}\n— Bad Name ${PETER.base64}\n`),
+    ],
+    [
+      "a key name containing a plus sign",
+      utf8(`${NEUMANN_TEXT}\n— Peter+Neumann ${PETER.base64}\n`),
+    ],
+    [
+      "a signature line with no space before the signature",
+      utf8(`${NEUMANN_TEXT}\n— PeterNeumann\n`),
+    ],
+    [
+      "a signature that is not base64",
+      utf8(`${NEUMANN_TEXT}\n— PeterNeumann not*base64\n`),
+    ],
+    [
+      "a signature too short to hold a key ID and signature",
+      utf8(`${NEUMANN_TEXT}\n— PeterNeumann AAAAAA==\n`),
     ],
     [
       "a line that is not a signature",
