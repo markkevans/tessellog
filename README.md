@@ -1,5 +1,7 @@
 # tessellog
 
+[![CI](https://github.com/markkevans/tessellog/actions/workflows/ci.yml/badge.svg)](https://github.com/markkevans/tessellog/actions/workflows/ci.yml)
+
 A TypeScript library for building tile-based transparency logs, ported from
 [Tessera](https://github.com/transparency-dev/tessera).
 
@@ -41,24 +43,45 @@ tessellog implements these C2SP specifications:
 
 | Package | Status | Purpose |
 |---|---|---|
-| `@tessellog/core` | usable | RFC 6962 hashing, tile layout, entry bundles, signed notes, checkpoints, building and verifying proofs, integrating leaves into tiles, and inclusion proofs from tiles. It does no I/O. |
-| `@tessellog/appender` | usable (in-memory driver) | Batching, sequencing, background integration, signed checkpoint publishing, pushback, graceful shutdown and validated options. |
-| `@tessellog/client` | planned | Fetches tiles over HTTP and verifies inclusion and consistency proofs. Works in browsers. |
+| `@tessellog/core` | usable | RFC 6962 hashing, tile layout, entry bundles, signed notes, checkpoints, building and verifying proofs (from leaves or from tiles), and integrating leaves into tiles. It does no I/O. |
+| `@tessellog/appender` | usable | Batching, sequencing, background integration, signed checkpoint publishing, pushback, graceful shutdown, validated options and an in-memory driver. |
+| `@tessellog/driver-posix` | usable | Stores a log in a directory at tlog-tiles paths. Atomic writes, restart-safe, single writer. |
+| `@tessellog/client` | usable | Verifies checkpoints, inclusion, consistency and streamed entries over HTTP or (via `@tessellog/client/node`) from disk. Falls back to full tiles when partials are gone. |
 | `@tessellog/witness` | planned | Witness cosigning and policy. |
-| `@tessellog/driver-*` | planned | POSIX, AWS and Cloudflare storage drivers. |
+| AWS and Cloudflare drivers | planned | Cloud storage drivers. |
 
-## Example
+## Interoperability with Tessera
+
+CI checks both directions on every push (`interop/run.sh`):
+- Tessera's Go client verifies a log written by tessellog.
+- tessellog's client verifies a log written by Tessera's `posix-oneshot`.
+
+Each run checks checkpoints, every inclusion proof, consistency across sessions and the exact entries.
+
+## Examples
+
+Write a log to disk:
+
+```sh
+pnpm --filter @tessellog/example-posix-oneshot oneshot \
+  --storage-dir ./my-log --private-key ./log.key entries/*
+```
+
+Verify a log over HTTP:
 
 ```ts
-import { createAppender, createMemoryDriver } from "@tessellog/appender";
-import { parseSignerKey } from "@tessellog/core";
+import { createHttpFetcher, createLogClient } from "@tessellog/client";
+import { parseVerifierKey } from "@tessellog/core";
 
-const signer = parseSignerKey(process.env.LOG_PRIVATE_KEY ?? "");
-if (!signer.ok) throw new Error(signer.error);
+const verifier = parseVerifierKey("example.com/log+abcd1234+AbC...");
+if (!verifier.ok) throw new Error(verifier.error);
 
-const log = createAppender({ driver: createMemoryDriver(), signer: signer.value });
-const { index } = await log.add(new TextEncoder().encode("hello, log"));
-await log.shutdown();
+const client = createLogClient({
+  fetcher: createHttpFetcher({ baseUrl: "https://example.com/log/" }),
+  origin: "example.com/log",
+  logVerifier: verifier.value,
+});
+const latest = await client.latestCheckpoint();
 ```
 
 Architectural decisions are recorded in [`docs/adr`](./docs/adr).
