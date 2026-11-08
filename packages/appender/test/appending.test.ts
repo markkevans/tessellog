@@ -11,7 +11,10 @@ import { logSigner } from "./fixtures/keys.js";
 
 const entry = (text: string): Uint8Array => new TextEncoder().encode(text);
 
-const newAppender = () => createAppender({ driver: createMemoryDriver(), signer: logSigner() });
+const UNBATCHED = { maxSize: 1 } as const;
+
+const newAppender = () =>
+  createAppender({ driver: createMemoryDriver(), signer: logSigner(), batching: UNBATCHED });
 
 describe("appending entries", () => {
   it("assigns contiguous indices from zero", async () => {
@@ -109,6 +112,7 @@ describe("reporting integration failures", () => {
     const appender = createAppender({
       driver: { ...createMemoryDriver(), ...overrides },
       signer: logSigner(),
+      batching: UNBATCHED,
       onError: (error) => {
         reported.push(error);
       },
@@ -147,6 +151,7 @@ describe("reporting integration failures", () => {
     const appender = createAppender({
       driver: { ...createMemoryDriver(), readTile: async () => undefined },
       signer: logSigner(),
+      batching: UNBATCHED,
     });
     try {
       await addAll(appender, entries(2));

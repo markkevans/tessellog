@@ -17,6 +17,7 @@ import { LOG_KEY_NAME, logSigner, logVerifier } from "./fixtures/keys.js";
 
 const CHECKPOINT_INTERVAL_MS = 10_000;
 const REPUBLISH_INTERVAL_MS = 600_000;
+const BATCH_MAX_AGE_MS = 250;
 
 const entry = (text: string): Uint8Array => new TextEncoder().encode(text);
 
@@ -81,7 +82,9 @@ describe("publishing checkpoints", () => {
     vi.useFakeTimers();
     const appender = appenderWith();
     const added = [entry("a"), entry("b"), entry("c")];
-    await Promise.all(added.map((e) => appender.add(e)));
+    const adding = Promise.all(added.map((e) => appender.add(e)));
+    await vi.advanceTimersByTimeAsync(BATCH_MAX_AGE_MS);
+    await adding;
     await vi.waitFor(async () => {
       expect(await appender.reader.integratedSize()).toBe(3n);
     });

@@ -11,6 +11,7 @@ import { createAppender, createMemoryDriver, type Appender } from "../src/index.
 import { LOG_KEY_NAME, logSigner, logVerifier } from "./fixtures/keys.js";
 
 const CHECKPOINT_INTERVAL_MS = 10_000;
+const BATCH_MAX_AGE_MS = 250;
 const LARGE_LOG_TIMEOUT_MS = 20_000;
 
 const entries = (count: number): readonly Uint8Array[] =>
@@ -22,9 +23,11 @@ const publishedLog = async (
   toAdd: readonly Uint8Array[],
 ): Promise<{ readonly appender: Appender; readonly added: readonly AddedEntry[] }> => {
   const appender = createAppender({ driver: createMemoryDriver(), signer: logSigner() });
-  const added = await Promise.all(
+  const adding = Promise.all(
     toAdd.map(async (entry) => ({ entry, index: (await appender.add(entry)).index })),
   );
+  await vi.advanceTimersByTimeAsync(BATCH_MAX_AGE_MS);
+  const added = await adding;
   await vi.waitFor(async () => {
     expect(await appender.reader.integratedSize()).toBe(BigInt(toAdd.length));
   });

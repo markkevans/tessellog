@@ -5,6 +5,7 @@ export {
   type AppenderOptions,
   type LogReader,
 } from "./appender.js";
+export type { BatchingOptions } from "./batching.js";
 export type {
   BundleAddress,
   EntryBundle,

@@ -5,6 +5,7 @@ import {
   type NoteSigner,
   type TileAddress,
 } from "@tessellog/core";
+import { createBatcher, type BatchingOptions } from "./batching.js";
 import { bundleEntries } from "./bundling.js";
 import type { BundleAddress, LogDriver } from "./driver.js";
 import { createPublisher } from "./publishing.js";
@@ -36,6 +37,7 @@ export type AppenderOptions = {
   readonly origin?: string;
   readonly checkpointInterval?: number;
   readonly checkpointRepublishInterval?: number;
+  readonly batching?: BatchingOptions;
   readonly onError?: (error: unknown) => void;
 };
 
@@ -74,6 +76,7 @@ export const createAppender = ({
   origin = signer.name,
   checkpointInterval = DEFAULT_CHECKPOINT_INTERVAL_MS,
   checkpointRepublishInterval = DEFAULT_REPUBLISH_INTERVAL_MS,
+  batching = {},
   onError = (error) => console.error("tessellog background task failed", error),
 }: AppenderOptions): Appender => {
   const integration = serialTasks(onError);
@@ -87,12 +90,16 @@ export const createAppender = ({
   setInterval(() => {
     publication.run(() => publish(Date.now()));
   }, checkpointInterval);
-  return {
-    add: async (entry) => {
-      const index = await driver.sequence([entry]);
+  const add = createBatcher({
+    ...batching,
+    sequence: async (entries) => {
+      const firstIndex = await driver.sequence(entries);
       integration.run(() => integrateOutstanding(driver));
-      return { index, isDup: false };
+      return firstIndex;
     },
+  });
+  return {
+    add,
     reader: {
       integratedSize: async () => (await driver.readTreeState()).size,
       readTile: (address) => driver.readTile(address),
