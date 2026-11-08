@@ -1,0 +1,13 @@
+{
+  "name": "@tessellog/core",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "repository": "github:markkevans/tessellog",
+  "description": "Core primitives for tessellog: RFC 6962 Merkle hashing, tlog-tiles, signed notes and checkpoints.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@noble/hashes": "^1.8.0"
+  }
+}
