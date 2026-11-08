@@ -1,12 +1,13 @@
 import { sha256 } from "@noble/hashes/sha2";
 import { toHex } from "@tessellog/core";
+import type { AntispamStore } from "./antispam-store.js";
 import type { AddResult } from "./batching.js";
 
 export type Add = (entry: Uint8Array) => Promise<AddResult>;
 
 export type Deduplicate = (entry: Uint8Array, add: Add) => Promise<AddResult>;
 
-export const identityOf = (entry: Uint8Array): string => toHex(sha256(entry));
+const identityOf = (entry: Uint8Array): string => toHex(sha256(entry));
 
 export const withoutDeduplication: Deduplicate = (entry, add) => add(entry);
 
@@ -35,3 +36,15 @@ export const inMemoryDeduplication = (capacity: number): Deduplicate => {
     return result;
   };
 };
+
+export const persistentDeduplication =
+  (store: AntispamStore): Deduplicate =>
+  async (entry, add) => {
+    const index = await store.lookup(sha256(entry));
+    return index === undefined ? add(entry) : { index, isDup: true };
+  };
+
+export const layered =
+  (outer: Deduplicate, inner: Deduplicate): Deduplicate =>
+  (entry, add) =>
+    outer(entry, (unique) => inner(unique, add));

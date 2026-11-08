@@ -1,9 +1,19 @@
 import type { TileAddress } from "@tessellog/core";
 import { createBatcher, type AddResult } from "./batching.js";
 import type { BundleAddress, LogDriver } from "./driver.js";
-import { inMemoryDeduplication, withoutDeduplication } from "./dedup.js";
+import {
+  inMemoryDeduplication,
+  layered,
+  persistentDeduplication,
+  withoutDeduplication,
+  type Deduplicate,
+} from "./dedup.js";
 import { createIntegrator } from "./integrator.js";
-import { resolveAppenderOptions, type AppenderOptions } from "./options.js";
+import {
+  resolveAppenderOptions,
+  type AppenderOptions,
+  type ResolvedAppenderOptions,
+} from "./options.js";
 import { startPublishing } from "./publishing.js";
 import { createPushback } from "./pushback.js";
 
@@ -18,6 +28,16 @@ export type Appender = {
   readonly add: (entry: Uint8Array) => Promise<AddResult>;
   readonly shutdown: () => Promise<void>;
   readonly reader: LogReader;
+};
+
+const deduplicationFor = (antispam: ResolvedAppenderOptions["antispam"]): Deduplicate => {
+  if (antispam === undefined) {
+    return withoutDeduplication;
+  }
+  const inMemory = inMemoryDeduplication(antispam.inMemoryEntries);
+  return antispam.store === undefined
+    ? inMemory
+    : layered(inMemory, persistentDeduplication(antispam.store));
 };
 
 const readerFor = (driver: LogDriver): LogReader => ({
@@ -40,8 +60,7 @@ export const createAppender = (options: AppenderOptions): Appender => {
     antispam,
     onError,
   } = resolveAppenderOptions(options);
-  const deduplicate =
-    antispam === undefined ? withoutDeduplication : inMemoryDeduplication(antispam.inMemoryEntries);
+  const deduplicate = deduplicationFor(antispam);
   const outstanding = createPushback(pushback);
   const integrator = createIntegrator({ driver, onError, onIntegrated: outstanding.integrated });
   const publishing = startPublishing({

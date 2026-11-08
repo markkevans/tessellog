@@ -1,5 +1,6 @@
 import type { NoteSigner } from "@tessellog/core";
 import { z } from "zod";
+import type { AntispamStore } from "./antispam-store.js";
 import type { LogDriver } from "./driver.js";
 
 const DRIVER_METHODS = [
@@ -38,6 +39,11 @@ const errorHandlerSchema = z.custom<(error: unknown) => void>(
   { message: "onError must be a function" },
 );
 
+const antispamStoreSchema = z.custom<AntispamStore>(
+  (value) => isRecord(value) && typeof value["lookup"] === "function",
+  { message: "antispam store must implement lookup" },
+);
+
 const positiveInteger = z.number().int().positive();
 
 export const DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES = 256 << 10;
@@ -62,7 +68,10 @@ export const AppenderOptionsSchema = z
       .default({}),
     pushback: z.object({ maxOutstanding: positiveInteger.default(4096) }).default({}),
     antispam: z
-      .object({ inMemoryEntries: positiveInteger.default(DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES) })
+      .object({
+        inMemoryEntries: positiveInteger.default(DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES),
+        store: antispamStoreSchema.optional(),
+      })
       .optional(),
     onError: errorHandlerSchema.default(() => logToConsole),
   })

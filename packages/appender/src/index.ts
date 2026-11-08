@@ -5,6 +5,7 @@ export {
   type ResolvedAppenderOptions,
 } from "./options.js";
 export { PushbackError } from "./errors.js";
+export type { AntispamStore } from "./antispam-store.js";
 export type { AddResult } from "./batching.js";
 export type {
   BundleAddress,
