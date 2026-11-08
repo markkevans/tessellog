@@ -6,11 +6,15 @@
   "repository": "github:markkevans/tessellog",
   "description": "Fetches and verifies tessellog transparency logs over HTTP or from disk.",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/node.ts"
+  },
   "dependencies": {
     "@tessellog/core": "workspace:*"
   },
   "devDependencies": {
-    "@tessellog/appender": "workspace:*"
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/driver-posix": "workspace:*"
   }
 }

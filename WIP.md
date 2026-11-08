@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 13 of 17: Integration rejects tiles from storage with the wrong length.
+Step 14 of 17: The client reads a POSIX log directly from disk.
 
 ## Status
 
@@ -22,8 +22,8 @@ Step 13 of 17: Integration rejects tiles from storage with the wrong length.
 - [x] Step 10: POSIX driver
 - [x] Step 11: POSIX restart persistence (CI actions moved to their Node 24 releases at Mark's request)
 - [x] Step 12: POSIX single-writer lock (also fixed: lock released when opening fails)
-- [ ] Step 13: tile length validation ← current
-- [ ] Step 14: client file fetcher
+- [x] Step 13: tile length validation
+- [ ] Step 14: client file fetcher ← current
 - [ ] Step 15: posix-oneshot example
 - [ ] Step 16: Go interop CI
 - [ ] Step 17: driver contract ADR
@@ -38,4 +38,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing tile length tests.
+Write failing file fetcher tests.

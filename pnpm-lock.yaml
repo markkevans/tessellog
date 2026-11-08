@@ -43,6 +43,9 @@ importers:
       '@tessellog/appender':
         specifier: workspace:*
         version: link:../appender
+      '@tessellog/driver-posix':
+        specifier: workspace:*
+        version: link:../driver-posix
 
   packages/core:
     dependencies:
