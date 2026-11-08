@@ -5,6 +5,8 @@ import {
   createAppender,
   createMemoryDriver,
   createMemoryAntispamStore,
+  PushbackAntispamError,
+  PushbackError,
   type AntispamStore,
   type AppenderOptions,
   type LogDriver,

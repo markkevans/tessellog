@@ -31,14 +31,24 @@ export type Appender = {
   readonly reader: LogReader;
 };
 
-const deduplicationFor = (antispam: ResolvedAppenderOptions["antispam"]): Deduplicate => {
+const deduplicationFor = (
+  antispam: ResolvedAppenderOptions["antispam"],
+  driver: LogDriver,
+): Deduplicate => {
   if (antispam === undefined) {
     return withoutDeduplication;
   }
   const inMemory = inMemoryDeduplication(antispam.inMemoryEntries);
   return antispam.store === undefined
     ? inMemory
-    : layered(inMemory, persistentDeduplication(antispam.store));
+    : layered(
+        inMemory,
+        persistentDeduplication({
+          store: antispam.store,
+          integratedSize: async () => (await driver.readTreeState()).size,
+          pushbackThreshold: antispam.pushbackThreshold,
+        }),
+      );
 };
 
 const readerFor = (driver: LogDriver): LogReader => ({
@@ -61,7 +71,7 @@ export const createAppender = (options: AppenderOptions): Appender => {
     antispam,
     onError,
   } = resolveAppenderOptions(options);
-  const deduplicate = deduplicationFor(antispam);
+  const deduplicate = deduplicationFor(antispam, driver);
   const outstanding = createPushback(pushback);
   const follower =
     antispam?.store === undefined

@@ -2,6 +2,7 @@ import { sha256 } from "@noble/hashes/sha2";
 import { toHex } from "@tessellog/core";
 import type { AntispamStore } from "./antispam-store.js";
 import type { AddResult } from "./batching.js";
+import { PushbackAntispamError } from "./errors.js";
 
 export type Add = (entry: Uint8Array) => Promise<AddResult>;
 
@@ -38,8 +39,19 @@ export const inMemoryDeduplication = (capacity: number): Deduplicate => {
 };
 
 export const persistentDeduplication =
-  (store: AntispamStore): Deduplicate =>
+  ({
+    store,
+    integratedSize,
+    pushbackThreshold,
+  }: {
+    readonly store: AntispamStore;
+    readonly integratedSize: () => Promise<bigint>;
+    readonly pushbackThreshold: number;
+  }): Deduplicate =>
   async (entry, add) => {
+    if ((await integratedSize()) - (await store.followedSize()) > BigInt(pushbackThreshold)) {
+      throw new PushbackAntispamError();
+    }
     const index = await store.lookup(sha256(entry));
     return index === undefined ? add(entry) : { index, isDup: true };
   };

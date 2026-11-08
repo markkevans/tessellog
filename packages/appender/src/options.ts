@@ -49,6 +49,7 @@ const antispamStoreSchema = z.custom<AntispamStore>(
 const positiveInteger = z.number().int().positive();
 
 export const DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES = 256 << 10;
+export const DEFAULT_ANTISPAM_PUSHBACK_THRESHOLD = 2048;
 
 const logToConsole = (error: unknown): void => {
   console.error("tessellog background task failed", error);
@@ -73,6 +74,7 @@ export const AppenderOptionsSchema = z
       .object({
         inMemoryEntries: positiveInteger.default(DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES),
         store: antispamStoreSchema.optional(),
+        pushbackThreshold: positiveInteger.default(DEFAULT_ANTISPAM_PUSHBACK_THRESHOLD),
       })
       .optional(),
     onError: errorHandlerSchema.default(() => logToConsole),
