@@ -1,7 +1,8 @@
 import { formatCheckpoint, signNote, type NoteSigner } from "@tessellog/core";
 import type { LogDriver } from "./driver.js";
+import { serialTasks } from "./serial-tasks.js";
 
-export type PublisherOptions = {
+type PublisherOptions = {
   readonly driver: LogDriver;
   readonly signers: readonly NoteSigner[];
   readonly origin: string;
@@ -10,7 +11,7 @@ export type PublisherOptions = {
 
 type Publication = { readonly size: bigint; readonly at: number };
 
-export const createPublisher = ({
+const createPublisher = ({
   driver,
   signers,
   origin,
@@ -33,5 +34,31 @@ export const createPublisher = ({
     }
     await driver.writeCheckpoint(new TextEncoder().encode(signed.value));
     last = { size, at: now };
+  };
+};
+
+export type Publishing = {
+  readonly stop: () => Promise<void>;
+};
+
+export const startPublishing = ({
+  interval,
+  onError,
+  ...publisher
+}: PublisherOptions & {
+  readonly interval: number;
+  readonly onError: (error: unknown) => void;
+}): Publishing => {
+  const publish = createPublisher(publisher);
+  const tasks = serialTasks(onError);
+  const timer = setInterval(() => {
+    tasks.run(() => publish(Date.now()));
+  }, interval);
+  return {
+    stop: async () => {
+      clearInterval(timer);
+      tasks.run(() => publish(Date.now()));
+      await tasks.idle();
+    },
   };
 };
