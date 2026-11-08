@@ -21,8 +21,15 @@ export const openPosixDriver = async ({ root }: { readonly root: string }): Prom
   await mkdir(root, { recursive: true });
   const lock = await lockDirectory(root);
   const files = logFiles(root);
-  let batches: readonly SequencedBatch[] = await readBatches(files);
-  let treeState: TreeState = await readTreeState(files);
+  const [storedBatches, storedTreeState] = await Promise.all([
+    readBatches(files),
+    readTreeState(files),
+  ]).catch(async (error: unknown) => {
+    await lock.release();
+    throw error;
+  });
+  let batches: readonly SequencedBatch[] = storedBatches;
+  let treeState: TreeState = storedTreeState;
   const nextIndex = (): bigint => {
     const last = batches.at(-1);
     return last === undefined ? 0n : last.firstIndex + BigInt(last.entries.length);
