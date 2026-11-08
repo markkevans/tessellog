@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 5 of 17: The client proves an entry is included in a checkpoint.
+Step 6 of 17: The client checks that a newer checkpoint is consistent with an older one.
 
 ## Status
 
@@ -14,8 +14,8 @@ Step 5 of 17: The client proves an entry is included in a checkpoint.
 - [x] Step 2: HTTP fetcher
 - [x] Step 3: partial tile fallback
 - [x] Step 4: open the latest checkpoint
-- [ ] Step 5: prove inclusion ← current
-- [ ] Step 6: check consistency
+- [x] Step 5: prove inclusion
+- [ ] Step 6: check consistency ← current
 - [ ] Step 7: stream verified entries
 - [ ] Step 8: CI workflow
 - [ ] Step 9: driver conformance suite
@@ -34,4 +34,4 @@ None. Mark is installing Go locally, so step 16 runs locally first and then in G
 
 ## Next Action
 
-Write failing proveInclusion tests.
+Write failing checkConsistency tests.
