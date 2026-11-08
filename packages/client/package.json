@@ -1,0 +1,16 @@
+{
+  "name": "@tessellog/client",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "repository": "github:markkevans/tessellog",
+  "description": "Fetches and verifies tessellog transparency logs over HTTP or from disk.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@tessellog/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@tessellog/appender": "workspace:*"
+  }
+}

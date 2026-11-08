@@ -34,6 +34,16 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
 
+  packages/client:
+    dependencies:
+      '@tessellog/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@tessellog/appender':
+        specifier: workspace:*
+        version: link:../appender
+
   packages/core:
     dependencies:
       '@noble/curves':
