@@ -29,10 +29,10 @@ type KeyFields = {
   readonly keyMaterial: Uint8Array;
 };
 
-export const isValidKeyName = (name: string): boolean =>
+const isValidKeyName = (name: string): boolean =>
   name !== "" && !name.includes("+") && !WHITESPACE.test(name);
 
-export const computeKeyId = (name: string, publicKey: Uint8Array): number =>
+const computeKeyId = (name: string, publicKey: Uint8Array): number =>
   new DataView(
     sha256(concatBytes(new TextEncoder().encode(`${name}\n`), publicKey)).buffer,
   ).getUint32(0);
