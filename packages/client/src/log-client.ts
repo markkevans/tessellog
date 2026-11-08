@@ -1,7 +1,9 @@
 import {
+  consistencyProofFromTiles,
   inclusionProofFromTiles,
   leafHash,
   openCheckpoint,
+  verifyConsistency,
   verifyInclusion,
   type Checkpoint,
   type NoteVerifier,
@@ -27,6 +29,7 @@ export type InclusionClaim = {
 export type LogClient = {
   readonly latestCheckpoint: () => Promise<Result<OpenedCheckpoint>>;
   readonly proveInclusion: (claim: InclusionClaim) => Promise<Result<void>>;
+  readonly checkConsistency: (older: Checkpoint, newer: Checkpoint) => Promise<Result<void>>;
 };
 
 export const createLogClient = ({
@@ -49,6 +52,32 @@ export const createLogClient = ({
     return inclusionProofFromTiles({ leafIndex: index, treeSize: size, readTile: requireTile(fetcher) }).then(
       (proof) =>
         verifyInclusion({ leafIndex: index, treeSize: size, leafHash: leafHash(entry), proof, rootHash }),
+      failureFrom,
+    );
+  },
+  checkConsistency: async (older, newer) => {
+    if (newer.size < older.size) {
+      return {
+        ok: false,
+        error: `newer checkpoint of size ${newer.size} is smaller than older checkpoint of size ${older.size}`,
+      };
+    }
+    if (older.size === 0n) {
+      return { ok: true, value: undefined };
+    }
+    return consistencyProofFromTiles({
+      oldSize: older.size,
+      newSize: newer.size,
+      readTile: requireTile(fetcher),
+    }).then(
+      (proof) =>
+        verifyConsistency({
+          oldSize: older.size,
+          newSize: newer.size,
+          oldRoot: older.rootHash,
+          newRoot: newer.rootHash,
+          proof,
+        }),
       failureFrom,
     );
   },
