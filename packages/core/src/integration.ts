@@ -1,6 +1,6 @@
 import { concatBytes } from "@noble/hashes/utils";
 import { rootHash } from "./merkle.js";
-import { splitHashes, subtreeHasher, type Hashes, type TileReader } from "./tile-hashes.js";
+import { readTileHashes, subtreeHasher, type Hashes, type TileReader } from "./tile-hashes.js";
 import { TILE_WIDTH, TILE_WIDTH_BIGINT as WIDTH, tilePath, type TileAddress } from "./tiles.js";
 
 export type Tile = TileAddress & { readonly hashes: Uint8Array };
@@ -26,7 +26,7 @@ const readPartialTile = async (
   const width = Number(hashesAtLevel % WIDTH);
   return width === 0
     ? []
-    : splitHashes(await readTile({ level, index: hashesAtLevel / WIDTH, width }));
+    : readTileHashes(readTile, { level, index: hashesAtLevel / WIDTH, width });
 };
 
 const extendLevel = async (

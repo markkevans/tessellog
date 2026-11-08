@@ -1,6 +1,6 @@
 import { bitLength, isPowerOfTwo, largestPowerOfTwoBelow } from "./bits.js";
 import { HASH_BYTES, nodeHash, rootHash } from "./merkle.js";
-import { TILE_WIDTH, TILE_WIDTH_BIGINT as WIDTH, type TileAddress } from "./tiles.js";
+import { TILE_WIDTH, TILE_WIDTH_BIGINT as WIDTH, tilePath, type TileAddress } from "./tiles.js";
 
 export type Hashes = readonly Uint8Array[];
 
@@ -10,10 +10,19 @@ export type SubtreeHasher = (start: bigint, end: bigint) => Promise<Uint8Array>;
 
 const BITS_PER_LEVEL = 8;
 
-export const splitHashes = (bytes: Uint8Array): Hashes =>
-  Array.from({ length: bytes.length / HASH_BYTES }, (_, i) =>
+export const readTileHashes = async (
+  readTile: TileReader,
+  address: TileAddress,
+): Promise<Hashes> => {
+  const bytes = await readTile(address);
+  const expected = address.width * HASH_BYTES;
+  if (bytes.length !== expected) {
+    throw new Error(`tile ${tilePath(address)} has ${bytes.length} bytes, want ${expected}`);
+  }
+  return Array.from({ length: address.width }, (_, i) =>
     bytes.slice(i * HASH_BYTES, (i + 1) * HASH_BYTES),
   );
+};
 
 const tileWidth = (treeSize: bigint, level: number, index: bigint): number => {
   const hashesAtLevel = treeSize >> BigInt(BITS_PER_LEVEL * level);
@@ -28,9 +37,11 @@ export const subtreeHasher = (treeSize: bigint, readTile: TileReader): SubtreeHa
     const position = start >> BigInt(BITS_PER_LEVEL * level);
     const index = position / WIDTH;
     const offset = Number(position % WIDTH);
-    const tile = splitHashes(
-      await readTile({ level, index, width: tileWidth(treeSize, level, index) }),
-    );
+    const tile = await readTileHashes(readTile, {
+      level,
+      index,
+      width: tileWidth(treeSize, level, index),
+    });
     return rootHash(tile.slice(offset, offset + count));
   };
   const rangeHash: SubtreeHasher = async (start, end) => {
