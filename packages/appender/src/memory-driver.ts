@@ -5,6 +5,7 @@ export const createMemoryDriver = (): LogDriver => {
   let sequenced: readonly Uint8Array[] = [];
   let treeState: TreeState = { size: 0n, rootHash: rootHash([]) };
   let objects: ReadonlyMap<string, Uint8Array> = new Map();
+  let checkpoint: Uint8Array | undefined;
   return {
     sequence: async (entries) => {
       const firstIndex = BigInt(sequenced.length);
@@ -22,6 +23,10 @@ export const createMemoryDriver = (): LogDriver => {
         ...bundles.map((bundle) => [entriesPath(bundle), bundle.data] as const),
       ]);
       treeState = { size, rootHash: root };
+    },
+    readCheckpoint: async () => checkpoint,
+    writeCheckpoint: async (signed) => {
+      checkpoint = signed;
     },
   };
 };

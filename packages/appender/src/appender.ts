@@ -1,6 +1,16 @@
-import { integrate, leafHash, tilePath, type TileAddress } from "@tessellog/core";
+import {
+  integrate,
+  leafHash,
+  tilePath,
+  type NoteSigner,
+  type TileAddress,
+} from "@tessellog/core";
 import { bundleEntries } from "./bundling.js";
 import type { BundleAddress, LogDriver } from "./driver.js";
+import { createPublisher } from "./publishing.js";
+
+const DEFAULT_CHECKPOINT_INTERVAL_MS = 10_000;
+const DEFAULT_REPUBLISH_INTERVAL_MS = 600_000;
 
 export type AddResult = {
   readonly index: bigint;
@@ -11,6 +21,7 @@ export type LogReader = {
   readonly integratedSize: () => Promise<bigint>;
   readonly readTile: (address: TileAddress) => Promise<Uint8Array | undefined>;
   readonly readEntryBundle: (address: BundleAddress) => Promise<Uint8Array | undefined>;
+  readonly readCheckpoint: () => Promise<Uint8Array | undefined>;
 };
 
 export type Appender = {
@@ -20,6 +31,10 @@ export type Appender = {
 
 export type AppenderOptions = {
   readonly driver: LogDriver;
+  readonly signer: NoteSigner;
+  readonly origin?: string;
+  readonly checkpointInterval?: number;
+  readonly checkpointRepublishInterval?: number;
   readonly onError?: (error: unknown) => void;
 };
 
@@ -54,12 +69,26 @@ const integrateOutstanding = async (driver: LogDriver): Promise<void> => {
 
 export const createAppender = ({
   driver,
-  onError = (error) => console.error("tessellog integration failed", error),
+  signer,
+  origin = signer.name,
+  checkpointInterval = DEFAULT_CHECKPOINT_INTERVAL_MS,
+  checkpointRepublishInterval = DEFAULT_REPUBLISH_INTERVAL_MS,
+  onError = (error) => console.error("tessellog background task failed", error),
 }: AppenderOptions): Appender => {
   let integration: Promise<void> = Promise.resolve();
   const scheduleIntegration = (): void => {
     integration = integration.then(() => integrateOutstanding(driver)).catch(onError);
   };
+  const publish = createPublisher({
+    driver,
+    signer,
+    origin,
+    republishInterval: checkpointRepublishInterval,
+  });
+  let publication: Promise<void> = Promise.resolve();
+  setInterval(() => {
+    publication = publication.then(() => publish(Date.now())).catch(onError);
+  }, checkpointInterval);
   return {
     add: async (entry) => {
       const index = await driver.sequence([entry]);
@@ -70,6 +99,7 @@ export const createAppender = ({
       integratedSize: async () => (await driver.readTreeState()).size,
       readTile: (address) => driver.readTile(address),
       readEntryBundle: (address) => driver.readEntryBundle(address),
+      readCheckpoint: () => driver.readCheckpoint(),
     },
   };
 };

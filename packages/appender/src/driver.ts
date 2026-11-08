@@ -26,4 +26,6 @@ export interface LogDriver {
   readTile(address: TileAddress): Promise<Uint8Array | undefined>;
   readEntryBundle(address: BundleAddress): Promise<Uint8Array | undefined>;
   writeIntegration(update: IntegrationUpdate): Promise<void>;
+  readCheckpoint(): Promise<Uint8Array | undefined>;
+  writeCheckpoint(checkpoint: Uint8Array): Promise<void>;
 }
