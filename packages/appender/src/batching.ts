@@ -1,4 +1,7 @@
-import type { AddResult } from "./appender.js";
+export type AddResult = {
+  readonly index: bigint;
+  readonly isDup: boolean;
+};
 
 export type BatchingOptions = {
   readonly maxSize?: number;

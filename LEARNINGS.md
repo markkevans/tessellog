@@ -34,6 +34,15 @@
 - **Issue**: `(await readBundle(a)) ?? new Uint8Array()` decoded a missing bundle as empty, so the next integration rewrote it without its earlier entries.
 - **Solution**: A missing partial tile or bundle is an error. The uncovered `??` branch was the clue.
 
+### `Promise.race` against `Promise.resolve()` always says "pending"
+- **Context**: Checking whether an add has settled yet.
+- **Issue**: `pending.then(...)` needs an extra microtask, so the already-resolved branch always wins, and RED tests pass for the wrong reason.
+- **Solution**: Set a flag in `.then`, and read it after `vi.advanceTimersByTimeAsync` has flushed microtasks.
+
+### Fake timers plus batching deadlock `await Promise.all(adds)`
+- **Issue**: The batch's age timer never fires while the test awaits.
+- **Solution**: Start the adds, advance past `maxAge`, then await. Integration-focused tests use `batching: { maxSize: 1 }`.
+
 ## Patterns That Worked
 
 ### Import reference vectors, never trust memory

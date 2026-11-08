@@ -5,7 +5,7 @@ import {
   type NoteSigner,
   type TileAddress,
 } from "@tessellog/core";
-import { createBatcher, type BatchingOptions } from "./batching.js";
+import { createBatcher, type AddResult, type BatchingOptions } from "./batching.js";
 import { bundleEntries } from "./bundling.js";
 import type { BundleAddress, LogDriver } from "./driver.js";
 import { createPublisher } from "./publishing.js";
@@ -13,11 +13,6 @@ import { serialTasks } from "./serial-tasks.js";
 
 const DEFAULT_CHECKPOINT_INTERVAL_MS = 10_000;
 const DEFAULT_REPUBLISH_INTERVAL_MS = 600_000;
-
-export type AddResult = {
-  readonly index: bigint;
-  readonly isDup: boolean;
-};
 
 export type LogReader = {
   readonly integratedSize: () => Promise<bigint>;
