@@ -2,6 +2,7 @@ import { isUint64 } from "./uint64.js";
 
 const GROUP_DIGITS = 3;
 export const TILE_WIDTH = 256;
+export const TILE_WIDTH_BIGINT = BigInt(TILE_WIDTH);
 const MAX_LEVEL = 63;
 
 type IndexAddress = {
@@ -77,7 +78,7 @@ export type TileLevel = {
   readonly partialWidth: number;
 };
 
-const WIDTH = BigInt(TILE_WIDTH);
+const WIDTH = TILE_WIDTH_BIGINT;
 
 const levelsFrom = (hashesAtLevel: bigint, level: number): readonly TileLevel[] =>
   hashesAtLevel === 0n

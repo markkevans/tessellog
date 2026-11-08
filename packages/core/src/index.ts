@@ -5,6 +5,7 @@ export { verifyConsistency, verifyInclusion } from "./proofs.js";
 export {
   entriesPath,
   TILE_WIDTH,
+  TILE_WIDTH_BIGINT,
   tileLayout,
   tilePath,
   type BundleAddress,

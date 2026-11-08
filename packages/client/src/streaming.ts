@@ -2,6 +2,7 @@ import {
   decodeBundle,
   entriesPath,
   TILE_WIDTH,
+  TILE_WIDTH_BIGINT as WIDTH,
   type BundleAddress,
   type Checkpoint,
   type Result,
@@ -9,8 +10,6 @@ import {
 import type { LogFetcher } from "./fetcher.js";
 import { proveInclusionWith } from "./inclusion.js";
 import { withTileCache } from "./tile-cache.js";
-
-const WIDTH = BigInt(TILE_WIDTH);
 
 export type StreamedEntry = {
   readonly index: bigint;

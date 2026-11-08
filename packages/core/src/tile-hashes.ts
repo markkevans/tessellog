@@ -1,6 +1,6 @@
 import { bitLength, isPowerOfTwo, largestPowerOfTwoBelow } from "./bits.js";
 import { HASH_BYTES, nodeHash, rootHash } from "./merkle.js";
-import { TILE_WIDTH, type TileAddress } from "./tiles.js";
+import { TILE_WIDTH, TILE_WIDTH_BIGINT as WIDTH, type TileAddress } from "./tiles.js";
 
 export type Hashes = readonly Uint8Array[];
 
@@ -8,7 +8,6 @@ export type TileReader = (address: TileAddress) => Promise<Uint8Array>;
 
 export type SubtreeHasher = (start: bigint, end: bigint) => Promise<Uint8Array>;
 
-const WIDTH = BigInt(TILE_WIDTH);
 const BITS_PER_LEVEL = 8;
 
 export const splitHashes = (bytes: Uint8Array): Hashes =>

@@ -1,7 +1,11 @@
-import { decodeBundle, encodeBundle, entriesPath, TILE_WIDTH } from "@tessellog/core";
+import {
+  decodeBundle,
+  encodeBundle,
+  entriesPath,
+  TILE_WIDTH,
+  TILE_WIDTH_BIGINT as WIDTH,
+} from "@tessellog/core";
 import type { BundleAddress, EntryBundle } from "./driver.js";
-
-const WIDTH = BigInt(TILE_WIDTH);
 
 type BundleReader = (address: BundleAddress) => Promise<Uint8Array | undefined>;
 

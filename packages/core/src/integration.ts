@@ -1,7 +1,7 @@
 import { concatBytes } from "@noble/hashes/utils";
 import { rootHash } from "./merkle.js";
 import { splitHashes, subtreeHasher, type Hashes, type TileReader } from "./tile-hashes.js";
-import { TILE_WIDTH, tilePath, type TileAddress } from "./tiles.js";
+import { TILE_WIDTH, TILE_WIDTH_BIGINT as WIDTH, tilePath, type TileAddress } from "./tiles.js";
 
 export type Tile = TileAddress & { readonly hashes: Uint8Array };
 
@@ -12,8 +12,6 @@ export type Integration = {
   readonly rootHash: Uint8Array;
   readonly tiles: readonly Tile[];
 };
-
-const WIDTH = BigInt(TILE_WIDTH);
 
 const chunk = (hashes: Hashes, size: number): readonly Hashes[] =>
   Array.from({ length: Math.ceil(hashes.length / size) }, (_, i) =>
