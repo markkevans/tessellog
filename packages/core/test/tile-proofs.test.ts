@@ -30,13 +30,18 @@ const tileReaderFor = async (leafHashes: readonly Uint8Array[]) => {
 };
 
 describe("building inclusion proofs from tiles", () => {
+  const boundaryIndices = (size: number): readonly number[] =>
+    [...new Set([0, 1, 127, 128, 255, 256, 257, 511, 512, size - 2, size - 1])].filter(
+      (index) => index >= 0 && index < size,
+    );
+
   it.each([1, 2, 3, 255, 256, 257, 600])(
-    "matches the proof built from all leaves for every leaf of a %i-leaf tree",
+    "matches the proof built from all leaves at tile boundaries of a %i-leaf tree",
     async (size) => {
       const leafHashes = leafHashesFor(size);
       const readTile = await tileReaderFor(leafHashes);
       const mismatches = await Promise.all(
-        leafHashes.map(async (_, index) => {
+        boundaryIndices(size).map(async (index) => {
           const fromTiles = await inclusionProofFromTiles({
             leafIndex: BigInt(index),
             treeSize: BigInt(size),

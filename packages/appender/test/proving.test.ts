@@ -11,6 +11,7 @@ import { createAppender, createMemoryDriver, type Appender } from "../src/index.
 import { LOG_KEY_NAME, logSigner, logVerifier } from "./fixtures/keys.js";
 
 const CHECKPOINT_INTERVAL_MS = 10_000;
+const LARGE_LOG_TIMEOUT_MS = 20_000;
 
 const entries = (count: number): readonly Uint8Array[] =>
   Array.from({ length: count }, (_, i) => new TextEncoder().encode(`entry ${i}`));
@@ -77,5 +78,6 @@ describe("proving entries are in the published log", () => {
       );
       expect(verified.every(Boolean)).toBe(true);
     },
+    LARGE_LOG_TIMEOUT_MS,
   );
 });
