@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  consistencyProof,
+  consistencyProofFromTiles,
   inclusionProof,
   inclusionProofFromTiles,
   integrate,
@@ -72,6 +74,60 @@ describe("building inclusion proofs from tiles", () => {
       inclusionProofFromTiles({
         leafIndex: 3n,
         treeSize: 3n,
+        readTile: await tileReaderFor(leafHashesFor(3)),
+      }),
+    ).rejects.toThrow(RangeError);
+  });
+});
+
+describe("building consistency proofs from tiles", () => {
+  const sizePairs: readonly (readonly [number, number])[] = [
+    [1, 1],
+    [1, 2],
+    [3, 8],
+    [6, 8],
+    [1, 600],
+    [255, 256],
+    [255, 257],
+    [256, 257],
+    [256, 600],
+    [257, 600],
+    [511, 513],
+    [599, 600],
+    [600, 600],
+  ];
+
+  it.each(sizePairs)(
+    "matches the proof built from all leaves from size %i to size %i",
+    async (oldSize, newSize) => {
+      const leafHashes = leafHashesFor(newSize);
+      const fromTiles = await consistencyProofFromTiles({
+        oldSize: BigInt(oldSize),
+        newSize: BigInt(newSize),
+        readTile: await tileReaderFor(leafHashes),
+      });
+      expect(fromTiles).toEqual(consistencyProof({ leafHashes, oldSize: BigInt(oldSize) }));
+    },
+  );
+
+  it("reaches into level-1 tiles for larger trees", async () => {
+    const leafHashes = leafHashesFor(70_000);
+    const fromTiles = await consistencyProofFromTiles({
+      oldSize: 65_537n,
+      newSize: 70_000n,
+      readTile: await tileReaderFor(leafHashes),
+    });
+    expect(fromTiles).toEqual(consistencyProof({ leafHashes, oldSize: 65_537n }));
+  }, 20_000);
+
+  it.each([
+    [0n, 3n],
+    [4n, 3n],
+  ])("refuses a proof from size %i to size %i", async (oldSize, newSize) => {
+    await expect(
+      consistencyProofFromTiles({
+        oldSize,
+        newSize,
         readTile: await tileReaderFor(leafHashesFor(3)),
       }),
     ).rejects.toThrow(RangeError);
