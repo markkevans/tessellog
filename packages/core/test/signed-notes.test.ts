@@ -1,8 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { parseSignerKey, signNote, type NoteSigner } from "../src/index.js";
+import {
+  openNote,
+  parseSignerKey,
+  parseVerifierKey,
+  signNote,
+  type NoteSigner,
+  type NoteVerifier,
+} from "../src/index.js";
 
 const PETER_SKEY =
   "PRIVATE+KEY+PeterNeumann+c74f20a3+AYEKFALVFGyNhPJEMzD1QIDr+Y7hfZx09iUvxdXHKDFz";
+const PETER_VKEY =
+  "PeterNeumann+c74f20a3+ARpc2QcUPDhMQegwxbzhKqiBfsVkmqq/LDE4izWy10TW";
+const ENOCH_VKEY =
+  "EnochRoot+af0cfe78+ATtqJ7zOtqQtYqOo0CpvDXNlMhV3HeJDpjrASKGLWdop";
+const ENOCH_SIGNATURE_LINE =
+  "— EnochRoot rwz+eBzmZa0SO3NbfRGzPCpDckykFXSdeX+MNtCOXm2/5n2tiOHp+vAF1aGrQ5ovTG01oOTGwnWLox33WWd1RvMc+QQ=\n";
 const PETER_SIGNATURE_LINE =
   "— PeterNeumann x08go/ZJkuBS9UG/SffcvIAQxVBtiFupLLr8pAcElZInNIuGUgYN1FFYC2pZSNXgKvqfqdngotpRZb6KE6RyyBwJnAM=\n";
 const NEUMANN_TEXT =
@@ -15,6 +28,32 @@ const peterSigner = (): NoteSigner => {
     throw new Error(parsed.error);
   }
   return parsed.value;
+};
+
+const verifierFor = (vkey: string): NoteVerifier => {
+  const parsed = parseVerifierKey(vkey);
+  if (!parsed.ok) {
+    throw new Error(parsed.error);
+  }
+  return parsed.value;
+};
+
+const utf8 = (text: string): Uint8Array => new TextEncoder().encode(text);
+
+const corrupt = (line: string): string =>
+  `${line.slice(0, 60)}ABCD${line.slice(60)}`;
+
+const PETER = {
+  name: "PeterNeumann",
+  keyId: 0xc74f20a3,
+  base64:
+    "x08go/ZJkuBS9UG/SffcvIAQxVBtiFupLLr8pAcElZInNIuGUgYN1FFYC2pZSNXgKvqfqdngotpRZb6KE6RyyBwJnAM=",
+};
+const ENOCH = {
+  name: "EnochRoot",
+  keyId: 0xaf0cfe78,
+  base64:
+    "rwz+eBzmZa0SO3NbfRGzPCpDckykFXSdeX+MNtCOXm2/5n2tiOHp+vAF1aGrQ5ovTG01oOTGwnWLox33WWd1RvMc+QQ=",
 };
 
 describe("signing notes (signed-note)", () => {
@@ -57,5 +96,148 @@ describe("signing notes (signed-note)", () => {
     expect(
       await signNote({ text: NEUMANN_TEXT, signers: [misnamed] }),
     ).toEqual({ ok: false, error: "invalid signer name Peter Neumann" });
+  });
+});
+
+describe("opening notes (signed-note)", () => {
+  const twoSignatures = (): Uint8Array =>
+    utf8(`${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE}${ENOCH_SIGNATURE_LINE}`);
+
+  it("separates signatures from known keys from unknown ones", async () => {
+    expect(
+      await openNote({
+        message: twoSignatures(),
+        verifiers: [verifierFor(PETER_VKEY)],
+      }),
+    ).toEqual({
+      ok: true,
+      value: {
+        text: NEUMANN_TEXT,
+        verifiedSignatures: [PETER],
+        unverifiedSignatures: [ENOCH],
+      },
+    });
+  });
+
+  it("verifies every signature whose key is known", async () => {
+    const opened = await openNote({
+      message: twoSignatures(),
+      verifiers: [verifierFor(PETER_VKEY), verifierFor(ENOCH_VKEY)],
+    });
+    expect(opened).toEqual({
+      ok: true,
+      value: {
+        text: NEUMANN_TEXT,
+        verifiedSignatures: [PETER, ENOCH],
+        unverifiedSignatures: [],
+      },
+    });
+  });
+
+  it("fails when no signature comes from a known key", async () => {
+    expect(await openNote({ message: twoSignatures(), verifiers: [] })).toEqual({
+      ok: false,
+      error: "note has no verifiable signatures",
+    });
+  });
+
+  it("fails when two known verifiers share the signing key's name and ID", async () => {
+    expect(
+      await openNote({
+        message: utf8(`${NEUMANN_TEXT}\n${ENOCH_SIGNATURE_LINE}`),
+        verifiers: [
+          verifierFor(ENOCH_VKEY),
+          verifierFor(PETER_VKEY),
+          verifierFor(ENOCH_VKEY),
+        ],
+      }),
+    ).toEqual({ ok: false, error: "ambiguous key EnochRoot+af0cfe78" });
+  });
+
+  it("ignores duplicate verifiers for keys that did not sign", async () => {
+    const opened = await openNote({
+      message: utf8(`${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE}`),
+      verifiers: [
+        verifierFor(ENOCH_VKEY),
+        verifierFor(PETER_VKEY),
+        verifierFor(ENOCH_VKEY),
+      ],
+    });
+    expect(opened.ok).toBe(true);
+  });
+
+  it("rejects a bad signature from a known key", async () => {
+    expect(
+      await openNote({
+        message: utf8(`${NEUMANN_TEXT}\n${corrupt(PETER_SIGNATURE_LINE)}`),
+        verifiers: [verifierFor(PETER_VKEY)],
+      }),
+    ).toEqual({
+      ok: false,
+      error: "invalid signature for key PeterNeumann+c74f20a3",
+    });
+  });
+
+  it("drops repeated signatures", async () => {
+    const message = utf8(
+      `${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE}${PETER_SIGNATURE_LINE}` +
+        `${ENOCH_SIGNATURE_LINE}${ENOCH_SIGNATURE_LINE}${corrupt(ENOCH_SIGNATURE_LINE)}`,
+    );
+    expect(
+      await openNote({ message, verifiers: [verifierFor(PETER_VKEY)] }),
+    ).toEqual({
+      ok: true,
+      value: {
+        text: NEUMANN_TEXT,
+        verifiedSignatures: [PETER],
+        unverifiedSignatures: [
+          ENOCH,
+          {
+            ...ENOCH,
+            base64: `${ENOCH.base64.slice(0, 48)}ABCD${ENOCH.base64.slice(48)}`,
+          },
+        ],
+      },
+    });
+  });
+
+  it("refuses notes carrying more than 100 signatures", async () => {
+    const message = utf8(`${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE.repeat(101)}`);
+    expect(
+      await openNote({ message, verifiers: [verifierFor(PETER_VKEY)] }),
+    ).toEqual({ ok: false, error: "malformed note" });
+    expect(await openNote({ message, verifiers: [] })).toEqual({
+      ok: false,
+      error: "malformed note",
+    });
+  });
+
+  it.each([
+    ["text with no signature block", utf8(NEUMANN_TEXT)],
+    ["an empty signature block", utf8(`${NEUMANN_TEXT}\n`)],
+    [
+      "a signature line missing its newline",
+      utf8(`${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE.slice(0, -1)}`),
+    ],
+    [
+      "a control character",
+      utf8(`\x01${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE}`),
+    ],
+    [
+      "invalid UTF-8",
+      Uint8Array.of(0xff, ...utf8(`${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE}`)),
+    ],
+    [
+      "a key name containing a space",
+      utf8(`${NEUMANN_TEXT}\n— Bad Name ${PETER.base64}`),
+    ],
+    [
+      "a line that is not a signature",
+      utf8(`${NEUMANN_TEXT}\n${PETER_SIGNATURE_LINE}Unexpected line.\n`),
+    ],
+  ])("rejects %s as malformed", async (_, message) => {
+    expect(
+      await openNote({ message, verifiers: [verifierFor(PETER_VKEY)] }),
+    ).toEqual({ ok: false, error: "malformed note" });
   });
 });
