@@ -3,8 +3,8 @@ export {
   type Appender,
   type AppenderOptions,
   type LogReader,
-  type PushbackOptions,
 } from "./appender.js";
+export type { PushbackOptions } from "./pushback.js";
 export { PushbackError } from "./errors.js";
 export type { AddResult, BatchingOptions } from "./batching.js";
 export type {

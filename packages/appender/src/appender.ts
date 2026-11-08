@@ -7,18 +7,14 @@ import {
 } from "@tessellog/core";
 import { createBatcher, type AddResult, type BatchingOptions } from "./batching.js";
 import { bundleEntries } from "./bundling.js";
-import { PushbackError } from "./errors.js";
+import { createPushback, type PushbackOptions } from "./pushback.js";
 import type { BundleAddress, LogDriver } from "./driver.js";
 import { createPublisher } from "./publishing.js";
 import { serialTasks } from "./serial-tasks.js";
 
 const DEFAULT_CHECKPOINT_INTERVAL_MS = 10_000;
 const DEFAULT_REPUBLISH_INTERVAL_MS = 600_000;
-const DEFAULT_MAX_OUTSTANDING = 4096;
 
-export type PushbackOptions = {
-  readonly maxOutstanding?: number;
-};
 
 export type LogReader = {
   readonly integratedSize: () => Promise<bigint>;
@@ -73,6 +69,13 @@ const integrateOutstanding = async (driver: LogDriver): Promise<bigint> => {
   return size - fromSize;
 };
 
+const readerFor = (driver: LogDriver): LogReader => ({
+  integratedSize: async () => (await driver.readTreeState()).size,
+  readTile: (address) => driver.readTile(address),
+  readEntryBundle: (address) => driver.readEntryBundle(address),
+  readCheckpoint: () => driver.readCheckpoint(),
+});
+
 export const createAppender = ({
   driver,
   signer,
@@ -80,7 +83,7 @@ export const createAppender = ({
   checkpointInterval = DEFAULT_CHECKPOINT_INTERVAL_MS,
   checkpointRepublishInterval = DEFAULT_REPUBLISH_INTERVAL_MS,
   batching = {},
-  pushback: { maxOutstanding = DEFAULT_MAX_OUTSTANDING } = {},
+  pushback = {},
   onError = (error) => console.error("tessellog background task failed", error),
 }: AppenderOptions): Appender => {
   const integration = serialTasks(onError);
@@ -94,37 +97,19 @@ export const createAppender = ({
   setInterval(() => {
     publication.run(() => publish(Date.now()));
   }, checkpointInterval);
-  let accepted = 0n;
-  let integrated = 0n;
+  const outstanding = createPushback(pushback);
   const batch = createBatcher({
     ...batching,
     sequence: async (entries) => {
       const firstIndex = await driver.sequence(entries);
       integration.run(async () => {
-        integrated += await integrateOutstanding(driver);
+        outstanding.integrated(await integrateOutstanding(driver));
       });
       return firstIndex;
     },
   });
-  const add = async (entry: Uint8Array): Promise<AddResult> => {
-    if (accepted - integrated >= BigInt(maxOutstanding)) {
-      throw new PushbackError();
-    }
-    accepted += 1n;
-    try {
-      return await batch(entry);
-    } catch (error) {
-      accepted -= 1n;
-      throw error;
-    }
-  };
   return {
-    add,
-    reader: {
-      integratedSize: async () => (await driver.readTreeState()).size,
-      readTile: (address) => driver.readTile(address),
-      readEntryBundle: (address) => driver.readEntryBundle(address),
-      readCheckpoint: () => driver.readCheckpoint(),
-    },
+    add: (entry) => outstanding.guard(() => batch(entry)),
+    reader: readerFor(driver),
   };
 };
