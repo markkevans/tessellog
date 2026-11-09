@@ -21,6 +21,52 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@24.19.2)(supports-color@7.2.0)(tsx@4.23.15)
 
+  docs:
+    dependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1164.0
+        version: 3.1164.0
+      '@aws-sdk/client-s3':
+        specifier: ^3.1164.0
+        version: 3.1164.0
+      '@tessellog/appender':
+        specifier: workspace:*
+        version: link:../packages/appender
+      '@tessellog/client':
+        specifier: workspace:*
+        version: link:../packages/client
+      '@tessellog/core':
+        specifier: workspace:*
+        version: link:../packages/core
+      '@tessellog/driver-aws':
+        specifier: workspace:*
+        version: link:../packages/driver-aws
+      '@tessellog/driver-cloudflare':
+        specifier: workspace:*
+        version: link:../packages/driver-cloudflare
+      '@tessellog/driver-conformance':
+        specifier: workspace:*
+        version: link:../packages/driver-conformance
+      '@tessellog/driver-object-store':
+        specifier: workspace:*
+        version: link:../packages/driver-object-store
+      '@tessellog/driver-posix':
+        specifier: workspace:*
+        version: link:../packages/driver-posix
+      '@tessellog/http':
+        specifier: workspace:*
+        version: link:../packages/http
+      '@tessellog/static-ct':
+        specifier: workspace:*
+        version: link:../packages/static-ct
+      '@tessellog/witness':
+        specifier: workspace:*
+        version: link:../packages/witness
+    devDependencies:
+      tsx:
+        specifier: ^4.20.0
+        version: 4.23.15
+
   examples/aws-log:
     dependencies:
       '@aws-sdk/client-dynamodb':

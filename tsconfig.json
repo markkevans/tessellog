@@ -1,6 +1,9 @@
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": { "composite": false, "noEmit": true },
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true
+  },
   "include": [
     "packages/*/src",
     "packages/*/test",
@@ -8,6 +11,9 @@
     "examples/*/bin",
     "examples/*/test",
     "interop/*.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "docs/snippets",
+    "docs/test",
+    "docs/*.ts"
   ]
 }

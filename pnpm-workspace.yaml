@@ -2,6 +2,7 @@ packages:
   - "packages/*"
   - "examples/*"
   - "interop"
+  - "docs"
 allowBuilds:
   esbuild: true
   workerd: true

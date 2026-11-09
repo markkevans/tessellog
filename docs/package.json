@@ -1,0 +1,30 @@
+{
+  "name": "@tessellog/docs",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "description": "tessellog's guides, with every code snippet type-checked and kept in sync with the markdown.",
+  "type": "module",
+  "scripts": {
+    "sync": "tsx sync-snippets.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1164.0",
+    "@aws-sdk/client-s3": "^3.1164.0",
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/client": "workspace:*",
+    "@tessellog/core": "workspace:*",
+    "@tessellog/driver-aws": "workspace:*",
+    "@tessellog/driver-cloudflare": "workspace:*",
+    "@tessellog/driver-conformance": "workspace:*",
+    "@tessellog/driver-object-store": "workspace:*",
+    "@tessellog/driver-posix": "workspace:*",
+    "@tessellog/http": "workspace:*",
+    "@tessellog/static-ct": "workspace:*",
+    "@tessellog/witness": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  }
+}
