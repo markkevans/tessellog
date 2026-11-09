@@ -96,6 +96,7 @@ export const createAppender = (options: AppenderOptions): Appender => {
       follower.schedule();
     },
   });
+  integrator.schedule();
   const publishing = startPublishing({
     driver,
     signers: [signer, ...additionalSigners],
