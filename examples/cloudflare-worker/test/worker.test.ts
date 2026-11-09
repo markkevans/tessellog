@@ -33,15 +33,22 @@ const harness = async (overrides?: Partial<Env>): Promise<Harness> => {
     LOG: {
       idFromName: (name) => name,
       get: (id) => {
-        const existing = objects.get(id);
-        const object = existing ?? new LogDurableObject(undefined, env);
-        objects.set(id, object);
+        const name = String(id);
+        const object = objects.get(name) ?? new LogDurableObject(undefined, env);
+        objects.set(name, object);
         return object;
       },
     },
     ...overrides,
   };
-  return { env, verifierKey, dispose: () => mf.dispose() };
+  return {
+    env,
+    verifierKey,
+    dispose: async () => {
+      await Promise.all([...objects.values()].map((object) => object.close()));
+      await mf.dispose();
+    },
+  };
 };
 
 const fetcherThrough = (env: Env): LogFetcher =>

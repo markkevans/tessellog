@@ -31,7 +31,7 @@ describe("the Worker bundle on workerd", () => {
       const mf = new Miniflare({
         modules: true,
         script: await bundleWorker(),
-        compatibilityDate: "2026-11-01",
+        compatibilityDate: "2026-08-01",
         durableObjects: { LOG: "LogDurableObject" },
         r2Buckets: ["LOG_BUCKET"],
         d1Databases: ["LOG_DB"],
