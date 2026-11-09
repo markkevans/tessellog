@@ -224,6 +224,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@tessellog/client':
+        specifier: workspace:*
+        version: link:../client
       '@tessellog/driver-posix':
         specifier: workspace:*
         version: link:../driver-posix

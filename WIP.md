@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 17 of 20 (17b): A static-CT layout, the appender layout option and driver entriesPath options.
+Step 18 of 20: The client and migration target read static-CT logs.
 
 ## Status
 
@@ -26,8 +26,8 @@ Step 17 of 20 (17b): A static-CT layout, the appender layout option and driver e
 - [x] Step 14: reject oversized entries
 - [x] Step 15: pluggable entry layouts (internal refactor; the public layout option lands with static CT in step 17)
 - [x] Step 16: RFC 6962 tree-head signatures (verifies the real Rome log checkpoint)
-- [ ] Step 17: static-CT layout: 17a entry encoding vs Go ctonly; 17b layout + appender/driver options ← current
-- [ ] Step 18: client and migration read static CT
+- [x] Step 17: static-CT layout: 17a entry encoding vs Go ctonly; 17b layout + appender/driver options
+- [ ] Step 18: client and migration read static CT ← current
 - [ ] Step 19: static-CT interop with Go
 - [ ] Step 20: ADRs and docs
 
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing static-CT log tests.
+Write failing static-CT client and migration tests.
