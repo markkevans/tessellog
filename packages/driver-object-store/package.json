@@ -1,0 +1,17 @@
+{
+  "name": "@tessellog/driver-object-store",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "repository": "github:markkevans/tessellog",
+  "description": "A tessellog LogDriver built from an object store and a sequencing coordinator, shared by the AWS and Cloudflare drivers.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@tessellog/driver-conformance": "workspace:*"
+  }
+}

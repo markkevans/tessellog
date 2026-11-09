@@ -4,3 +4,9 @@ export {
   type AntispamHarness,
   type AntispamSetup,
 } from "./antispam-suite.js";
+export {
+  describeCoordinator,
+  describeObjectStore,
+  type Harness,
+  type Setup,
+} from "./object-store-suites.js";

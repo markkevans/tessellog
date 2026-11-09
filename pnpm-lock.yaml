@@ -118,6 +118,19 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@24.19.2)(supports-color@7.2.0)(tsx@4.23.15)
 
+  packages/driver-object-store:
+    dependencies:
+      '@tessellog/appender':
+        specifier: workspace:*
+        version: link:../appender
+      '@tessellog/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@tessellog/driver-conformance':
+        specifier: workspace:*
+        version: link:../driver-conformance
+
   packages/driver-posix:
     dependencies:
       '@noble/hashes':
