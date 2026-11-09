@@ -6,6 +6,7 @@ type ObjectStore = {
   readonly get: (key: string) => Promise<Uint8Array | undefined>;
   readonly put: (key: string, data: Uint8Array) => Promise<void>;
   readonly delete: (key: string) => Promise<void>;
+  readonly deleteMany: (keys: readonly string[]) => Promise<void>;
 };
 
 type Coordinator = {
@@ -13,6 +14,7 @@ type Coordinator = {
   readonly readSequenced: (fromIndex: bigint) => Promise<readonly Uint8Array[]>;
   readonly readTreeState: () => Promise<TreeState>;
   readonly advanceTreeState: (expectedSize: bigint, next: TreeState) => Promise<boolean>;
+  readonly forgetSequencedBefore: (size: bigint) => Promise<void>;
 };
 
 export type Harness<T> = { readonly subject: T; readonly cleanup: () => Promise<void> };
@@ -56,6 +58,21 @@ export const describeObjectStore = (name: string, setup: Setup<ObjectStore>): vo
         await store.delete("tile/entries/000.p/1");
         await store.delete("tile/entries/000.p/2");
         expect(await store.get("tile/entries/000.p/1")).toBeUndefined();
+      }));
+    it("deletes many objects at once, including ones that do not exist", () =>
+      using(setup, async (store) => {
+        await store.put("tile/0/000.p/1", bytes("a"));
+        await store.put("tile/0/000.p/2", bytes("b"));
+        await store.put("tile/0/000", bytes("c"));
+        await store.deleteMany(["tile/0/000.p/1", "tile/0/000.p/2", "tile/0/000.p/3"]);
+        expect(await store.get("tile/0/000.p/1")).toBeUndefined();
+        expect(await store.get("tile/0/000.p/2")).toBeUndefined();
+        expect(await store.get("tile/0/000")).toEqual(bytes("c"));
+      }));
+
+    it("accepts an empty list of objects to delete", () =>
+      using(setup, async (store) => {
+        await store.deleteMany([]);
       }));
   });
 };
@@ -103,6 +120,15 @@ export const describeCoordinator = (name: string, setup: Setup<Coordinator>): vo
           await coordinator.advanceTreeState(5n, { size: 7n, rootHash: new Uint8Array(32) }),
         ).toBe(false);
         expect((await coordinator.readTreeState()).size).toBe(0n);
+      }));
+
+    it("forgets batches entirely below a size, keeping later entries readable", () =>
+      using(setup, async (coordinator) => {
+        await coordinator.sequence([bytes("a"), bytes("b")]);
+        await coordinator.sequence([bytes("c"), bytes("d")]);
+        await coordinator.forgetSequencedBefore(3n);
+        expect(await coordinator.readSequenced(3n)).toEqual([bytes("d")]);
+        expect(await coordinator.sequence([bytes("e")])).toBe(4n);
       }));
   });
 };

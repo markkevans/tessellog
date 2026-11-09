@@ -101,6 +101,51 @@ export const describeLogDriver = (name: string, setup: DriverSetup): void => {
         expect(await driver.readCheckpoint()).toEqual(new TextEncoder().encode("second\n"));
       }));
 
+    it("removes partial tiles and bundles once their tiles are full", () =>
+      withDriver(setup, async (driver) => {
+        const partial = new Uint8Array(32).fill(1);
+        const full = new Uint8Array(256 * 32).fill(2);
+        await driver.writeIntegration({
+          size: 1n,
+          rootHash: rootHash([]),
+          tiles: [{ level: 0, index: 0n, width: 1, hashes: partial }],
+          bundles: [{ index: 0n, width: 1, data: encodeBundle([entry(0)]) }],
+        });
+        await driver.writeIntegration({
+          size: 256n,
+          rootHash: rootHash([]),
+          tiles: [{ level: 0, index: 0n, width: 256, hashes: full }],
+          bundles: [{ index: 0n, width: 256, data: encodeBundle(Array.from({ length: 256 }, (_, i) => entry(i))) }],
+        });
+        await driver.collectGarbage(256n);
+        expect(await driver.readTile({ level: 0, index: 0n, width: 1 })).toBeUndefined();
+        expect(await driver.readEntryBundle({ index: 0n, width: 1 })).toBeUndefined();
+        expect(await driver.readTile({ level: 0, index: 0n, width: 256 })).toEqual(full);
+      }));
+
+    it("keeps the partials of tiles that are not yet full", () =>
+      withDriver(setup, async (driver) => {
+        const partial = new Uint8Array(32).fill(1);
+        await driver.writeIntegration({
+          size: 1n,
+          rootHash: rootHash([]),
+          tiles: [{ level: 0, index: 0n, width: 1, hashes: partial }],
+          bundles: [],
+        });
+        await driver.collectGarbage(1n);
+        await driver.collectGarbage(1n);
+        expect(await driver.readTile({ level: 0, index: 0n, width: 1 })).toEqual(partial);
+      }));
+
+    it("keeps sequenced entries at or above the collected size", () =>
+      withDriver(setup, async (driver) => {
+        await driver.sequence([entry(0), entry(1)]);
+        await driver.sequence([entry(2)]);
+        await driver.writeIntegration({ size: 2n, rootHash: rootHash([]), tiles: [], bundles: [] });
+        await driver.collectGarbage(2n);
+        expect(await driver.readSequenced(2n)).toEqual([entry(2)]);
+      }));
+
     it(
       "backs an appender whose published log verifies",
       () =>

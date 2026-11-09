@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 9 of 20: Core lists the partial tiles and bundles made obsolete between two tree sizes.
+Step 10 of 20 (10a): The LogDriver contract specifies garbage collection; the memory driver implements it.
 
 ## Status
 
@@ -18,8 +18,8 @@ Step 9 of 20: Core lists the partial tiles and bundles made obsolete between two
 - [x] Step 6: R2 object store and D1 coordinator (Miniflare; payloads in R2, D1 rows hold pointers)
 - [x] Step 7: Cloudflare driver (conformance, restart, single writer, antispam)
 - [x] Step 8: CI Floci service container (brought forward to step 2 so main stays green)
-- [ ] Step 9: obsolete partials in core (tiles that became full; all their .p/ widths go, as in Tessera) ← current
-- [ ] Step 10: garbage collection
+- [x] Step 9: obsolete partials in core (tiles that became full; all their .p/ widths go, as in Tessera)
+- [ ] Step 10: garbage collection: 10a contract + memory, 10b POSIX, 10c object stores, 10d appender interval ← current
 - [ ] Step 11: migration target
 - [ ] Step 12: appender takes over a migrated log
 - [ ] Step 13: migrate a Tessera log (interop)
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing tilesFilledBetween tests.
+Add garbage collection to the LogDriver conformance suite.
