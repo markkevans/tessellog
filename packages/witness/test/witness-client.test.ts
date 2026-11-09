@@ -1,5 +1,5 @@
 import { decodeBase64, type NoteVerifier } from "@tessellog/core";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createMemoryWitnessStore,
   createWitness,
@@ -18,6 +18,10 @@ import {
 } from "./fixtures/log.js";
 
 const PREFIX = "https://witness.example/submit";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 const witnessWith = (store: WitnessStore = createMemoryWitnessStore()): Witness =>
   createWitness({
@@ -60,6 +64,23 @@ describe("submitting checkpoints to a witness", () => {
     const requested: string[] = [];
     await submit(clientFor(witnessWith(), witnessVerifier(), requested), 5);
     expect(requested).toEqual([`${PREFIX}/add-checkpoint`]);
+  });
+
+  it("accepts a submission prefix that already ends with a slash", async () => {
+    const requested: string[] = [];
+    const client = createWitnessClient({
+      url: `${PREFIX}/`,
+      verifier: witnessVerifier(),
+      fetch: fetchTo(witnessWith(), requested),
+    });
+    await submit(client, 5);
+    expect(requested).toEqual([`${PREFIX}/add-checkpoint`]);
+  });
+
+  it("uses the global fetch when none is given", async () => {
+    vi.stubGlobal("fetch", fetchTo(witnessWith()));
+    const result = await submit(createWitnessClient({ url: PREFIX, verifier: witnessVerifier() }), 5);
+    expect(result.ok).toBe(true);
   });
 
   it("proves later checkpoints from the size the witness last cosigned", async () => {
