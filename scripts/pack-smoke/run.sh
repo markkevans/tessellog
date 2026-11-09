@@ -5,7 +5,7 @@ root=$(cd "$(dirname "$0")/../.." && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-packages=(core appender client witness static-ct driver-object-store driver-posix driver-aws driver-cloudflare driver-conformance)
+packages=(core appender client witness http static-ct driver-object-store driver-posix driver-aws driver-cloudflare driver-conformance)
 
 pnpm --dir "$root" build
 mkdir -p "$work/tarballs" "$work/app"

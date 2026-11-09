@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { z } from "zod";
-import type { LogHandler } from "./handler.js";
+import type { LogHandler } from "@tessellog/http";
 
 export type RunningServer = {
   readonly url: string;

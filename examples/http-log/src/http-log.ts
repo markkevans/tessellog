@@ -1,7 +1,7 @@
 import { createAppender, type AppenderOptions } from "@tessellog/appender";
 import type { NoteSigner } from "@tessellog/core";
 import { openPosixDriver } from "@tessellog/driver-posix";
-import { createLogHandler } from "./handler.js";
+import { createLogHandler } from "@tessellog/http";
 import { serve } from "./node-server.js";
 
 export type HttpLogOptions = {

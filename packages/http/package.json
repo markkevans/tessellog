@@ -1,0 +1,30 @@
+{
+  "name": "@tessellog/http",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "repository": "github:markkevans/tessellog",
+  "description": "A fetch-style HTTP handler for tessellog logs: add entries and serve tiles, bundles and checkpoints.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": ["dist", "src", "LICENSE", "NOTICE", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/core": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  }
+}

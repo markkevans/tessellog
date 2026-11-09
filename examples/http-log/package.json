@@ -13,10 +13,10 @@
     "start": "tsx bin/http-log.ts"
   },
   "dependencies": {
-    "@noble/hashes": "^1.8.0",
     "@tessellog/appender": "workspace:*",
     "@tessellog/core": "workspace:*",
     "@tessellog/driver-posix": "workspace:*",
+    "@tessellog/http": "workspace:*",
     "zod": "^3.25.76"
   },
   "devDependencies": {

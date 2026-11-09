@@ -14,6 +14,7 @@ const entryPoints = {
   "@tessellog/client": "createLogClient",
   "@tessellog/client/node": "createFileFetcher",
   "@tessellog/witness": "createWitness",
+  "@tessellog/http": "createLogHandler",
   "@tessellog/static-ct": "encodeTileLeaf",
   "@tessellog/driver-object-store": "createObjectStoreDriver",
   "@tessellog/driver-posix": "openPosixDriver",
