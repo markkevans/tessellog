@@ -8,7 +8,15 @@ This guide takes you from nothing to a running log that you add entries to over 
 npm install @tessellog/core @tessellog/appender @tessellog/client @tessellog/driver-posix @tessellog/http
 ```
 
-> Until the first release reaches npm, clone [the repository](https://github.com/markkevans/tessellog), run `pnpm install`, and work inside it. The examples below run from there.
+The packages are ES modules with TypeScript types included. Steps 1 and 3 need nothing more than these packages.
+
+Steps 2, 4 and 5 use the ready-made command-line tools in the repository's [examples](../../examples). To run them, clone the repository and install its dependencies:
+
+```sh
+git clone https://github.com/markkevans/tessellog.git
+cd tessellog
+pnpm install
+```
 
 ## 1. A log in memory
 
