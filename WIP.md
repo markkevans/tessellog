@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 2 of 20: An S3 object store passes the ObjectStore contract against Floci.
+Step 3 of 20: A DynamoDB coordinator passes the Coordinator contract against Floci.
 
 ## Status
 
@@ -11,8 +11,8 @@ Step 2 of 20: An S3 object store passes the ObjectStore contract against Floci.
 ## Completed
 
 - [x] Step 1: object-store driver core
-- [ ] Step 2: S3 object store (Floci) ← current
-- [ ] Step 3: DynamoDB coordinator (Floci)
+- [x] Step 2: S3 object store (Floci)
+- [ ] Step 3: DynamoDB coordinator (Floci): counter + batch pointers in one transaction, payloads in the object store ← current
 - [ ] Step 4: AWS driver (conformance, restart, lease)
 - [ ] Step 5: DynamoDB antispam store
 - [ ] Step 6: R2 object store and D1 coordinator (Miniflare)
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing S3 object store tests against Floci.
+Write failing DynamoDB coordinator tests.

@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { CreateBucketCommand, S3Client } from "@aws-sdk/client-s3";
 
 const ENDPOINT = process.env["FLOCI_ENDPOINT"] ?? "http://127.0.0.1:4566";
@@ -18,3 +19,7 @@ export const freshBucket = async (client: S3Client): Promise<string> => {
 };
 
 export const FLOCI_CLIENT_CONFIG = clientConfig;
+
+export const flociDynamo = (): DynamoDBClient => new DynamoDBClient(clientConfig);
+
+export const freshTableName = (): string => `tessellog-${randomUUID()}`;
