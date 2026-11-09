@@ -2,17 +2,13 @@ import { GetItemCommand, PutItemCommand, type DynamoDBClient } from "@aws-sdk/cl
 import type { AntispamStore } from "@tessellog/appender";
 import { toHex } from "@tessellog/core";
 import { z } from "zod";
-import { ignoring } from "./dynamo.js";
+import { ignoring, NumberAttribute } from "./dynamo.js";
 
 const FOLLOWED = { pk: { S: "antispam-followed" }, sk: { N: "0" } };
 
-const IndexItem = z
-  .object({ index: z.object({ N: z.string().regex(/^(0|[1-9][0-9]*)$/) }) })
-  .transform(({ index }) => BigInt(index.N));
+const IndexItem = z.object({ index: NumberAttribute }).transform(({ index }) => index);
 
-const FollowedItem = z
-  .object({ size: z.object({ N: z.string().regex(/^(0|[1-9][0-9]*)$/) }) })
-  .transform(({ size }) => BigInt(size.N));
+const FollowedItem = z.object({ size: NumberAttribute }).transform(({ size }) => size);
 
 const identityKey = (identity: Uint8Array) => ({ pk: { S: `antispam#${toHex(identity)}` }, sk: { N: "0" } });
 

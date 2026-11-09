@@ -1,3 +1,9 @@
+import { z } from "zod";
+
+export const NumberAttribute = z
+  .object({ N: z.string().regex(/^(0|[1-9][0-9]*)$/) })
+  .transform(({ N }) => BigInt(N));
+
 export const isAwsError = (error: unknown, name: string): boolean =>
   typeof error === "object" && error !== null && "name" in error && error.name === name;
 

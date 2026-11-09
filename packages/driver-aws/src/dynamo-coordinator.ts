@@ -17,11 +17,10 @@ import {
   type ObjectStore,
 } from "@tessellog/driver-object-store";
 import { z } from "zod";
-import { ignoring, isAwsError } from "./dynamo.js";
+import { ignoring, isAwsError, NumberAttribute } from "./dynamo.js";
 
 type Item = Readonly<Record<string, AttributeValue>>;
 
-const NumberAttribute = z.object({ N: z.string().regex(/^(0|[1-9][0-9]*)$/) }).transform(({ N }) => BigInt(N));
 const BinaryAttribute = z.object({ B: z.instanceof(Uint8Array) }).transform(({ B }) => B);
 const StringAttribute = z.object({ S: z.string() }).transform(({ S }) => S);
 
