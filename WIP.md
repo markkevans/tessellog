@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Read Go formats/note note_rfc6962.go and generate vectors.
+Write failing RFC 6962 signature tests using Go formats/note vectors and the real Rome checkpoint.
