@@ -27,6 +27,7 @@ const logWith = async (keys: NoteKeyPair, texts: readonly string[]): Promise<App
     driver: createMemoryDriver(),
     signer: unwrap(parseSignerKey(keys.signerKey)),
     batching: { maxSize: 1 },
+    checkpointInterval: 10,
   });
   await appendTo(appender, texts);
   return appender;
