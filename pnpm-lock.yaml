@@ -182,6 +182,9 @@ importers:
       '@tessellog/core':
         specifier: workspace:*
         version: link:../core
+      '@tessellog/witness':
+        specifier: workspace:*
+        version: link:../witness
       vitest:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@24.19.2)(supports-color@7.2.0)(tsx@4.23.15)
@@ -213,6 +216,9 @@ importers:
       '@tessellog/core':
         specifier: workspace:*
         version: link:../core
+      '@tessellog/witness':
+        specifier: workspace:*
+        version: link:../witness
     devDependencies:
       '@tessellog/driver-conformance':
         specifier: workspace:*

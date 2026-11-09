@@ -10,9 +10,10 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@noble/hashes": "^1.8.0",
     "@tessellog/appender": "workspace:*",
     "@tessellog/core": "workspace:*",
-    "vitest": "^3.2.4",
-    "@noble/hashes": "^1.8.0"
+    "@tessellog/witness": "workspace:*",
+    "vitest": "^3.2.4"
   }
 }

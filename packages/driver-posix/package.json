@@ -12,7 +12,8 @@
   "dependencies": {
     "@noble/hashes": "^1.8.0",
     "@tessellog/appender": "workspace:*",
-    "@tessellog/core": "workspace:*"
+    "@tessellog/core": "workspace:*",
+    "@tessellog/witness": "workspace:*"
   },
   "devDependencies": {
     "@tessellog/driver-conformance": "workspace:*"

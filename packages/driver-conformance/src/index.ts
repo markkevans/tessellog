@@ -10,3 +10,8 @@ export {
   type Harness,
   type Setup,
 } from "./object-store-suites.js";
+export {
+  describeWitnessStore,
+  type WitnessStoreHarness,
+  type WitnessStoreSetup,
+} from "./witness-store-suite.js";
