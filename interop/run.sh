@@ -78,10 +78,10 @@ printf 'interop entry after migration\n' > "$work/after-migration"
 (cd "$here" && pnpm exec tsx migrate-log.ts \
   --source-dir "$work/tessera-log" --target-dir "$work/migrated-log" \
   --vkey "$vkey" --origin "$origin" --private-key "$work/log.key" "$work/after-migration")
-mkdir -p "$work/migrated-entries" && cp "$work"/first/entry-* "$work"/second/entry-* "$work/after-migration" "$work/migrated-entries/"
+mkdir -p "$work/migrated/expected" && cp "$work"/first/entry-* "$work"/second/entry-* "$work/after-migration" "$work/migrated/expected/"
 (cd "$here/go" && go run ./cmd/verify-log \
   --storage_dir "$work/migrated-log" --vkey "$vkey" --origin "$origin" \
-  --previous_checkpoint "$work/tessera-log/checkpoint" --entries "$work/migrated-entries/*")
+  --previous_checkpoint "$work/tessera-log/checkpoint" --entries "$work/migrated/expected/*")
 
 echo "== Tessera writes a witnessed log, tessellog's witness cosigns it and tessellog's client checks the quorum"
 start_witness tessera-witness

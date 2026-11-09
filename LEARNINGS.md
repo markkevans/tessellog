@@ -11,6 +11,9 @@ Earlier learnings live in `CLAUDE.md` and `docs/adr/`.
 
 ## Patterns That Worked
 
+### Keep interop fixtures out of other scenarios' globs
+- Copying expected entries into `$work/migrated-entries/entry-*` made a later scenario's `$work/*/entry-*` glob count 600 files. Nest fixtures one level deeper, or give each scenario its own directory.
+
 ### Inject AWS failures with SDK middleware, not type hacks
 - `client.middlewareStack.add((next) => async (args) => …, { step: "initialize" })` on a real client can fail one command type, such as `TransactWriteItems`, while everything else still reaches Floci.
 
