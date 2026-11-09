@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 5 of 20: A DynamoDB antispam store passes describeAntispamStore.
+Step 6 of 20: An R2 object store and a D1 coordinator pass their contracts under Miniflare.
 
 ## Status
 
@@ -14,8 +14,8 @@ Step 5 of 20: A DynamoDB antispam store passes describeAntispamStore.
 - [x] Step 2: S3 object store (Floci)
 - [x] Step 3: DynamoDB coordinator (Floci): counter + batch pointers in one transaction, payloads in the object store
 - [x] Step 4: AWS driver (conformance, restart, lease renewed on integration)
-- [ ] Step 5: DynamoDB antispam store ← current
-- [ ] Step 6: R2 object store and D1 coordinator (Miniflare)
+- [x] Step 5: DynamoDB antispam store
+- [ ] Step 6: R2 object store and D1 coordinator (Miniflare; payloads in R2, D1 rows hold pointers) ← current
 - [ ] Step 7: Cloudflare driver (conformance, restart, single writer, antispam)
 - [x] Step 8: CI Floci service container (brought forward to step 2 so main stays green)
 - [ ] Step 9: obsolete partials in core
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing DynamoDB antispam tests.
+Write failing R2 and D1 tests.
