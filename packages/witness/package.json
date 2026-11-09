@@ -1,0 +1,13 @@
+{
+  "name": "@tessellog/witness",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "repository": "github:markkevans/tessellog",
+  "description": "A C2SP tlog-witness for tessellog and other tlog-tiles logs, with a client for submitting checkpoints.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@tessellog/core": "workspace:*"
+  }
+}

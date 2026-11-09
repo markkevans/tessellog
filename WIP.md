@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 8 of 14: Core parses `tlog-policy` files and evaluates quorums.
+Step 9 of 14: `@tessellog/witness` serves a spec-conformant `add-checkpoint`.
 
 ## Status
 
@@ -17,8 +17,8 @@ Step 8 of 14: Core parses `tlog-policy` files and evaluates quorums.
 - [x] Step 5: antispam options and store conformance (characterisation, passed on first run)
 - [x] Step 6: POSIX antispam store
 - [x] Step 7: Ed25519 checkpoint cosignatures (byte-identical with Go formats/note)
-- [ ] Step 8: tlog-policy parsing and quorum ← current
-- [ ] Step 9: witness add-checkpoint server
+- [x] Step 8: tlog-policy parsing and quorum
+- [ ] Step 9: witness add-checkpoint server ← current
 - [ ] Step 10: witness client with 409 recovery
 - [ ] Step 11: appender publishes only witnessed checkpoints
 - [ ] Step 12: client requires a quorum
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing policy parsing and quorum tests.
+Scaffold @tessellog/witness and write failing add-checkpoint tests.
