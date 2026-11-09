@@ -1,5 +1,6 @@
 import { formatCheckpoint, signNote, type NoteSigner } from "@tessellog/core";
 import type { LogDriver } from "./driver.js";
+import type { Witnessed } from "./witnessing.js";
 import { serialTasks } from "./serial-tasks.js";
 
 type PublisherOptions = {
@@ -7,6 +8,7 @@ type PublisherOptions = {
   readonly signers: readonly NoteSigner[];
   readonly origin: string;
   readonly republishInterval: number;
+  readonly witnessed: Witnessed;
 };
 
 type Publication = { readonly size: bigint; readonly at: number };
@@ -16,6 +18,7 @@ const createPublisher = ({
   signers,
   origin,
   republishInterval,
+  witnessed,
 }: PublisherOptions): ((now: number) => Promise<void>) => {
   let last: Publication | undefined;
   const isDue = (size: bigint, now: number): boolean =>
@@ -32,7 +35,7 @@ const createPublisher = ({
     if (!signed.ok) {
       throw new Error(`cannot sign checkpoint: ${signed.error}`);
     }
-    await driver.writeCheckpoint(new TextEncoder().encode(signed.value));
+    await driver.writeCheckpoint(new TextEncoder().encode(await witnessed(signed.value, size)));
     last = { size, at: now };
   };
 };

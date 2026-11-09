@@ -17,6 +17,7 @@ import {
 } from "./options.js";
 import { startPublishing } from "./publishing.js";
 import { createPushback } from "./pushback.js";
+import { witnessedPublication } from "./witnessing.js";
 
 export type LogReader = {
   readonly integratedSize: () => Promise<bigint>;
@@ -69,6 +70,7 @@ export const createAppender = (options: AppenderOptions): Appender => {
     batching,
     pushback,
     antispam,
+    witnessing,
     onError,
   } = resolveAppenderOptions(options);
   const deduplicate = deduplicationFor(antispam, driver);
@@ -91,6 +93,10 @@ export const createAppender = (options: AppenderOptions): Appender => {
     origin,
     interval: checkpointInterval,
     republishInterval: checkpointRepublishInterval,
+    witnessed:
+      witnessing === undefined
+        ? async (checkpoint) => checkpoint
+        : witnessedPublication(witnessing, driver),
     onError,
   });
   const batch = createBatcher({

@@ -1,4 +1,4 @@
-import type { NoteSigner } from "@tessellog/core";
+import type { NoteSigner, Policy, PolicyWitness } from "@tessellog/core";
 import { z } from "zod";
 import type { AntispamStore } from "./antispam-store.js";
 import type { LogDriver } from "./driver.js";
@@ -48,6 +48,42 @@ const antispamStoreSchema = z.custom<AntispamStore>(
 
 const positiveInteger = z.number().int().positive();
 
+const policySchema = z.custom<Policy>(
+  (value) => isRecord(value) && Array.isArray(value["witnesses"]) && isRecord(value["quorum"]),
+  { message: "witnessing policy must come from parsePolicy" },
+);
+
+const fetchSchema = z.custom<typeof fetch>((value) => typeof value === "function", {
+  message: "fetch must be a function",
+});
+
+const DEFAULT_WITNESS_TIMEOUT_MS = 1000;
+
+const hasUrl = (witness: PolicyWitness): witness is PolicyWitness & { readonly url: string } =>
+  witness.url !== undefined;
+
+const witnessingSchema = z
+  .object({
+    policy: policySchema,
+    timeout: positiveInteger.default(DEFAULT_WITNESS_TIMEOUT_MS),
+    failOpen: z.boolean().default(false),
+    fetch: fetchSchema.optional(),
+  })
+  .transform((witnessing, context) => {
+    const unreachable = witnessing.policy.witnesses.find((witness) => !hasUrl(witness));
+    if (unreachable !== undefined) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `witness ${unreachable.name} has no URL to submit checkpoints to`,
+      });
+      return z.NEVER;
+    }
+    return {
+      ...witnessing,
+      witnesses: witnessing.policy.witnesses.filter(hasUrl).map(({ url, verifier }) => ({ url, verifier })),
+    };
+  });
+
 export const DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES = 256 << 10;
 export const DEFAULT_ANTISPAM_PUSHBACK_THRESHOLD = 2048;
 
@@ -70,6 +106,7 @@ export const AppenderOptionsSchema = z
       })
       .default({}),
     pushback: z.object({ maxOutstanding: positiveInteger.default(4096) }).default({}),
+    witnessing: witnessingSchema.optional(),
     antispam: z
       .object({
         inMemoryEntries: positiveInteger.default(DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES),

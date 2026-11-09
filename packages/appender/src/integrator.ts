@@ -3,7 +3,7 @@ import { bundleEntries } from "./bundling.js";
 import type { LogDriver } from "./driver.js";
 import { serialTasks } from "./serial-tasks.js";
 
-const requireTile =
+export const requireTile =
   (driver: LogDriver) =>
   async (address: TileAddress): Promise<Uint8Array> => {
     const tile = await driver.readTile(address);

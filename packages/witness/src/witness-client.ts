@@ -47,7 +47,7 @@ export const createWitnessClient = ({
 }: {
   readonly url: string;
   readonly verifier: NoteVerifier;
-  readonly fetch?: typeof fetch;
+  readonly fetch?: typeof fetch | undefined;
 }): WitnessClient => {
   const endpoint = new URL("add-checkpoint", withTrailingSlash(url)).toString();
   const name = verifier.name;

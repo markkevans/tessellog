@@ -150,6 +150,18 @@ describe("withholding unwitnessed checkpoints", () => {
     expect(String(reported.at(-1))).toContain("witness policy not satisfied");
   });
 
+  it("says when no witness cosigned at all", async () => {
+    const reported: unknown[] = [];
+    const appender = appenderWith({
+      witnessing: { policy: oneWitnessPolicy(), fetch: routeTo({ [W1_URL]: witnessFor(WITNESS_ONE_COSIGNER_SKEY, false) }) },
+      onError: (error) => {
+        reported.push(error);
+      },
+    });
+    await appender.shutdown();
+    expect(String(reported.at(-1))).toContain("witness policy not satisfied: cosigned by no witnesses");
+  });
+
   it("publishes without the quorum when configured to fail open", async () => {
     const appender = appenderWith({
       witnessing: { policy: twoWitnessPolicy(), failOpen: true, fetch: routeTo({ [W1_URL]: witnessFor(WITNESS_ONE_COSIGNER_SKEY) }) },
