@@ -94,7 +94,7 @@ describe("a standalone witness server", () => {
     await log.shutdown();
     await first.close();
     const restarted = await startWitnessServer(setup.options);
-    const replayed = await addCheckpoint(restarted, `old 0\n\n${checkpoint.split("\n\n")[0]}\n\n${checkpoint.split("\n\n")[1]}`);
+    const replayed = await addCheckpoint(restarted, `old 0\n\n${checkpoint}`);
     expect(replayed.status).toBe(409);
     expect(await replayed.text()).toBe("1\n");
     await restarted.close();
