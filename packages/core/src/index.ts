@@ -53,6 +53,7 @@ export {
   parseRFC6962VerifierKey,
   rfc6962VerifierKey,
 } from "./rfc6962.js";
+export { generateNoteKey, type NoteKeyPair } from "./key-generation.js";
 export { signNote } from "./sign-note.js";
 export {
   openNote,
