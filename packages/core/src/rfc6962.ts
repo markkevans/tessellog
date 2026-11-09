@@ -1,6 +1,6 @@
 import { p256 } from "@noble/curves/nist";
 import { sha256 } from "@noble/hashes/sha2";
-import { concatBytes } from "@noble/hashes/utils";
+import { concatBytes, hexToBytes } from "@noble/hashes/utils";
 import { encodeBase64 } from "./base64.js";
 import { parseCheckpoint } from "./checkpoint.js";
 import { keyLabel } from "./note-format.js";
@@ -12,9 +12,7 @@ const HASH_SHA256 = 0x04;
 const SIGNATURE_ECDSA = 0x03;
 const TIMESTAMP_BYTES = 8;
 const SIGNATURE_HEADER_BYTES = 4;
-const P256_SPKI_PREFIX = Uint8Array.from(
-  Buffer.from("3059301306072a8648ce3d020106082a8648ce3d030107034200", "hex"),
-);
+const P256_SPKI_PREFIX = hexToBytes("3059301306072a8648ce3d020106082a8648ce3d030107034200");
 const P256_SPKI_BYTES = P256_SPKI_PREFIX.length + 65;
 
 const isP256PublicKeyInfo = (der: Uint8Array): boolean =>
