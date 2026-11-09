@@ -1,0 +1,23 @@
+{
+  "name": "@tessellog/example-keygen",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "description": "Generates signed-note keys for tessellog logs and witnesses, compatible with Go's note.GenerateKey.",
+  "type": "module",
+  "bin": {
+    "keygen": "./bin/keygen.ts"
+  },
+  "scripts": {
+    "keygen": "tsx bin/keygen.ts"
+  },
+  "dependencies": {
+    "@tessellog/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@tessellog/client": "workspace:*",
+    "@tessellog/example-posix-oneshot": "workspace:*",
+    "tsx": "^4.20.0"
+  }
+}
