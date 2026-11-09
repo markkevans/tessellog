@@ -6,9 +6,13 @@ export {
   entriesPath,
   TILE_WIDTH,
   TILE_WIDTH_BIGINT,
+  partialBundlesPrefix,
+  partialTilesPrefix,
   tileLayout,
   tilePath,
+  tilesFilledBetween,
   type BundleAddress,
+  type TileIndex,
   type TileAddress,
   type TileLevel,
 } from "./tiles.js";

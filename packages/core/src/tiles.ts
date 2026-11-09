@@ -98,3 +98,32 @@ export const tileLayout = (size: bigint): readonly TileLevel[] => {
   }
   return levelsFrom(size, 0);
 };
+
+export type TileIndex = {
+  readonly level: number;
+  readonly index: bigint;
+};
+
+export const tilesFilledBetween = ({
+  fromSize,
+  toSize,
+}: {
+  readonly fromSize: bigint;
+  readonly toSize: bigint;
+}): readonly TileIndex[] => {
+  if (toSize < fromSize) {
+    throw new RangeError(`tree size ${toSize} is smaller than ${fromSize}`);
+  }
+  return tileLayout(toSize).flatMap(({ level, fullTiles }) => {
+    const fullBefore = (fromSize >> BigInt(8 * level)) / WIDTH;
+    return Array.from({ length: Number(fullTiles - fullBefore) }, (_, i) => ({
+      level,
+      index: fullBefore + BigInt(i),
+    }));
+  });
+};
+
+export const partialTilesPrefix = ({ level, index }: TileIndex): string => `${tilePath({ level, index })}.p/`;
+
+export const partialBundlesPrefix = ({ index }: { readonly index: bigint }): string =>
+  `${entriesPath({ index })}.p/`;
