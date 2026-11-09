@@ -127,3 +127,17 @@ export const partialTilesPrefix = ({ level, index }: TileIndex): string => `${ti
 
 export const partialBundlesPrefix = ({ index }: { readonly index: bigint }): string =>
   `${entriesPath({ index })}.p/`;
+
+const PARTIAL_WIDTHS = Array.from({ length: TILE_WIDTH - 1 }, (_, i) => i + 1);
+
+export const partialPathsOf = (filled: readonly TileIndex[]): readonly string[] =>
+  filled.flatMap(({ level, index }) => [
+    ...PARTIAL_WIDTHS.map((width) => tilePath({ level, index, width })),
+    ...(level === 0 ? PARTIAL_WIDTHS.map((width) => entriesPath({ index, width })) : []),
+  ]);
+
+export const partialPrefixesOf = (filled: readonly TileIndex[]): readonly string[] =>
+  filled.flatMap((tile) => [
+    partialTilesPrefix(tile),
+    ...(tile.level === 0 ? [partialBundlesPrefix(tile)] : []),
+  ]);

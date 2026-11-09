@@ -23,4 +23,7 @@ Earlier learnings live in `CLAUDE.md` and `docs/adr/`.
 - **Context**: `minio/minio` and `quay.io/minio/minio` can no longer be pulled.
 - **Decision**: Floci 2.4.0 (MIT, no auth token), suggested by Mark. One container serves S3 and DynamoDB on :4566, and it enforces DynamoDB conditional writes. Pinned to a release, not `latest`.
 
+### Never delete the batch that anchors the next index
+- The POSIX driver derives its next index from the last batch file, so garbage collection keeps the most recent batch even when it is fully integrated. The memory driver and coordinators track a retained-from offset instead.
+
 ## Edge Cases

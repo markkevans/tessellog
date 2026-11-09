@@ -5,7 +5,7 @@ export interface R2ObjectBodyLike {
 export interface R2BucketLike {
   get(key: string): Promise<R2ObjectBodyLike | null>;
   put(key: string, value: Uint8Array): Promise<unknown>;
-  delete(key: string): Promise<void>;
+  delete(keys: string | string[]): Promise<void>;
 }
 
 export interface D1PreparedStatementLike {

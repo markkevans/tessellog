@@ -122,6 +122,31 @@ describe("reopening a POSIX log directory", () => {
     }));
 });
 
+describe("collecting garbage across restarts", () => {
+  it("resumes from the size it last collected up to", () =>
+    withTempLog(async (root) => {
+      await session(root, async (driver) => {
+        await driver.writeIntegration({
+          size: 1n,
+          rootHash: rootHash([]),
+          tiles: [{ level: 0, index: 0n, width: 1, hashes: new Uint8Array(32) }],
+          bundles: [],
+        });
+        await driver.collectGarbage(1n);
+      });
+      await session(root, async (driver) => {
+        await driver.writeIntegration({
+          size: 256n,
+          rootHash: rootHash([]),
+          tiles: [{ level: 0, index: 0n, width: 256, hashes: new Uint8Array(256 * 32) }],
+          bundles: [],
+        });
+        await driver.collectGarbage(256n);
+        expect(await driver.readTile({ level: 0, index: 0n, width: 1 })).toBeUndefined();
+      });
+    }));
+});
+
 describe("refusing corrupt state", () => {
   const stateFile = async (root: string, name: string): Promise<string> => {
     await session(root, (driver) => driver.sequence([entry(0)]));

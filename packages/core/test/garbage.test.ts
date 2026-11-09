@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { partialBundlesPrefix, partialTilesPrefix, tilesFilledBetween } from "../src/index.js";
+import {
+  partialBundlesPrefix,
+  partialPathsOf,
+  partialPrefixesOf,
+  partialTilesPrefix,
+  tilesFilledBetween,
+} from "../src/index.js";
 
 describe("finding tiles that became full as a tree grew", () => {
   it.each<[string, bigint, bigint, readonly { level: number; index: bigint }[]]>([
@@ -33,5 +39,30 @@ describe("addressing the partial versions of a tile", () => {
 
   it("names the directory holding a bundle's partial widths", () => {
     expect(partialBundlesPrefix({ index: 0n })).toBe("tile/entries/000.p/");
+  });
+});
+
+describe("listing the partial versions to remove", () => {
+  it("lists every partial width of a filled level-0 tile and its bundle", () => {
+    const paths = partialPathsOf([{ level: 0, index: 0n }]);
+    expect(paths).toHaveLength(510);
+    expect(paths).toContain("tile/0/000.p/1");
+    expect(paths).toContain("tile/0/000.p/255");
+    expect(paths).toContain("tile/entries/000.p/128");
+  });
+
+  it("lists only tile partials for higher levels, which have no bundles", () => {
+    const paths = partialPathsOf([{ level: 1, index: 0n }]);
+    expect(paths).toHaveLength(255);
+    expect(paths.every((path) => path.startsWith("tile/1/000.p/"))).toBe(true);
+  });
+
+  it("lists the partial directories of filled tiles", () => {
+    expect(
+      partialPrefixesOf([
+        { level: 0, index: 0n },
+        { level: 1, index: 0n },
+      ]),
+    ).toEqual(["tile/0/000.p/", "tile/entries/000.p/", "tile/1/000.p/"]);
   });
 });

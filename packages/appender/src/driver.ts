@@ -25,4 +25,5 @@ export interface LogDriver {
   writeIntegration(update: IntegrationUpdate): Promise<void>;
   readCheckpoint(): Promise<Uint8Array | undefined>;
   writeCheckpoint(checkpoint: Uint8Array): Promise<void>;
+  collectGarbage(upToSize: bigint): Promise<void>;
 }

@@ -7,6 +7,8 @@ export {
   TILE_WIDTH,
   TILE_WIDTH_BIGINT,
   partialBundlesPrefix,
+  partialPathsOf,
+  partialPrefixesOf,
   partialTilesPrefix,
   tileLayout,
   tilePath,

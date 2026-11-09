@@ -1,4 +1,4 @@
-import { entriesPath, rootHash, tilePath } from "@tessellog/core";
+import { entriesPath, partialPathsOf, rootHash, tilePath, tilesFilledBetween } from "@tessellog/core";
 import type { LogDriver, TreeState } from "./driver.js";
 
 export const createMemoryDriver = (): LogDriver => {
@@ -6,13 +6,15 @@ export const createMemoryDriver = (): LogDriver => {
   let treeState: TreeState = { size: 0n, rootHash: rootHash([]) };
   let objects: ReadonlyMap<string, Uint8Array> = new Map();
   let checkpoint: Uint8Array | undefined;
+  let retainedFrom = 0n;
+  let collected = 0n;
   return {
     sequence: async (entries) => {
-      const firstIndex = BigInt(sequenced.length);
+      const firstIndex = retainedFrom + BigInt(sequenced.length);
       sequenced = [...sequenced, ...entries];
       return firstIndex;
     },
-    readSequenced: async (fromIndex) => sequenced.slice(Number(fromIndex)),
+    readSequenced: async (fromIndex) => sequenced.slice(Number(fromIndex - retainedFrom)),
     readTreeState: async () => treeState,
     readTile: async (address) => objects.get(tilePath(address)),
     readEntryBundle: async (address) => objects.get(entriesPath(address)),
@@ -27,6 +29,13 @@ export const createMemoryDriver = (): LogDriver => {
     readCheckpoint: async () => checkpoint,
     writeCheckpoint: async (signed) => {
       checkpoint = signed;
+    },
+    collectGarbage: async (upToSize) => {
+      const obsolete = new Set(partialPathsOf(tilesFilledBetween({ fromSize: collected, toSize: upToSize })));
+      objects = new Map([...objects].filter(([path]) => !obsolete.has(path)));
+      sequenced = sequenced.slice(Number(upToSize - retainedFrom));
+      retainedFrom = upToSize;
+      collected = upToSize;
     },
   };
 };

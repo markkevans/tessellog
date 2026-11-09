@@ -4,6 +4,7 @@ export interface ObjectStore {
   get(key: string): Promise<Uint8Array | undefined>;
   put(key: string, data: Uint8Array): Promise<void>;
   delete(key: string): Promise<void>;
+  deleteMany(keys: readonly string[]): Promise<void>;
 }
 
 export interface Coordinator {
@@ -11,6 +12,7 @@ export interface Coordinator {
   readSequenced(fromIndex: bigint): Promise<readonly Uint8Array[]>;
   readTreeState(): Promise<TreeState>;
   advanceTreeState(expectedSize: bigint, next: TreeState): Promise<boolean>;
+  forgetSequencedBefore(size: bigint): Promise<void>;
 }
 
 export interface Lease {

@@ -1,12 +1,20 @@
 import { mkdir } from "node:fs/promises";
 import type { LogDriver, TreeState } from "@tessellog/appender";
-import { entriesPath, tilePath } from "@tessellog/core";
+import {
+  entriesPath,
+  partialPrefixesOf,
+  tilePath,
+  tilesFilledBetween,
+} from "@tessellog/core";
 import { logFiles } from "./files.js";
 import { lockDirectory } from "./lock.js";
 import {
+  batchPath,
   readBatches,
+  readCollectedSize,
   readTreeState,
   writeBatch,
+  writeCollectedSize,
   writeTreeState,
   type SequencedBatch,
 } from "./state.js";
@@ -21,15 +29,17 @@ export const openPosixDriver = async ({ root }: { readonly root: string }): Prom
   await mkdir(root, { recursive: true });
   const lock = await lockDirectory(root);
   const files = logFiles(root);
-  const [storedBatches, storedTreeState] = await Promise.all([
+  const [storedBatches, storedTreeState, storedCollected] = await Promise.all([
     readBatches(files),
     readTreeState(files),
+    readCollectedSize(files),
   ]).catch(async (error: unknown) => {
     await lock.release();
     throw error;
   });
   let batches: readonly SequencedBatch[] = storedBatches;
   let treeState: TreeState = storedTreeState;
+  let collected = storedCollected;
   const nextIndex = (): bigint => {
     const last = batches.at(-1);
     return last === undefined ? 0n : last.firstIndex + BigInt(last.entries.length);
@@ -61,6 +71,17 @@ export const openPosixDriver = async ({ root }: { readonly root: string }): Prom
     },
     readCheckpoint: () => files.read(CHECKPOINT_PATH),
     writeCheckpoint: (checkpoint) => files.write(CHECKPOINT_PATH, checkpoint),
+    collectGarbage: async (upToSize) => {
+      const filled = tilesFilledBetween({ fromSize: collected, toSize: upToSize });
+      await Promise.all(partialPrefixesOf(filled).map((prefix) => files.remove(prefix)));
+      const isIntegrated = ({ firstIndex, entries }: SequencedBatch) =>
+        firstIndex + BigInt(entries.length) <= upToSize;
+      const obsolete = batches.slice(0, -1).filter(isIntegrated);
+      await Promise.all(obsolete.map(({ firstIndex }) => files.remove(batchPath(firstIndex))));
+      batches = batches.filter((batch) => !obsolete.includes(batch));
+      collected = upToSize;
+      await writeCollectedSize(files, collected);
+    },
     close: () => lock.release(),
   };
 };

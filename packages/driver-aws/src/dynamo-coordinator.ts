@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import {
+  DeleteItemCommand,
   GetItemCommand,
   PutItemCommand,
   QueryCommand,
@@ -27,8 +28,8 @@ const StringAttribute = z.object({ S: z.string() }).transform(({ S }) => S);
 const CounterItem = z.object({ next: NumberAttribute });
 const StateItem = z.object({ size: NumberAttribute, root: BinaryAttribute });
 const BatchItem = z
-  .object({ sk: NumberAttribute, key: StringAttribute })
-  .transform(({ sk, key }) => ({ firstIndex: sk, key }));
+  .object({ sk: NumberAttribute, key: StringAttribute, count: NumberAttribute })
+  .transform(({ sk, key, count }) => ({ firstIndex: sk, key, count }));
 const BatchItems = z.array(BatchItem);
 
 type Batch = z.output<typeof BatchItem>;
@@ -80,7 +81,12 @@ export const createDynamoCoordinator = async ({
             {
               Put: {
                 TableName: table,
-                Item: { pk: { S: "batch" }, sk: { N: first.toString() }, key: { S: key } },
+                Item: {
+                  pk: { S: "batch" },
+                  sk: { N: first.toString() },
+                  key: { S: key },
+                  count: { N: String(count) },
+                },
                 ConditionExpression: "attribute_not_exists(pk)",
               },
             },
@@ -144,6 +150,22 @@ export const createDynamoCoordinator = async ({
       const later = await queryBatches("sk > :from", from, true, undefined);
       const parts = await Promise.all([...containing, ...later].map((batch) => entriesOf(batch, fromIndex)));
       return parts.flat();
+    },
+    forgetSequencedBefore: async (size) => {
+      const integrated = (await queryBatches("sk < :size", { ":size": { N: size.toString() } }, true, undefined)).filter(
+        ({ firstIndex, count }) => firstIndex + count <= size,
+      );
+      await Promise.all(
+        integrated.map(({ firstIndex }) =>
+          client.send(
+            new DeleteItemCommand({
+              TableName: table,
+              Key: { pk: { S: "batch" }, sk: { N: firstIndex.toString() } },
+            }),
+          ),
+        ),
+      );
+      await payloads.deleteMany(integrated.map(({ key }) => key));
     },
     readTreeState: async (): Promise<TreeState> => {
       const { size, root } = StateItem.parse(await read(STATE));

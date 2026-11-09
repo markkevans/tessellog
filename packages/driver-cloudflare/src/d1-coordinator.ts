@@ -13,6 +13,7 @@ import { Blob, Count } from "./rows.js";
 
 const StateRow = z.object({ size: Count, root: Blob });
 const FirstIndexRow = z.object({ first_index: Count });
+const PayloadRows = z.object({ results: z.array(z.object({ payload: z.string() })) });
 const BatchRows = z.object({
   results: z.array(z.object({ first_index: Count, payload: z.string() })),
 });
@@ -79,6 +80,13 @@ export const createD1Coordinator = async ({
         rows.results.map(({ first_index, payload }) => entriesOf(first_index, payload, fromIndex)),
       );
       return parts.flat();
+    },
+    forgetSequencedBefore: async (size) => {
+      const { results } = PayloadRows.parse(
+        await db.prepare("SELECT payload FROM tessellog_batches WHERE first_index + count <= ?").bind(Number(size)).all(),
+      );
+      await db.prepare("DELETE FROM tessellog_batches WHERE first_index + count <= ?").bind(Number(size)).run();
+      await payloads.deleteMany(results.map(({ payload }) => payload));
     },
     readTreeState: async (): Promise<TreeState> => {
       const { size, root } = StateRow.parse(

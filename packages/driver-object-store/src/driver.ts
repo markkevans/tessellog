@@ -1,8 +1,9 @@
 import type { LogDriver } from "@tessellog/appender";
-import { entriesPath, tilePath } from "@tessellog/core";
+import { entriesPath, partialPathsOf, tilePath, tilesFilledBetween } from "@tessellog/core";
 import type { Coordinator, Lease, ObjectStore } from "./contracts.js";
 
 const CHECKPOINT_KEY = "checkpoint";
+const GC_STATE_KEY = ".state/gc";
 
 export const createObjectStoreDriver = ({
   objects,
@@ -28,6 +29,13 @@ export const createObjectStoreDriver = ({
   },
   readCheckpoint: () => objects.get(CHECKPOINT_KEY),
   writeCheckpoint: (checkpoint) => objects.put(CHECKPOINT_KEY, checkpoint),
+  collectGarbage: async (upToSize) => {
+    const stored = await objects.get(GC_STATE_KEY);
+    const collected = BigInt(stored === undefined ? "0" : new TextDecoder().decode(stored));
+    await objects.deleteMany(partialPathsOf(tilesFilledBetween({ fromSize: collected, toSize: upToSize })));
+    await coordinator.forgetSequencedBefore(upToSize);
+    await objects.put(GC_STATE_KEY, new TextEncoder().encode(upToSize.toString()));
+  },
 });
 
 export type LeasedDriver = LogDriver & {

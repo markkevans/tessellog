@@ -5,6 +5,7 @@ import type { LogFiles } from "./files.js";
 
 const SEQUENCED_DIRECTORY = ".state/sequenced";
 const TREE_STATE_PATH = ".state/tree";
+const GC_STATE_PATH = ".state/gc";
 const TREE_STATE_ORIGIN = "tessellog tree state";
 const LENGTH_BYTES = 4;
 const INDEX_DIGITS = 20;
@@ -32,7 +33,7 @@ const decodeBatch = (name: string, bytes: Uint8Array, offset = 0): readonly Uint
   return [bytes.slice(start, start + length), ...decodeBatch(name, bytes, start + length)];
 };
 
-const batchPath = (firstIndex: bigint): string =>
+export const batchPath = (firstIndex: bigint): string =>
   `${SEQUENCED_DIRECTORY}/${firstIndex.toString().padStart(INDEX_DIGITS, "0")}`;
 
 export const writeBatch = (files: LogFiles, batch: SequencedBatch): Promise<void> =>
@@ -65,3 +66,11 @@ export const readTreeState = async (files: LogFiles): Promise<TreeState> => {
   }
   return { size: parsed.value.size, rootHash: parsed.value.rootHash };
 };
+
+export const readCollectedSize = async (files: LogFiles): Promise<bigint> => {
+  const stored = await files.read(GC_STATE_PATH);
+  return BigInt(stored === undefined ? "0" : new TextDecoder().decode(stored).trim());
+};
+
+export const writeCollectedSize = (files: LogFiles, size: bigint): Promise<void> =>
+  files.write(GC_STATE_PATH, new TextEncoder().encode(`${size}\n`));
