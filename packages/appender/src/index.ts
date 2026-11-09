@@ -17,5 +17,6 @@ export type {
   TreeState,
 } from "./driver.js";
 export { createMemoryDriver } from "./memory-driver.js";
+export type { BundleReader } from "./bundling.js";
 export { createMigrationTarget, type MigrationSource, type MigrationTarget } from "./migration.js";
 export { tlogTilesLayout, type EntryLayout } from "./layout.js";

@@ -2,7 +2,7 @@ import { sha256 } from "@noble/hashes/sha2";
 import { concatBytes } from "@noble/hashes/utils";
 import { HASH_BYTES, leafHash, type Result } from "@tessellog/core";
 
-type CtEntryCommon = {
+export type CtEntryCommon = {
   readonly timestamp: bigint;
   readonly certificate: Uint8Array;
   readonly fingerprintsChain: readonly Uint8Array[];

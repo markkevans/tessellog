@@ -11,7 +11,7 @@ import type { Coordinator, Lease, ObjectStore } from "./contracts.js";
 const CHECKPOINT_KEY = "checkpoint";
 const GC_STATE_KEY = ".state/gc";
 
-type EntriesPath = (address: BundleAddress) => string;
+export type EntriesPath = (address: BundleAddress) => string;
 
 export const createObjectStoreDriver = ({
   objects,
