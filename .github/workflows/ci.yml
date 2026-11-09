@@ -16,6 +16,11 @@ jobs:
       fail-fast: false
       matrix:
         node: [22, 24]
+    services:
+      floci:
+        image: floci/floci:2.4.0
+        ports:
+          - 4566:4566
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -26,6 +31,8 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Wait for Floci
+        run: for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:4566 && exit 0; sleep 1; done; exit 1
       - run: pnpm typecheck
       - run: pnpm test:coverage
 

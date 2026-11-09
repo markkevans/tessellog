@@ -17,7 +17,7 @@ Step 2 of 20: An S3 object store passes the ObjectStore contract against Floci.
 - [ ] Step 5: DynamoDB antispam store
 - [ ] Step 6: R2 object store and D1 coordinator (Miniflare)
 - [ ] Step 7: Cloudflare driver (conformance, restart, single writer, antispam)
-- [ ] Step 8: CI Floci service container
+- [x] Step 8: CI Floci service container (brought forward to step 2 so main stays green)
 - [ ] Step 9: obsolete partials in core
 - [ ] Step 10: garbage collection
 - [ ] Step 11: migration target
