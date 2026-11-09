@@ -100,6 +100,23 @@ describe("refusing checkpoints (tlog-witness add-checkpoint)", () => {
     expect((await submit(newWitness(), await body())).status).toBe(400);
   });
 
+  it("rejects a body that is not UTF-8 as a bad request", async () => {
+    const witness = newWitness();
+    const response = await witness.handle(
+      new Request(`${URL_BASE}/add-checkpoint`, { method: "POST", body: Uint8Array.of(0xff, 0x0a, 0x0a) }),
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects a body with no blank line at all as a bad request", async () => {
+    expect((await submit(newWitness(), "old 0\n")).status).toBe(400);
+  });
+
+  it("rejects a checkpoint section that is not a well-formed note as a bad request", async () => {
+    const unsigned = (await signedCheckpoint({ size: 5 })).split("\n\n")[0] ?? "";
+    expect((await submit(newWitness(), `old 0\n\n${unsigned}\n`)).status).toBe(400);
+  });
+
   it("does not know logs it is not configured for", async () => {
     const body = (await addCheckpointBody(0, { size: 5 })).replace(/^PeterNeumann$/m, "elsewhere.org/log");
     expect((await submit(newWitness(), body)).status).toBe(404);
@@ -132,7 +149,13 @@ describe("refusing checkpoints (tlog-witness add-checkpoint)", () => {
     ],
     [
       "an empty checkpoint without the empty root",
-      async (witness) => submit(witness, (await addCheckpointBody(0, { size: 0 })).replace("\n0\n47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=", "\n0\nXcnaeacGWamtVZy3Ad7ZoqudgjqtL0lgz+Nw7/RgQyg=")),
+      async (witness) => {
+        const signed = await signNote({
+          text: `${ORIGIN}\n0\nXcnaeacGWamtVZy3Ad7ZoqudgjqtL0lgz+Nw7/RgQyg=\n`,
+          signers: [logSigner()],
+        });
+        return submit(witness, `old 0\n\n${signed.ok ? signed.value : ""}`);
+      },
     ],
   ])("refuses %s as unprocessable", async (_, attempt) => {
     expect((await attempt(newWitness())).status).toBe(422);
@@ -170,6 +193,23 @@ describe("handling races and misconfiguration", () => {
     expect(await response.text()).toBe("0\n");
   });
 
+  it("reports the winning size when another submission advanced the store first", async () => {
+    let calls = 0;
+    const raced: WitnessStore = {
+      latest: async () => {
+        calls += 1;
+        return calls === 1 ? undefined : { size: 7n, rootHash: new Uint8Array(32) };
+      },
+      advance: async () => false,
+    };
+    const witness = createWitness({
+      cosigners: [witnessCosigner()],
+      logs: [{ origin: ORIGIN, verifiers: [logVerifier()] }],
+      store: raced,
+    });
+    expect(await (await submit(witness, await addCheckpointBody(0, { size: 5 }))).text()).toBe("7\n");
+  });
+
   it("fails with a server error when it cannot cosign", async () => {
     const misnamed: NoteSigner = { ...witnessCosigner(), name: "Witness One" };
     const witness = createWitness({
@@ -178,5 +218,13 @@ describe("handling races and misconfiguration", () => {
       store: createMemoryWitnessStore(),
     });
     expect((await submit(witness, await addCheckpointBody(0, { size: 5 }))).status).toBe(500);
+  });
+});
+
+describe("storing witnessed checkpoints", () => {
+  it("refuses to advance from a size it is not at", async () => {
+    const store = createMemoryWitnessStore();
+    expect(await store.advance(ORIGIN, 3n, { size: 5n, rootHash: new Uint8Array(32) })).toBe(false);
+    expect(await store.latest(ORIGIN)).toBeUndefined();
   });
 });

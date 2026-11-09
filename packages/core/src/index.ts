@@ -56,4 +56,5 @@ export {
   type OpenedCheckpoint,
 } from "./signed-checkpoint.js";
 export type { Result } from "./result.js";
+export { decodeBase64, encodeBase64 } from "./base64.js";
 export { toHex } from "./hex.js";
