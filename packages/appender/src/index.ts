@@ -4,7 +4,7 @@ export {
   type AppenderOptions,
   type ResolvedAppenderOptions,
 } from "./options.js";
-export { PushbackAntispamError, PushbackError } from "./errors.js";
+export { EntryTooLargeError, PushbackAntispamError, PushbackError } from "./errors.js";
 export type { AntispamStore, FollowedEntry } from "./antispam-store.js";
 export { createIdentityIndex, type IdentityIndex } from "./identity-index.js";
 export { createMemoryAntispamStore } from "./memory-antispam-store.js";

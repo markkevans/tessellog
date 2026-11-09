@@ -13,3 +13,11 @@ export class PushbackAntispamError extends PushbackError {
     super("antispam follower is too far behind");
   }
 }
+
+export class EntryTooLargeError extends Error {
+  override readonly name: string = "EntryTooLargeError";
+
+  constructor(size: number, limit: number) {
+    super(`entry of ${size} bytes exceeds the ${limit}-byte limit`);
+  }
+}

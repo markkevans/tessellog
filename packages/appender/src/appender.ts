@@ -10,6 +10,7 @@ import {
 } from "./dedup.js";
 import { createFollower, noFollower } from "./follower.js";
 import { startGarbageCollection } from "./garbage-collection.js";
+import { EntryTooLargeError } from "./errors.js";
 import { createIntegrator } from "./integrator.js";
 import {
   resolveAppenderOptions,
@@ -52,6 +53,8 @@ const deduplicationFor = (
         }),
       );
 };
+
+const MAX_ENTRY_BYTES = 65_535;
 
 const readerFor = (driver: LogDriver): LogReader => ({
   integratedSize: async () => (await driver.readTreeState()).size,
@@ -120,6 +123,9 @@ export const createAppender = (options: AppenderOptions): Appender => {
     add: async (entry) => {
       if (shutDown) {
         throw new Error("appender has been shut down");
+      }
+      if (entry.length > MAX_ENTRY_BYTES) {
+        throw new EntryTooLargeError(entry.length, MAX_ENTRY_BYTES);
       }
       return deduplicate(entry, (unique) => outstanding.guard(() => batch.add(unique)));
     },
