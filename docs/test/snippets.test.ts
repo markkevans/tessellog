@@ -36,7 +36,7 @@ describe("documentation snippets", () => {
     },
   );
 
-  it.each(["quickstart/memory-log.ts", "keys/generate.ts", "client/verify-over-http.ts", "witnessing/policy.ts"])(
+  it.each(["quickstart/memory-log.ts", "core/proofs.ts", "keys/generate.ts", "client/verify-over-http.ts", "witnessing/policy.ts"])(
     "runs %s without error",
     async (path) => {
       await expect(import(join(snippets, path))).resolves.toBeDefined();
