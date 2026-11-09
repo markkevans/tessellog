@@ -17,6 +17,8 @@
   ],
   "exclude": [
     "packages/client/src/node.ts",
-    "packages/client/src/file-fetcher.ts"
+    "packages/client/src/file-fetcher.ts",
+    "packages/http/src/node.ts",
+    "packages/http/src/node-server.ts"
   ]
 }

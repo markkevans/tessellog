@@ -7,16 +7,24 @@
   "description": "A fetch-style HTTP handler for tessellog logs: add entries and serve tiles, bundles and checkpoints.",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./node": "./src/node.ts"
   },
-  "files": ["dist", "src", "LICENSE", "NOTICE", "README.md"],
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@noble/hashes": "^1.8.0",
     "@tessellog/appender": "workspace:*",
-    "@tessellog/core": "workspace:*"
+    "@tessellog/core": "workspace:*",
+    "zod": "^3.25.76"
   },
   "publishConfig": {
     "access": "public",
@@ -24,6 +32,10 @@
       ".": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "./node": {
+        "types": "./dist/node.d.ts",
+        "default": "./dist/node.js"
       }
     }
   }

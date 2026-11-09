@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { z } from "zod";
-import type { LogHandler } from "@tessellog/http";
+import type { LogHandler } from "./handler.js";
 
 export type RunningServer = {
   readonly url: string;
@@ -36,7 +36,7 @@ const send = async (response: Response, target: ServerResponse): Promise<void> =
   target.end(new Uint8Array(await response.arrayBuffer()));
 };
 
-export const serve = async ({
+export const serveNode = async ({
   handler,
   port,
   host,

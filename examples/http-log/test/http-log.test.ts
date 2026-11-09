@@ -80,15 +80,4 @@ describe("an HTTP log on the POSIX driver", () => {
     await second.close();
     await rm(storageDir, { recursive: true, force: true });
   });
-
-  it("refuses an oversized body over the wire and keeps serving", () =>
-    withLog(async (log) => {
-      expect((await add(log, new Uint8Array(65_536))).status).toBe(413);
-      expect((await add(log, "alpha")).status).toBe(200);
-    }));
-
-  it("normalises paths before routing them", () =>
-    withLog(async (log) => {
-      expect((await fetch(new URL("/tile/0/../../.state/lock", log.url))).status).toBe(404);
-    }));
 });

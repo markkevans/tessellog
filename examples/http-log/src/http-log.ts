@@ -2,7 +2,7 @@ import { createAppender, type AppenderOptions } from "@tessellog/appender";
 import type { NoteSigner } from "@tessellog/core";
 import { openPosixDriver } from "@tessellog/driver-posix";
 import { createLogHandler } from "@tessellog/http";
-import { serve } from "./node-server.js";
+import { serveNode } from "@tessellog/http/node";
 
 export type HttpLogOptions = {
   readonly storageDir: string;
@@ -31,7 +31,7 @@ export const startHttpLog = async ({
 }: HttpLogOptions): Promise<HttpLog> => {
   const driver = await openPosixDriver({ root: storageDir });
   const appender = createAppender({ ...appenderOptions, driver, signer });
-  const server = await serve({ handler: createLogHandler({ appender, onError }), port, host, onError });
+  const server = await serveNode({ handler: createLogHandler({ appender, onError }), port, host, onError });
   return {
     url: server.url,
     close: async () => {

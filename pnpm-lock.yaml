@@ -60,9 +60,6 @@ importers:
       '@tessellog/http':
         specifier: workspace:*
         version: link:../../packages/http
-      zod:
-        specifier: ^3.25.76
-        version: 3.25.76
     devDependencies:
       '@tessellog/client':
         specifier: workspace:*
@@ -286,6 +283,9 @@ importers:
       '@tessellog/core':
         specifier: workspace:*
         version: link:../core
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
 
   packages/static-ct:
     dependencies:

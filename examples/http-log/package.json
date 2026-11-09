@@ -16,8 +16,7 @@
     "@tessellog/appender": "workspace:*",
     "@tessellog/core": "workspace:*",
     "@tessellog/driver-posix": "workspace:*",
-    "@tessellog/http": "workspace:*",
-    "zod": "^3.25.76"
+    "@tessellog/http": "workspace:*"
   },
   "devDependencies": {
     "@tessellog/client": "workspace:*",
