@@ -9,3 +9,9 @@ export const ignoring =
     }
     throw error;
   };
+
+export const replacing =
+  (name: string, replacement: () => Error) =>
+  (error: unknown): never => {
+    throw isAwsError(error, name) ? replacement() : error;
+  };
