@@ -1,6 +1,6 @@
 import type { LogDriver } from "@tessellog/appender";
 import { entriesPath, tilePath } from "@tessellog/core";
-import type { Coordinator, ObjectStore } from "./contracts.js";
+import type { Coordinator, Lease, ObjectStore } from "./contracts.js";
 
 const CHECKPOINT_KEY = "checkpoint";
 
@@ -29,3 +29,27 @@ export const createObjectStoreDriver = ({
   readCheckpoint: () => objects.get(CHECKPOINT_KEY),
   writeCheckpoint: (checkpoint) => objects.put(CHECKPOINT_KEY, checkpoint),
 });
+
+export type LeasedDriver = LogDriver & {
+  readonly close: () => Promise<void>;
+};
+
+export const createLeasedDriver = ({
+  objects,
+  coordinator,
+  lease,
+}: {
+  readonly objects: ObjectStore;
+  readonly coordinator: Coordinator;
+  readonly lease: Lease;
+}): LeasedDriver => {
+  const driver = createObjectStoreDriver({ objects, coordinator });
+  return {
+    ...driver,
+    writeIntegration: async (update) => {
+      await lease.renew();
+      await driver.writeIntegration(update);
+    },
+    close: () => lease.release(),
+  };
+};

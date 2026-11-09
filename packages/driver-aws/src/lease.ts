@@ -5,15 +5,12 @@ import {
   UpdateItemCommand,
   type DynamoDBClient,
 } from "@aws-sdk/client-dynamodb";
+import type { Lease } from "@tessellog/driver-object-store";
 import { ignoring, replacing } from "./dynamo.js";
 
 const LEASE = { pk: { S: "lease" }, sk: { N: "0" } };
 const CONDITION_FAILED = "ConditionalCheckFailedException";
 
-export type Lease = {
-  readonly renew: () => Promise<void>;
-  readonly release: () => Promise<void>;
-};
 
 export const acquireLease = async ({
   client,

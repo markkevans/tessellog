@@ -1,10 +1,7 @@
 import { randomUUID } from "node:crypto";
+import type { Lease } from "@tessellog/driver-object-store";
 import type { D1DatabaseLike } from "./bindings.js";
 
-export type Lease = {
-  readonly renew: () => Promise<void>;
-  readonly release: () => Promise<void>;
-};
 
 export const acquireD1Lease = async ({
   db,

@@ -1,5 +1,4 @@
-import type { LogDriver } from "@tessellog/appender";
-import { createObjectStoreDriver } from "@tessellog/driver-object-store";
+import { createLeasedDriver, type LeasedDriver } from "@tessellog/driver-object-store";
 import type { D1DatabaseLike, R2BucketLike } from "./bindings.js";
 import { createD1Coordinator } from "./d1-coordinator.js";
 import { acquireD1Lease } from "./d1-lease.js";
@@ -14,9 +13,7 @@ export type CloudflareDriverOptions = {
   readonly clock?: () => number;
 };
 
-export type CloudflareDriver = LogDriver & {
-  readonly close: () => Promise<void>;
-};
+export type CloudflareDriver = LeasedDriver;
 
 export const openCloudflareDriver = async ({
   bucket,
@@ -27,13 +24,5 @@ export const openCloudflareDriver = async ({
   const objects = createR2ObjectStore({ bucket });
   const coordinator = await createD1Coordinator({ db, payloads: objects });
   const lease = await acquireD1Lease({ db, duration: leaseDuration, clock });
-  const driver = createObjectStoreDriver({ objects, coordinator });
-  return {
-    ...driver,
-    writeIntegration: async (update) => {
-      await lease.renew();
-      await driver.writeIntegration(update);
-    },
-    close: () => lease.release(),
-  };
+  return createLeasedDriver({ objects, coordinator, lease });
 };

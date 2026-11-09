@@ -12,3 +12,8 @@ export interface Coordinator {
   readTreeState(): Promise<TreeState>;
   advanceTreeState(expectedSize: bigint, next: TreeState): Promise<boolean>;
 }
+
+export interface Lease {
+  renew(): Promise<void>;
+  release(): Promise<void>;
+}

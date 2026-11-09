@@ -1,7 +1,6 @@
 import type { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import type { S3Client } from "@aws-sdk/client-s3";
-import type { LogDriver } from "@tessellog/appender";
-import { createObjectStoreDriver } from "@tessellog/driver-object-store";
+import { createLeasedDriver, type LeasedDriver } from "@tessellog/driver-object-store";
 import { createDynamoCoordinator } from "./dynamo-coordinator.js";
 import { acquireLease } from "./lease.js";
 import { createS3ObjectStore } from "./s3-object-store.js";
@@ -17,9 +16,7 @@ export type AwsDriverOptions = {
   readonly clock?: () => number;
 };
 
-export type AwsDriver = LogDriver & {
-  readonly close: () => Promise<void>;
-};
+export type AwsDriver = LeasedDriver;
 
 export const openAwsDriver = async ({
   s3,
@@ -32,13 +29,5 @@ export const openAwsDriver = async ({
   const objects = createS3ObjectStore({ client: s3, bucket });
   const coordinator = await createDynamoCoordinator({ client: dynamo, table, payloads: objects });
   const lease = await acquireLease({ client: dynamo, table, duration: leaseDuration, clock });
-  const driver = createObjectStoreDriver({ objects, coordinator });
-  return {
-    ...driver,
-    writeIntegration: async (update) => {
-      await lease.renew();
-      await driver.writeIntegration(update);
-    },
-    close: () => lease.release(),
-  };
+  return createLeasedDriver({ objects, coordinator, lease });
 };
