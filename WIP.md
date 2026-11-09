@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 10 of 14: A witness client submits checkpoints and recovers from a size conflict.
+Step 11 of 14: The appender only publishes checkpoints that satisfy the witness policy.
 
 ## Status
 
@@ -19,8 +19,8 @@ Step 10 of 14: A witness client submits checkpoints and recovers from a size con
 - [x] Step 7: Ed25519 checkpoint cosignatures (byte-identical with Go formats/note)
 - [x] Step 8: tlog-policy parsing and quorum
 - [x] Step 9: witness add-checkpoint server
-- [ ] Step 10: witness client with 409 recovery ← current
-- [ ] Step 11: appender publishes only witnessed checkpoints
+- [x] Step 10: witness client with 409 recovery
+- [ ] Step 11: appender publishes only witnessed checkpoints ← current
 - [ ] Step 12: client requires a quorum
 - [ ] Step 13: witnessing interop with Go/Tessera
 - [ ] Step 14: ADRs and docs
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing witness client tests.
+Write failing witnessed-publication tests.

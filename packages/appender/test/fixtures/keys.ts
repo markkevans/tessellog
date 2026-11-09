@@ -36,3 +36,12 @@ export const verifierFor = (vkey: string): NoteVerifier => {
 export const logSigner = (): NoteSigner => signerFor(LOG_SKEY);
 
 export const logVerifier = (): NoteVerifier => verifierFor(LOG_VKEY);
+
+export const WITNESS_ONE_COSIGNER_SKEY =
+  "PRIVATE+KEY+WitnessOne+73f152b1+AaA1V+rFd0kL2T2VE6eN8l3w436FpdT7Gv8oGE1lCS4H";
+export const WITNESS_ONE_COSIGNATURE_VKEY =
+  "WitnessOne+3f2acfb9+BG/0vdadeZvB98cEdVaMBfkts+OT6iw8cVehe9i4nUTx";
+export const WITNESS_TWO_COSIGNER_SKEY =
+  "PRIVATE+KEY+x1.example/w+47864d96+AUF2Jv2rlQ6HooKgKJYcoyZGJB+Zv67l/E7syx7tlJ8O";
+export const WITNESS_TWO_COSIGNATURE_VKEY =
+  "x1.example/w+404eb6e7+BI7UVG0PQqXiEvOtLy09HbMUsqo7VtvTPnfoEgtBSviu";
