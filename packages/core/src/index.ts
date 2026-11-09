@@ -32,6 +32,7 @@ export {
   type Clock,
 } from "./cosignatures.js";
 export {
+  describeCosigners,
   parsePolicy,
   policySatisfied,
   type Policy,

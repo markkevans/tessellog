@@ -180,3 +180,6 @@ const satisfies = (rule: QuorumRule, cosigners: readonly KeyReference[]): boolea
 
 export const policySatisfied = (policy: Policy, cosigners: readonly KeyReference[]): boolean =>
   satisfies(policy.quorum, cosigners);
+
+export const describeCosigners = (cosigners: readonly KeyReference[]): string =>
+  `cosigned by ${cosigners.map(({ name }) => name).join(", ") || "no witnesses"}`;

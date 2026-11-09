@@ -1,4 +1,5 @@
 import {
+  describeCosigners,
   openCheckpoint,
   policySatisfied,
   sameKey,
@@ -41,9 +42,7 @@ const meetsPolicy = (
     ? { ok: true, value: opened }
     : {
         ok: false,
-        error: `checkpoint does not satisfy the witness policy: cosigned by ${
-          cosigners.map(({ name }) => name).join(", ") || "no witnesses"
-        }`,
+        error: `checkpoint does not satisfy the witness policy: ${describeCosigners(cosigners)}`,
       };
 };
 

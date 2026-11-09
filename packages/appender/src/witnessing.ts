@@ -1,5 +1,6 @@
 import {
   consistencyProofFromTiles,
+  describeCosigners,
   policySatisfied,
   type NoteVerifier,
   type Policy,
@@ -69,9 +70,7 @@ export const witnessedPublication = (settings: WitnessingSettings, driver: LogDr
     );
     const cosigners = answered.map(({ verifier }) => ({ name: verifier.name, keyId: verifier.keyId }));
     if (!policySatisfied(settings.policy, cosigners) && !settings.failOpen) {
-      throw new Error(
-        `witness policy not satisfied: cosigned by ${cosigners.map(({ name }) => name).join(", ") || "no witnesses"}`,
-      );
+      throw new Error(`witness policy not satisfied: ${describeCosigners(cosigners)}`);
     }
     return `${checkpoint}${answered.map(({ lines }) => lines).join("")}`;
   };
