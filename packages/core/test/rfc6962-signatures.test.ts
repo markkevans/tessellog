@@ -69,6 +69,10 @@ describe("formatting RFC 6962 verifier keys", () => {
 });
 
 describe("parsing RFC 6962 verifier keys", () => {
+  it("refuses a key string that is not a verifier key at all", () => {
+    expect(parseRFC6962VerifierKey("not a key").ok).toBe(false);
+  });
+
   it("refuses keys other than ECDSA P-256", () => {
     expect(parseRFC6962VerifierKey(RSA_PUBLIC_KEY_VKEY)).toEqual({
       ok: false,
@@ -112,8 +116,14 @@ describe("signing RFC 6962 tree heads", () => {
   });
 
   it("does not verify a checkpoint whose origin differs from the key name", async () => {
-    const signature = await signer().sign(utf8(checkpointText("other.example/log")));
+    const signature = await signer().sign(utf8(checkpointText(name)));
     expect(await matchingVerifier().verify(utf8(checkpointText("other.example/log")), signature)).toBe(false);
+  });
+
+  it("refuses to sign anything but its own log's checkpoints", async () => {
+    await expect(signer().sign(utf8(checkpointText("other.example/log")))).rejects.toThrow(
+      "RFC 6962 signers can only sign checkpoints for log.example/2026 without extensions",
+    );
   });
 
   it("does not verify a checkpoint with extension lines", async () => {

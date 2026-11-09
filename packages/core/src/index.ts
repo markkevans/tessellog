@@ -47,6 +47,12 @@ export {
   type QuorumRule,
 } from "./policy.js";
 export { sameKey, type KeyReference } from "./note-format.js";
+export {
+  createRFC6962Signer,
+  p256PublicKeyInfo,
+  parseRFC6962VerifierKey,
+  rfc6962VerifierKey,
+} from "./rfc6962.js";
 export { signNote } from "./sign-note.js";
 export {
   openNote,

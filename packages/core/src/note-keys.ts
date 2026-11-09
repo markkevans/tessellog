@@ -47,20 +47,28 @@ const ED25519: KeyAlgorithm = {
   unsupported: (name) => `unsupported key encoding for ${name}`,
 };
 
-export const splitKey = (key: string, { algorithm, unsupported }: KeyAlgorithm): Result<KeyFields> => {
+export const splitKeyParts = (key: string): Result<KeyFields> => {
   const [name = "", keyIdHex = "", ...rest] = key.split("+");
-  const encoded = rest.join("+");
-  if (rest.length === 0 || !isValidKeyName(name) || !KEY_ID_HEX.test(keyIdHex)) {
+  const keyMaterial = decodeBase64(rest.join("+"));
+  if (rest.length === 0 || !isValidKeyName(name) || !KEY_ID_HEX.test(keyIdHex) || keyMaterial === undefined) {
     return failure(`malformed key ${key}`);
   }
-  const keyMaterial = decodeBase64(encoded);
-  if (keyMaterial === undefined || keyMaterial[0] !== algorithm) {
+  return success({ name, keyId: parseInt(keyIdHex, 16), keyMaterial });
+};
+
+export const splitKey = (key: string, { algorithm, unsupported }: KeyAlgorithm): Result<KeyFields> => {
+  const parts = splitKeyParts(key);
+  if (!parts.ok) {
+    return parts;
+  }
+  const { name, keyId, keyMaterial } = parts.value;
+  if (keyMaterial[0] !== algorithm) {
     return failure(unsupported(name));
   }
   if (keyMaterial.length !== ED25519_KEY_BYTES + 1) {
     return failure(`wrong key length for ${name}`);
   }
-  return success({ name, keyId: parseInt(keyIdHex, 16), keyMaterial });
+  return success({ name, keyId, keyMaterial });
 };
 
 export const checkKeyId = <T>(
