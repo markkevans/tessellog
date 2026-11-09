@@ -48,7 +48,10 @@ tessellog implements these C2SP specifications:
 | `@tessellog/driver-posix` | usable | Stores a log in a directory at tlog-tiles paths. Atomic writes, restart-safe, single writer, plus a persistent antispam store. |
 | `@tessellog/client` | usable | Verifies checkpoints (optionally requiring a witness quorum), inclusion, consistency and streamed entries over HTTP or (via `@tessellog/client/node`) from disk. Falls back to full tiles when partials are gone. |
 | `@tessellog/witness` | usable | A C2SP `tlog-witness` `add-checkpoint` endpoint (fetch-style handler) and a client for submitting checkpoints to witnesses. |
-| AWS and Cloudflare drivers | planned | Cloud storage drivers. |
+| `@tessellog/driver-aws` | usable | S3 for tiles and bundles, DynamoDB for sequencing, tree state, a single-writer lease and antispam. |
+| `@tessellog/driver-cloudflare` | usable | R2 for tiles and bundles, D1 for sequencing, tree state, a single-writer lease and antispam. |
+| `@tessellog/driver-object-store` | usable | The shared core of the cloud drivers: an object store plus a coordinator. |
+| `@tessellog/static-ct` | usable | The static-ct-api data layer: CT entries, `TileLeaf` data tiles, `MerkleTreeLeaf` hashing and a layout for the appender, client and migration target. |
 
 ## Interoperability with Tessera
 
@@ -57,6 +60,8 @@ CI checks both directions on every push (`interop/run.sh`):
 - tessellog's client verifies a log written by Tessera's `posix-oneshot`.
 - Tessera's `posix-oneshot` gets its checkpoints cosigned by tessellog's witness over HTTP, and tessellog's client checks the quorum.
 - Go's `formats/note` verifies cosignatures on a tessellog-written log.
+- tessellog migrates in a Tessera-written log and appends to it, and Tessera's client verifies the result.
+- Tessera's `ctonly` and client verify a tessellog static-CT log, and tessellog's client verifies a Tessera static-CT log.
 
 Each run checks checkpoints, every inclusion proof, consistency across sessions and the exact entries.
 
@@ -92,6 +97,8 @@ Architectural decisions are recorded in [`docs/adr`](./docs/adr).
 
 ```sh
 pnpm install
+docker compose up -d   # Floci, for the AWS driver tests
 pnpm test
 pnpm typecheck
+bash interop/run.sh    # needs Go
 ```
