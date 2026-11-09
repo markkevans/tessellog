@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 11 of 20: A migration target imports a tlog-tiles log, verifies the source root and publishes no checkpoint.
+Step 12 of 20: An appender takes over a migrated log and stays consistent with the source.
 
 ## Status
 
@@ -20,8 +20,8 @@ Step 11 of 20: A migration target imports a tlog-tiles log, verifies the source 
 - [x] Step 8: CI Floci service container (brought forward to step 2 so main stays green)
 - [x] Step 9: obsolete partials in core (tiles that became full; all their .p/ widths go, as in Tessera)
 - [x] Step 10: garbage collection (10a–c together in one GREEN, since the contract requires it; 10d appender interval)
-- [ ] Step 11: migration target ← current
-- [ ] Step 12: appender takes over a migrated log
+- [x] Step 11: migration target
+- [ ] Step 12: appender takes over a migrated log ← current
 - [ ] Step 13: migrate a Tessera log (interop)
 - [ ] Step 14: reject oversized entries
 - [ ] Step 15: pluggable entry layouts
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing migration tests.
+Write takeover characterisation tests (memory and AWS).

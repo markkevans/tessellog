@@ -1,5 +1,12 @@
 import { sha256 } from "@noble/hashes/sha2";
-import { leafHash, openCheckpoint, rootHash, type BundleAddress } from "@tessellog/core";
+import {
+  consistencyProofFromTiles,
+  leafHash,
+  openCheckpoint,
+  rootHash,
+  verifyConsistency,
+  type BundleAddress,
+} from "@tessellog/core";
 import { describe, expect, it } from "vitest";
 import {
   createAppender,
@@ -146,5 +153,43 @@ describe("handling unusual migrations", () => {
       migration.migrate({ readEntryBundle: bundlesOf(source), sourceSize: source.size, sourceRoot: source.root });
     await run();
     expect(await run()).toEqual({ ok: true, value: undefined });
+  });
+});
+
+describe("taking over a migrated log", () => {
+  it("lets an appender continue the log consistently with the source", async () => {
+    const source = await sourceLog(entries(300));
+    const target = createMemoryDriver();
+    await createMigrationTarget({ driver: target }).migrate({
+      readEntryBundle: bundlesOf(source),
+      sourceSize: source.size,
+      sourceRoot: source.root,
+    });
+    const appender = createAppender({ driver: target, signer: logSigner(), batching: { maxSize: 256, maxAge: 0 } });
+    const indices = await Promise.all(
+      Array.from({ length: 10 }, async (_, i) => (await appender.add(new TextEncoder().encode(`after ${i}`))).index),
+    );
+    await appender.shutdown();
+    const message = await target.readCheckpoint();
+    const opened = message && (await openCheckpoint({ message, origin: LOG_KEY_NAME, logVerifier: logVerifier() }));
+    if (!opened?.ok) {
+      throw new Error("target checkpoint did not open");
+    }
+    const { size, rootHash: newRoot } = opened.value.checkpoint;
+    const proof = await consistencyProofFromTiles({
+      oldSize: source.size,
+      newSize: size,
+      readTile: async (address) => {
+        const tile = await target.readTile(address);
+        if (tile === undefined) {
+          throw new Error("missing tile");
+        }
+        return tile;
+      },
+    });
+    expect([...indices].sort((a, b) => Number(a - b))[0]).toBe(300n);
+    expect(
+      verifyConsistency({ oldSize: source.size, newSize: size, oldRoot: source.root, newRoot, proof }).ok,
+    ).toBe(true);
   });
 });
