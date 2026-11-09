@@ -185,3 +185,16 @@ describe("reporting tiles of the wrong length", () => {
     });
   });
 });
+
+describe("recovering entries a previous writer sequenced", () => {
+  it("integrates them as soon as it starts, without waiting for a new entry", async () => {
+    vi.useFakeTimers();
+    const driver = createMemoryDriver();
+    await driver.sequence([entry("left behind 0"), entry("left behind 1")]);
+    const appender = createAppender({ driver, signer: logSigner() });
+    await vi.advanceTimersByTimeAsync(0);
+    expect((await driver.readTreeState()).size).toBe(2n);
+    await appender.shutdown();
+    vi.useRealTimers();
+  });
+});
