@@ -118,4 +118,17 @@ echo "== Tessera writes a static-CT log, tessellog's client verifies it"
 (cd "$here" && pnpm exec tsx verify-static-ct.ts \
   --storage-dir "$work/tessera-ct" --vkey "$vkey" --origin "$origin" --count 300)
 
+echo "== Tessera's posix-oneshot signs with a key from tessellog's keygen, tessellog's client verifies it"
+(cd "$repo/examples/keygen" && pnpm exec tsx bin/keygen.ts --name example.com/keygen --out "$work/keygen") > /dev/null
+keygen_oneshot() {
+  (cd "$here/go" && go run github.com/transparency-dev/tessera/cmd/examples/posix-oneshot \
+    --storage_dir "$work/keygen-log" --private_key "$work/keygen.key" --entries "$1")
+}
+keygen_oneshot "$work/first/entry-*"
+cp "$work/keygen-log/checkpoint" "$work/keygen-previous"
+keygen_oneshot "$work/second/entry-*"
+(cd "$here" && pnpm exec tsx verify-log.ts \
+  --storage-dir "$work/keygen-log" --vkey "$(cat "$work/keygen.pub")" --origin example.com/keygen \
+  --previous-checkpoint "$work/keygen-previous" "$work"/first/entry-* "$work"/second/entry-*)
+
 echo "interop OK"
