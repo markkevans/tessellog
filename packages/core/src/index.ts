@@ -39,7 +39,7 @@ export {
   type PolicyWitness,
   type QuorumRule,
 } from "./policy.js";
-export type { KeyReference } from "./note-format.js";
+export { sameKey, type KeyReference } from "./note-format.js";
 export { signNote } from "./sign-note.js";
 export {
   openNote,
