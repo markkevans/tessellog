@@ -224,6 +224,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@tessellog/driver-posix':
+        specifier: workspace:*
+        version: link:../driver-posix
       zod:
         specifier: ^3.25.76
         version: 3.25.76

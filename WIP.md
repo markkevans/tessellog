@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 17 of 20 (17a): A static-CT package encodes TileLeaf entries and MerkleTreeLeaf hashes exactly as Go ctonly.
+Step 17 of 20 (17b): A static-CT layout, the appender layout option and driver entriesPath options.
 
 ## Status
 
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing static-CT entry tests against Go ctonly vectors.
+Write failing static-CT log tests.
