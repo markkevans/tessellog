@@ -57,3 +57,33 @@ describe("decoding static-CT data tiles", () => {
     expect(decodeTileLeaves(leafData.slice(0, -1)).ok).toBe(false);
   });
 });
+
+describe("rejecting malformed TileLeaves", () => {
+  const ENTRY_TYPE_OFFSET = 9;
+  const EXTENSION_TYPE_OFFSET = 8 + 2 + 3 + CERTIFICATE_ENTRY.certificate.length + 2;
+
+  const altered = (offset: number, value: number): Uint8Array =>
+    Uint8Array.from(encodeTileLeaf(CERTIFICATE_ENTRY, 0n), (byte, i) => (i === offset ? value : byte));
+
+  it("rejects an unknown entry type", () => {
+    expect(decodeTileLeaves(altered(ENTRY_TYPE_OFFSET, 2))).toEqual({
+      ok: false,
+      error: "MalformedTileLeaf: unknown TileLeaf entry type 2",
+    });
+  });
+
+  it("rejects extensions other than a single leaf_index", () => {
+    expect(decodeTileLeaves(altered(EXTENSION_TYPE_OFFSET, 1))).toEqual({
+      ok: false,
+      error: "MalformedTileLeaf: TileLeaf extensions must hold exactly a leaf_index",
+    });
+  });
+
+  it("rejects a fingerprint chain that is not whole SHA-256 hashes", () => {
+    const leaf = encodeTileLeaf({ ...CERTIFICATE_ENTRY, fingerprintsChain: [new Uint8Array(31)] }, 0n);
+    expect(decodeTileLeaves(leaf)).toEqual({
+      ok: false,
+      error: "MalformedTileLeaf: TileLeaf fingerprint chain must hold whole SHA-256 hashes",
+    });
+  });
+});
