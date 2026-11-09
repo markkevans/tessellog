@@ -17,7 +17,7 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - `examples/`: `keygen`, `posix-oneshot`, `http-log`, `aws-log` (Floci), `cloudflare-worker` (Miniflare, plus a workerd bundle test), `witness-server` and `monitor`. Each is a tested workspace package inside the coverage gate, and its CLI runs through `tsx`.
 - `docs/` (`@tessellog/docs`, private): guides in `docs/guides`, and code in `docs/snippets/*.ts`. These are type-checked, the self-contained ones run, and a test fails on drift or on any non-snippet TypeScript block. `pnpm --filter @tessellog/docs sync` rewrites the markdown from the files.
 - `scripts/pack-smoke/run.sh`: builds, packs, installs the tarballs into a fresh project, runs a POSIX log under plain Node, and type-checks the `.d.ts` files. CI runs it.
-- Releases: changesets (v3, fixed group of eleven packages) and `.github/workflows/release.yml`, which is dispatched manually and needs `NPM_TOKEN`.
+- Releases: changesets (v3, fixed group of eleven packages) and `.github/workflows/release.yml`, which is dispatched manually and publishes through npm trusted publishing (OIDC, no token). Each package on npm trusts `markkevans/tessellog` and `release.yml`.
 - `interop/`: `run.sh` checks logs and witnessing in both directions against Tessera v1.0.4 (Go), including a real HTTP witness server (`witness-server.ts`). It needs Go, and CI runs it.
 - Architectural decisions are in `docs/adr/`.
 

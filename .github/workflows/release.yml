@@ -31,7 +31,6 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
       - name: Wait for Floci
         run: for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:4566 && exit 0; sleep 1; done; exit 1
@@ -51,9 +50,7 @@ jobs:
           git add .changeset packages pnpm-lock.yaml
           git commit -m "chore: release v${version}"
       - run: bash scripts/pack-smoke/run.sh
-      - name: Publish to npm with provenance
+      - name: Publish to npm through trusted publishing, with provenance
         run: pnpm release
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Push the release commit and tags
         run: git push --follow-tags

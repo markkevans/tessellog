@@ -50,5 +50,5 @@ Phases 1–9 delivered Tessera's capabilities. Integrators still lacked several 
 
 - D1 indices now cross the boundary as text and are exact to 2^63 − 1 (amends ADR 8).
 - The examples are workspace packages inside the coverage gate. They can only change together with their tests.
-- Publishing needs an `NPM_TOKEN` secret. The workflow pushes a release commit to `main`, so branch protection must allow the workflow to push.
+- Publishing uses npm trusted publishing (GitHub OIDC), so there is no long-lived npm token, and provenance is generated automatically. npm can only trust a workflow for a package that already exists, so each package was published once by hand before the first workflow release. The workflow pushes a release commit to `main`, so branch protection must allow the workflow to push.
 - Still deferred: ML-DSA-44 cosignatures, `sign-subtree`, mirroring, GCP and MySQL drivers, and RSA RFC 6962 keys.

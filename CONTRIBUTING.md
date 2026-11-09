@@ -34,7 +34,7 @@ A test fails if they drift, or if a TypeScript block isn't a snippet. Write new 
 
 ## Releasing
 
-Each user-visible change adds a changeset (`pnpm changeset`). All packages are released together at the same version. A maintainer publishes by running the **Release** workflow by hand. It runs every gate, applies the changesets, smoke-tests the tarballs, publishes to npm with provenance, and pushes the release commit and tags.
+Each user-visible change adds a changeset (`pnpm changeset`). All packages are released together at the same version. A maintainer publishes by running the **Release** workflow by hand. It runs every gate, applies the changesets, smoke-tests the tarballs, publishes to npm through trusted publishing (no npm token; provenance is automatic), and pushes the release commit and tags.
 
 ## Licence
 

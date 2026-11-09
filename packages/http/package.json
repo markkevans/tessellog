@@ -57,7 +57,6 @@
         "types": "./dist/node.d.ts",
         "default": "./dist/node.js"
       }
-    },
-    "provenance": true
+    }
   }
 }
