@@ -1,0 +1,26 @@
+{
+  "name": "@tessellog/example-witness-server",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "description": "A standalone C2SP tlog-witness that keeps its state in a directory and cosigns logs over HTTP.",
+  "type": "module",
+  "bin": {
+    "witness-server": "./bin/witness-server.ts"
+  },
+  "scripts": {
+    "start": "tsx bin/witness-server.ts"
+  },
+  "dependencies": {
+    "@tessellog/core": "workspace:*",
+    "@tessellog/driver-posix": "workspace:*",
+    "@tessellog/http": "workspace:*",
+    "@tessellog/witness": "workspace:*"
+  },
+  "devDependencies": {
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/client": "workspace:*",
+    "tsx": "^4.20.0"
+  }
+}

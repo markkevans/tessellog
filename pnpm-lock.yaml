@@ -137,6 +137,31 @@ importers:
         specifier: ^4.20.0
         version: 4.23.15
 
+  examples/witness-server:
+    dependencies:
+      '@tessellog/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@tessellog/driver-posix':
+        specifier: workspace:*
+        version: link:../../packages/driver-posix
+      '@tessellog/http':
+        specifier: workspace:*
+        version: link:../../packages/http
+      '@tessellog/witness':
+        specifier: workspace:*
+        version: link:../../packages/witness
+    devDependencies:
+      '@tessellog/appender':
+        specifier: workspace:*
+        version: link:../../packages/appender
+      '@tessellog/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      tsx:
+        specifier: ^4.20.0
+        version: 4.23.15
+
   interop:
     dependencies:
       '@tessellog/appender':
