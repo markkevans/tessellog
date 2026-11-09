@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 12 of 20: An appender takes over a migrated log and stays consistent with the source.
+Step 13 of 20: Interop: tessellog migrates in a log written by Tessera's posix-oneshot.
 
 ## Status
 
@@ -21,8 +21,8 @@ Step 12 of 20: An appender takes over a migrated log and stays consistent with t
 - [x] Step 9: obsolete partials in core (tiles that became full; all their .p/ widths go, as in Tessera)
 - [x] Step 10: garbage collection (10a–c together in one GREEN, since the contract requires it; 10d appender interval)
 - [x] Step 11: migration target
-- [ ] Step 12: appender takes over a migrated log ← current
-- [ ] Step 13: migrate a Tessera log (interop)
+- [x] Step 12: appender takes over a migrated log (characterisation, passed on first run)
+- [ ] Step 13: migrate a Tessera log (interop) ← current
 - [ ] Step 14: reject oversized entries
 - [ ] Step 15: pluggable entry layouts
 - [ ] Step 16: RFC 6962 tree-head signatures
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write takeover characterisation tests (memory and AWS).
+Extend interop/run.sh with a migration scenario, then write migrate-log.ts.

@@ -73,6 +73,16 @@ tessera_oneshot "$work/tessera-log" "$work/second/entry-*"
   --storage-dir "$work/tessera-log" --vkey "$vkey" --origin "$origin" \
   --previous-checkpoint "$work/tessera-previous" "$work"/first/entry-* "$work"/second/entry-*)
 
+echo "== tessellog migrates in Tessera's log, appends to it, and Tessera's Go client verifies the result"
+printf 'interop entry after migration\n' > "$work/after-migration"
+(cd "$here" && pnpm exec tsx migrate-log.ts \
+  --source-dir "$work/tessera-log" --target-dir "$work/migrated-log" \
+  --vkey "$vkey" --origin "$origin" --private-key "$work/log.key" "$work/after-migration")
+mkdir -p "$work/migrated-entries" && cp "$work"/first/entry-* "$work"/second/entry-* "$work/after-migration" "$work/migrated-entries/"
+(cd "$here/go" && go run ./cmd/verify-log \
+  --storage_dir "$work/migrated-log" --vkey "$vkey" --origin "$origin" \
+  --previous_checkpoint "$work/tessera-log/checkpoint" --entries "$work/migrated-entries/*")
+
 echo "== Tessera writes a witnessed log, tessellog's witness cosigns it and tessellog's client checks the quorum"
 start_witness tessera-witness
 tessera_oneshot "$work/tessera-witnessed" "$work/first/entry-*" --witness_policy_file "$work/tessera-witness.policy"

@@ -45,12 +45,18 @@ importers:
 
   interop:
     dependencies:
+      '@tessellog/appender':
+        specifier: workspace:*
+        version: link:../packages/appender
       '@tessellog/client':
         specifier: workspace:*
         version: link:../packages/client
       '@tessellog/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@tessellog/driver-posix':
+        specifier: workspace:*
+        version: link:../packages/driver-posix
       '@tessellog/witness':
         specifier: workspace:*
         version: link:../packages/witness
