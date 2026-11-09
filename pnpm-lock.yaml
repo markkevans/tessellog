@@ -21,6 +21,25 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@24.19.2)(supports-color@7.2.0)(tsx@4.23.15)
 
+  examples/http-log:
+    dependencies:
+      '@tessellog/appender':
+        specifier: workspace:*
+        version: link:../../packages/appender
+      '@tessellog/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@tessellog/driver-posix':
+        specifier: workspace:*
+        version: link:../../packages/driver-posix
+    devDependencies:
+      '@tessellog/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      tsx:
+        specifier: ^4.20.0
+        version: 4.23.15
+
   examples/posix-oneshot:
     dependencies:
       '@tessellog/appender':
