@@ -96,6 +96,25 @@ importers:
         specifier: ^4.20.0
         version: 4.23.15
 
+  examples/monitor:
+    dependencies:
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
+      '@tessellog/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@tessellog/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+    devDependencies:
+      '@tessellog/appender':
+        specifier: workspace:*
+        version: link:../../packages/appender
+      tsx:
+        specifier: ^4.20.0
+        version: 4.23.15
+
   examples/posix-oneshot:
     dependencies:
       '@tessellog/appender':

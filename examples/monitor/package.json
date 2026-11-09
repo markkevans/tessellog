@@ -1,0 +1,24 @@
+{
+  "name": "@tessellog/example-monitor",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "description": "Watches a tlog-tiles log: checks every new checkpoint is consistent with the last, and proves every new entry.",
+  "type": "module",
+  "bin": {
+    "monitor": "./bin/monitor.ts"
+  },
+  "scripts": {
+    "start": "tsx bin/monitor.ts"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "@tessellog/client": "workspace:*",
+    "@tessellog/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@tessellog/appender": "workspace:*",
+    "tsx": "^4.20.0"
+  }
+}
