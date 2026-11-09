@@ -14,3 +14,12 @@ Keep state in closure-scoped `let` bindings, and replace them with new immutable
 ## Consequences
 
 State changes are explicit and local to one closure. The memory driver copies on every write, O(n) per batch. That's acceptable for tests. Persistent drivers write to storage instead.
+
+## Amendment (2026-11-09): sealed mutable caches
+
+Large caches and indices mutate a private `Map` that never leaves its module:
+- the antispam LRU (`appender/src/dedup.ts`);
+- the identity index shared by the antispam stores (`appender/src/identity-index.ts`);
+- the memory witness store.
+
+Copying a 262,144-entry map on every add would be O(n) per operation. The exception is limited to these modules, and their APIs stay immutable.

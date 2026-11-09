@@ -44,10 +44,10 @@ tessellog implements these C2SP specifications:
 | Package | Status | Purpose |
 |---|---|---|
 | `@tessellog/core` | usable | RFC 6962 hashing, tile layout, entry bundles, signed notes, checkpoints, building and verifying proofs (from leaves or from tiles), and integrating leaves into tiles. It does no I/O. |
-| `@tessellog/appender` | usable | Batching, sequencing, background integration, signed checkpoint publishing, pushback, graceful shutdown, validated options and an in-memory driver. |
-| `@tessellog/driver-posix` | usable | Stores a log in a directory at tlog-tiles paths. Atomic writes, restart-safe, single writer. |
-| `@tessellog/client` | usable | Verifies checkpoints, inclusion, consistency and streamed entries over HTTP or (via `@tessellog/client/node`) from disk. Falls back to full tiles when partials are gone. |
-| `@tessellog/witness` | planned | Witness cosigning and policy. |
+| `@tessellog/appender` | usable | Batching, sequencing, background integration, signed checkpoint publishing, pushback, graceful shutdown, validated options, an in-memory driver, best-effort antispam, and publishing only witnessed checkpoints. |
+| `@tessellog/driver-posix` | usable | Stores a log in a directory at tlog-tiles paths. Atomic writes, restart-safe, single writer, plus a persistent antispam store. |
+| `@tessellog/client` | usable | Verifies checkpoints (optionally requiring a witness quorum), inclusion, consistency and streamed entries over HTTP or (via `@tessellog/client/node`) from disk. Falls back to full tiles when partials are gone. |
+| `@tessellog/witness` | usable | A C2SP `tlog-witness` `add-checkpoint` endpoint (fetch-style handler) and a client for submitting checkpoints to witnesses. |
 | AWS and Cloudflare drivers | planned | Cloud storage drivers. |
 
 ## Interoperability with Tessera
@@ -55,6 +55,8 @@ tessellog implements these C2SP specifications:
 CI checks both directions on every push (`interop/run.sh`):
 - Tessera's Go client verifies a log written by tessellog.
 - tessellog's client verifies a log written by Tessera's `posix-oneshot`.
+- Tessera's `posix-oneshot` gets its checkpoints cosigned by tessellog's witness over HTTP, and tessellog's client checks the quorum.
+- Go's `formats/note` verifies cosignatures on a tessellog-written log.
 
 Each run checks checkpoints, every inclusion proof, consistency across sessions and the exact entries.
 

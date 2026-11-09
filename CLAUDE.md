@@ -8,9 +8,10 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - `packages/appender` (`@tessellog/appender`): batching, sequencing, background integration, checkpoint publishing, pushback, shutdown, a Zod options schema, and the in-memory driver.
 - `packages/driver-posix`: stores a log in a directory. Atomic write-then-rename, `.state/` holds sequenced batches and tree state, and `.state/lock` enforces a single writer.
 - `packages/client`: verifying client. `@tessellog/client/node` adds the file fetcher, keeping the main entry browser-safe.
-- `packages/driver-conformance` (private): `describeLogDriver(name, setup)`. Every driver must pass it.
+- `packages/witness`: `createWitness` (fetch-style `add-checkpoint` handler, compare-and-swap `WitnessStore`) and `createWitnessClient`.
+- `packages/driver-conformance` (private): `describeLogDriver` and `describeAntispamStore`. Every driver and store must pass them.
 - `examples/posix-oneshot`: adds files to a POSIX log, like Tessera's. Its CLI runs through `tsx`.
-- `interop/`: `run.sh` checks both directions against Tessera v1.0.4 (Go). It needs Go, and CI runs it.
+- `interop/`: `run.sh` checks logs and witnessing in both directions against Tessera v1.0.4 (Go), including a real HTTP witness server (`witness-server.ts`). It needs Go, and CI runs it.
 - Architectural decisions are in `docs/adr/`.
 
 ## Coverage exceptions
@@ -39,6 +40,8 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - **Never run Vitest with `--root /`.** It walks the whole filesystem.
 - **Treating a missing file as empty is a recurring trap.** It hid data loss twice (a partial bundle, then a POSIX batch). Reads that must exist use a reader that throws (`readExisting`), and an uncovered `??` fallback is a clue.
 - **A failed `grep` guard silently skips a chained `cd`**, and relative-path edit scripts then write to the wrong place. Use absolute paths in edit scripts and check `git status` afterwards.
+- **Gate commits on exit codes, not output.** `pnpm test:coverage | grep …; git commit` once pushed a commit at 99.9% coverage. Use `pnpm test:coverage >/dev/null && pnpm typecheck >/dev/null && git commit …`.
+- **Witness tests: tamper before signing, not after.** Editing a signed checkpoint makes the witness return 403 before the rule under test, such as the empty-root 422, is reached.
 - **Push only after GREEN.** CI runs on the latest pushed commit, so pushing a RED commit on its own turns `main` red.
 - **Workspace TypeScript can't run under plain Node.** Imports use `.js` specifiers that map to `.ts` files, so CLIs and scripts run through `tsx`.
 
@@ -51,4 +54,6 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - The client proves every streamed entry against the signed checkpoint. Comparing entries with level-0 tiles alone would trust the server's tiles. Tile reads are cached per stream.
 - Proof building from tiles (async) and from leaves (sync) are separate small recursions, kept in agreement by equality tests at boundary sizes.
 - The client's rejection handler is typed `(error: Error)`. Every rejection on that path comes from `Error`-throwing code, so a non-`Error` branch would be dead code.
+- Antispam is layered and best-effort (ADR 6). Witnessing uses Ed25519 cosignatures and `tlog-policy` (ADR 7). Large caches use sealed mutable `Map`s (ADR 4 amendment).
+- Cosignature test vectors come from Go `formats/note` via a throwaway program, recorded in `packages/core/test/vectors/cosignatures/README.md`.
 - The "ENOENT means missing" check is duplicated on purpose in `driver-posix` and `client`, because the client must not depend on the driver.
