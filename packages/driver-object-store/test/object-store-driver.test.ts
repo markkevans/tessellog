@@ -54,3 +54,21 @@ describe("detecting another writer", () => {
     expect(await objects.get("checkpoint")).toEqual(Uint8Array.of(7));
   });
 });
+
+describe("choosing where entry bundles live", () => {
+  it("stores bundles under a custom entries path", async () => {
+    const objects = createMemoryObjectStore();
+    const driver = createObjectStoreDriver({
+      objects,
+      coordinator: createMemoryCoordinator(),
+      entriesPath: ({ index }) => `custom/${index}`,
+    });
+    await driver.writeIntegration({
+      size: 1n,
+      rootHash: new Uint8Array(32),
+      tiles: [],
+      bundles: [{ index: 0n, width: 1, data: Uint8Array.of(5) }],
+    });
+    expect(await objects.get("custom/0")).toEqual(Uint8Array.of(5));
+  });
+});

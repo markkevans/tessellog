@@ -8,6 +8,7 @@ export type EntryLayout = {
   readonly encodeEntry: (entry: Uint8Array, index: bigint) => Uint8Array;
   readonly decodeBundle: (bundle: Uint8Array, firstIndex: bigint) => Result<readonly Uint8Array[]>;
   readonly identity: (entry: Uint8Array) => Uint8Array;
+  readonly validateEntry: (entry: Uint8Array) => string | undefined;
 };
 
 export const tlogTilesLayout: EntryLayout = {
@@ -17,4 +18,5 @@ export const tlogTilesLayout: EntryLayout = {
   encodeEntry: (entry) => encodeBundle([entry]),
   decodeBundle: (bundle) => decodeBundle(bundle),
   identity: (entry) => sha256(entry),
+  validateEntry: () => undefined,
 };

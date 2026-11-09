@@ -1,16 +1,26 @@
 import type { LogDriver } from "@tessellog/appender";
-import { entriesPath, partialPathsOf, tilePath, tilesFilledBetween } from "@tessellog/core";
+import {
+  entriesPath as tlogEntriesPath,
+  partialPathsOf,
+  tilePath,
+  tilesFilledBetween,
+  type BundleAddress,
+} from "@tessellog/core";
 import type { Coordinator, Lease, ObjectStore } from "./contracts.js";
 
 const CHECKPOINT_KEY = "checkpoint";
 const GC_STATE_KEY = ".state/gc";
 
+type EntriesPath = (address: BundleAddress) => string;
+
 export const createObjectStoreDriver = ({
   objects,
   coordinator,
+  entriesPath = tlogEntriesPath,
 }: {
   readonly objects: ObjectStore;
   readonly coordinator: Coordinator;
+  readonly entriesPath?: EntriesPath | undefined;
 }): LogDriver => ({
   sequence: (entries) => coordinator.sequence(entries),
   readSequenced: (fromIndex) => coordinator.readSequenced(fromIndex),
@@ -46,12 +56,14 @@ export const createLeasedDriver = ({
   objects,
   coordinator,
   lease,
+  entriesPath,
 }: {
   readonly objects: ObjectStore;
   readonly coordinator: Coordinator;
   readonly lease: Lease;
+  readonly entriesPath?: EntriesPath | undefined;
 }): LeasedDriver => {
-  const driver = createObjectStoreDriver({ objects, coordinator });
+  const driver = createObjectStoreDriver({ objects, coordinator, entriesPath });
   return {
     ...driver,
     writeIntegration: async (update) => {

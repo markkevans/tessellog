@@ -12,7 +12,7 @@ import { createFollower, noFollower } from "./follower.js";
 import { startGarbageCollection } from "./garbage-collection.js";
 import { EntryTooLargeError } from "./errors.js";
 import { createIntegrator } from "./integrator.js";
-import { tlogTilesLayout, type EntryLayout } from "./layout.js";
+import type { EntryLayout } from "./layout.js";
 import {
   resolveAppenderOptions,
   type AppenderOptions,
@@ -77,9 +77,9 @@ export const createAppender = (options: AppenderOptions): Appender => {
     antispam,
     witnessing,
     garbageCollection,
+    layout,
     onError,
   } = resolveAppenderOptions(options);
-  const layout = tlogTilesLayout;
   const deduplicate = deduplicationFor(antispam, driver, layout);
   const outstanding = createPushback(pushback);
   const follower =
@@ -129,6 +129,10 @@ export const createAppender = (options: AppenderOptions): Appender => {
       }
       if (entry.length > layout.maxEntryBytes) {
         throw new EntryTooLargeError(entry.length, layout.maxEntryBytes);
+      }
+      const invalid = layout.validateEntry(entry);
+      if (invalid !== undefined) {
+        throw new Error(invalid);
       }
       return deduplicate(entry, (unique) => outstanding.guard(() => batch.add(unique)));
     },

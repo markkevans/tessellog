@@ -58,6 +58,22 @@ describe("running a static-CT log", () => {
     });
   });
 
+  it("appends to a partially filled data tile across integrations", async () => {
+    const driver = createMemoryDriver({ entriesPath: staticCtEntriesPath });
+    const appender = createAppender({ driver, signer: ctSigner(), layout: staticCtLayout, batching: { maxSize: 1 } });
+    await appender.add(encodeCtSubmission(CERTIFICATE_ENTRY));
+    await appender.add(encodeCtSubmission(PRECERTIFICATE_ENTRY));
+    await appender.shutdown();
+    const bundle = await driver.readEntryBundle({ index: 0n, width: 2 });
+    expect(bundle && decodeTileLeaves(bundle)).toEqual({
+      ok: true,
+      value: [
+        { entry: CERTIFICATE_ENTRY, index: 0n },
+        { entry: PRECERTIFICATE_ENTRY, index: 1n },
+      ],
+    });
+  });
+
   it("builds the tree from RFC 6962 MerkleTreeLeaf hashes", async () => {
     const driver = createMemoryDriver({ entriesPath: staticCtEntriesPath });
     const appender = ctAppender(driver);
@@ -97,6 +113,13 @@ describe("running a static-CT log", () => {
     await expect(ctAppender().add(Uint8Array.of(1, 2, 3))).rejects.toThrow(/invalid static-CT submission/);
   });
 
+  it("rejects a submission holding more than one TileLeaf", async () => {
+    const two = new Uint8Array(
+      Buffer.concat([encodeCtSubmission(CERTIFICATE_ENTRY), encodeCtSubmission(PRECERTIFICATE_ENTRY)]),
+    );
+    await expect(ctAppender().add(two)).rejects.toThrow("expected exactly one TileLeaf");
+  });
+
   it("treats a resubmitted certificate as a duplicate even with a new timestamp", async () => {
     const appender = ctAppender();
     const first = await appender.add(encodeCtSubmission(CERTIFICATE_ENTRY));
@@ -126,5 +149,21 @@ describe("decoding static-CT bundles for the appender", () => {
       ok: false,
       error: "TileLeaf 0 carries leaf index 0, want 256",
     });
+  });
+});
+
+describe("using the static-CT layout directly", () => {
+  it.each([
+    ["bytes that are not a TileLeaf", Uint8Array.of(1, 2, 3)],
+    [
+      "two TileLeaves",
+      new Uint8Array(Buffer.concat([encodeCtSubmission(CERTIFICATE_ENTRY), encodeCtSubmission(CERTIFICATE_ENTRY)])),
+    ],
+  ])("refuses to hash %s", (_, submission) => {
+    expect(() => staticCtLayout.leafHash(submission, 0n)).toThrow("invalid static-CT submission");
+  });
+
+  it("passes on a bundle that does not decode", () => {
+    expect(staticCtLayout.decodeBundle(Uint8Array.of(1), 0n).ok).toBe(false);
   });
 });

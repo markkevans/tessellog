@@ -2,6 +2,7 @@ import type { NoteSigner, Policy, PolicyWitness } from "@tessellog/core";
 import { z } from "zod";
 import type { AntispamStore } from "./antispam-store.js";
 import type { LogDriver } from "./driver.js";
+import { tlogTilesLayout, type EntryLayout } from "./layout.js";
 
 const DRIVER_METHODS = [
   "sequence",
@@ -44,6 +45,16 @@ const antispamStoreSchema = z.custom<AntispamStore>(
     isRecord(value) &&
     ["lookup", "followedSize", "record"].every((method) => typeof value[method] === "function"),
   { message: "antispam store must implement lookup, followedSize and record" },
+);
+
+const LAYOUT_FUNCTIONS = ["entriesPath", "leafHash", "encodeEntry", "decodeBundle", "identity", "validateEntry"] as const;
+
+const layoutSchema = z.custom<EntryLayout>(
+  (value) =>
+    isRecord(value) &&
+    typeof value["maxEntryBytes"] === "number" &&
+    LAYOUT_FUNCTIONS.every((name) => typeof value[name] === "function"),
+  { message: "layout must be an EntryLayout" },
 );
 
 const positiveInteger = z.number().int().positive();
@@ -108,6 +119,7 @@ export const AppenderOptionsSchema = z
       .default({}),
     pushback: z.object({ maxOutstanding: positiveInteger.default(4096) }).default({}),
     witnessing: witnessingSchema.optional(),
+    layout: layoutSchema.default(() => tlogTilesLayout),
     garbageCollection: z
       .object({ interval: z.number().int().nonnegative().default(DEFAULT_GARBAGE_COLLECTION_INTERVAL_MS) })
       .default({}),

@@ -1,7 +1,16 @@
-import { entriesPath, partialPathsOf, rootHash, tilePath, tilesFilledBetween } from "@tessellog/core";
+import {
+  entriesPath as tlogEntriesPath,
+  partialPathsOf,
+  rootHash,
+  tilePath,
+  tilesFilledBetween,
+  type BundleAddress,
+} from "@tessellog/core";
 import type { LogDriver, TreeState } from "./driver.js";
 
-export const createMemoryDriver = (): LogDriver => {
+export const createMemoryDriver = ({
+  entriesPath = tlogEntriesPath,
+}: { readonly entriesPath?: (address: BundleAddress) => string } = {}): LogDriver => {
   let sequenced: readonly Uint8Array[] = [];
   let treeState: TreeState = { size: 0n, rootHash: rootHash([]) };
   let objects: ReadonlyMap<string, Uint8Array> = new Map();

@@ -1,10 +1,11 @@
 import { mkdir } from "node:fs/promises";
 import type { LogDriver, TreeState } from "@tessellog/appender";
 import {
-  entriesPath,
+  entriesPath as tlogEntriesPath,
   partialPrefixesOf,
   tilePath,
   tilesFilledBetween,
+  type BundleAddress,
 } from "@tessellog/core";
 import { logFiles } from "./files.js";
 import { lockDirectory } from "./lock.js";
@@ -25,7 +26,13 @@ export type PosixDriver = LogDriver & {
   readonly close: () => Promise<void>;
 };
 
-export const openPosixDriver = async ({ root }: { readonly root: string }): Promise<PosixDriver> => {
+export const openPosixDriver = async ({
+  root,
+  entriesPath = tlogEntriesPath,
+}: {
+  readonly root: string;
+  readonly entriesPath?: (address: BundleAddress) => string;
+}): Promise<PosixDriver> => {
   await mkdir(root, { recursive: true });
   const lock = await lockDirectory(root);
   const files = logFiles(root);

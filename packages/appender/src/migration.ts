@@ -53,13 +53,14 @@ const copyBundle = async (
 export const createMigrationTarget = ({
   driver,
   antispam,
+  layout = tlogTilesLayout,
 }: {
   readonly driver: LogDriver;
   readonly antispam?: AntispamStore;
+  readonly layout?: EntryLayout;
 }): MigrationTarget => ({
   migrate: (source) =>
     (async (): Promise<Result<void>> => {
-      const layout = tlogTilesLayout;
       await integrateOutstanding(driver, layout);
       const { size: from } = await driver.readTreeState();
       await bundlesBetween(from, source.sourceSize).reduce<Promise<void>>(async (previous, bundleIndex) => {
