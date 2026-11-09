@@ -1,8 +1,14 @@
-import { openNote } from "@tessellog/core";
+import { openNote, signNote, type NoteSigner } from "@tessellog/core";
 import { describe, expect, it } from "vitest";
-import { createMemoryWitnessStore, createWitness, type Witness } from "../src/index.js";
+import {
+  createMemoryWitnessStore,
+  createWitness,
+  type Witness,
+  type WitnessStore,
+} from "../src/index.js";
 import {
   addCheckpointBody,
+  logSigner,
   logVerifier,
   ORIGIN,
   otherSigner,
@@ -83,7 +89,13 @@ describe("refusing checkpoints (tlog-witness add-checkpoint)", () => {
       "more than 63 proof lines",
       async () => addCheckpointBody(0, { size: 5 }, Array.from({ length: 64 }, () => "AAAA")),
     ],
-    ["a checkpoint that does not parse", async () => "old 0\n\nnot a checkpoint\n\n— PeterNeumann AAAA\n"],
+    [
+      "a signed note that is not a checkpoint",
+      async () => {
+        const signed = await signNote({ text: `${ORIGIN}\nnot a size\n`, signers: [logSigner()] });
+        return `old 0\n\n${signed.ok ? signed.value : ""}`;
+      },
+    ],
   ])("rejects %s as a bad request", async (_, body) => {
     expect((await submit(newWitness(), await body())).status).toBe(400);
   });
@@ -139,5 +151,32 @@ describe("refusing checkpoints (tlog-witness add-checkpoint)", () => {
 
   it("only accepts POST", async () => {
     expect((await submit(newWitness(), "", "/add-checkpoint", "GET")).status).toBe(405);
+  });
+});
+
+describe("handling races and misconfiguration", () => {
+  it("reports the store's size when another submission advanced it first", async () => {
+    const lostRace: WitnessStore = {
+      latest: async () => undefined,
+      advance: async () => false,
+    };
+    const witness = createWitness({
+      cosigners: [witnessCosigner()],
+      logs: [{ origin: ORIGIN, verifiers: [logVerifier()] }],
+      store: lostRace,
+    });
+    const response = await submit(witness, await addCheckpointBody(0, { size: 5 }));
+    expect(response.status).toBe(409);
+    expect(await response.text()).toBe("0\n");
+  });
+
+  it("fails with a server error when it cannot cosign", async () => {
+    const misnamed: NoteSigner = { ...witnessCosigner(), name: "Witness One" };
+    const witness = createWitness({
+      cosigners: [misnamed],
+      logs: [{ origin: ORIGIN, verifiers: [logVerifier()] }],
+      store: createMemoryWitnessStore(),
+    });
+    expect((await submit(witness, await addCheckpointBody(0, { size: 5 }))).status).toBe(500);
   });
 });
