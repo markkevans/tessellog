@@ -23,6 +23,9 @@ importers:
 
   examples/http-log:
     dependencies:
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@tessellog/appender':
         specifier: workspace:*
         version: link:../../packages/appender
@@ -32,6 +35,9 @@ importers:
       '@tessellog/driver-posix':
         specifier: workspace:*
         version: link:../../packages/driver-posix
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@tessellog/client':
         specifier: workspace:*

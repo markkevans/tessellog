@@ -39,13 +39,24 @@ const withLog = async (
   }
 };
 
-const add = (log: HttpLog, body: string | Uint8Array): Promise<Response> =>
+const add = (log: HttpLog, body: string | Uint8Array<ArrayBuffer>): Promise<Response> =>
   fetch(new URL("add", log.url), { method: "POST", body });
 
 const addedIndex = async (log: HttpLog, text: string): Promise<bigint> => {
   const response = await add(log, text);
   expect(response.status).toBe(200);
   return BigInt(await response.text());
+};
+
+const CONCURRENT_ADDS = 64;
+
+const addInRounds = async (log: HttpLog, count: number, from = 0): Promise<void> => {
+  if (from >= count) {
+    return;
+  }
+  const round = Math.min(CONCURRENT_ADDS, count - from);
+  await Promise.all(Array.from({ length: round }, (_, i) => addedIndex(log, `entry ${from + i}`)));
+  await addInRounds(log, count, from + round);
 };
 
 describe("an HTTP log on the POSIX driver", () => {
@@ -91,7 +102,7 @@ describe("an HTTP log on the POSIX driver", () => {
 
   it("lets caches keep partial tiles for an hour and full tiles forever", () =>
     withLog(async (log) => {
-      await Promise.all(Array.from({ length: 257 }, (_, i) => addedIndex(log, `entry ${i}`)));
+      await addInRounds(log, 257);
       const partial = await fetch(new URL("tile/0/001.p/1", log.url));
       const full = await fetch(new URL("tile/0/000", log.url));
       const bundle = await fetch(new URL("tile/entries/000", log.url));
@@ -103,13 +114,13 @@ describe("an HTTP log on the POSIX driver", () => {
 
   it("refuses entries larger than the layout allows without reading them whole", () =>
     withLog(async (log) => {
-      const response = await add(log, new Uint8Array(64 * 1024 + 1));
+      const response = await add(log, new Uint8Array(65_536));
       expect(response.status).toBe(413);
     }));
 
   it("accepts an entry of exactly the largest allowed size", () =>
     withLog(async (log) => {
-      const response = await add(log, new Uint8Array(64 * 1024));
+      const response = await add(log, new Uint8Array(65_535));
       expect(response.status).toBe(200);
     }));
 
@@ -139,6 +150,9 @@ describe("an HTTP log on the POSIX driver", () => {
     ["/tile/0/000.p/0", "GET"],
     ["/tile/0/000.p/256", "GET"],
     ["/tile/0/999", "GET"],
+    ["/tile/0/x000/000", "GET"],
+    ["/tile/0/x999/x999/x999/x999/x999/x999/999", "GET"],
+    ["/tile/64/000", "GET"],
   ])("answers 404 for %s", (path) =>
     withLog(async (log) => {
       await addedIndex(log, "alpha");
@@ -158,6 +172,18 @@ describe("an HTTP log on the POSIX driver", () => {
 });
 
 describe("the log handler", () => {
+  it("treats a POST without a body as an empty entry", async () => {
+    const appender = createAppender({
+      driver: createMemoryDriver(),
+      signer: unwrap(parseSignerKey(keys().signerKey)),
+      checkpointInterval: 10,
+    });
+    const handler = createLogHandler({ appender });
+    const response = await handler(new Request("http://log.example/add", { method: "POST" }));
+    expect(await response.text()).toBe("0\n");
+    await appender.shutdown();
+  });
+
   const failingAppender = (error: Error): Appender => {
     const appender = createAppender({ driver: createMemoryDriver(), signer: unwrap(parseSignerKey(keys().signerKey)) });
     return {
@@ -170,10 +196,12 @@ describe("the log handler", () => {
 
   it("reports an unexpected failure as a server error without leaking it", async () => {
     const appender = failingAppender(new Error("disk on fire"));
-    const handler = createLogHandler({ appender, read: async () => undefined });
+    const reported: unknown[] = [];
+    const handler = createLogHandler({ appender, onError: (error) => reported.push(error) });
     const response = await handler(new Request("http://log.example/add", { method: "POST", body: "a" }));
     expect(response.status).toBe(500);
     expect(await response.text()).toBe("internal error\n");
+    expect(reported).toEqual([new Error("disk on fire")]);
     await appender.shutdown();
   });
 });
