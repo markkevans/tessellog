@@ -11,19 +11,25 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - `packages/driver-object-store`: `ObjectStore` + `Coordinator` + `Lease` compose into a `LogDriver` (ADR 8). `packages/driver-aws` (S3 + DynamoDB) and `packages/driver-cloudflare` (R2 + D1) build on it.
 - `packages/static-ct`: the static-ct-api data layer and `staticCtLayout` (ADR 10).
 - `packages/witness`: `createWitness` (fetch-style `add-checkpoint` handler, compare-and-swap `WitnessStore`) and `createWitnessClient`.
-- `packages/driver-conformance` (private): `describeLogDriver` and `describeAntispamStore`. Every driver and store must pass them.
-- `examples/posix-oneshot`: adds files to a POSIX log, like Tessera's. Its CLI runs through `tsx`.
+- `packages/driver-posix` also holds `openPosixAntispamStore` and `openPosixWitnessStore`.
+- `packages/http` (`@tessellog/http`): `createLogHandler({ appender })`, a fetch-style add-and-serve handler. `@tessellog/http/node` has `serveNode`, which adapts any fetch-style handler (log or witness) to `node:http`.
+- `packages/driver-conformance` (published for third-party drivers): `describeLogDriver`, `describeObjectStore`, `describeCoordinator`, `describeAntispamStore` and `describeWitnessStore`. Every driver and store must pass them.
+- `examples/`: `keygen`, `posix-oneshot`, `http-log`, `aws-log` (Floci), `cloudflare-worker` (Miniflare, plus a workerd bundle test), `witness-server` and `monitor`. Each is a tested workspace package inside the coverage gate, and its CLI runs through `tsx`.
+- `docs/` (`@tessellog/docs`, private): guides in `docs/guides`, and code in `docs/snippets/*.ts`. These are type-checked, the self-contained ones run, and a test fails on drift or on any non-snippet TypeScript block. `pnpm --filter @tessellog/docs sync` rewrites the markdown from the files.
+- `scripts/pack-smoke/run.sh`: builds, packs, installs the tarballs into a fresh project, runs a POSIX log under plain Node, and type-checks the `.d.ts` files. CI runs it.
+- Releases: changesets (v3, fixed group of eleven packages) and `.github/workflows/release.yml`, which is dispatched manually and needs `NPM_TOKEN`.
 - `interop/`: `run.sh` checks logs and witnessing in both directions against Tessera v1.0.4 (Go), including a real HTTP witness server (`witness-server.ts`). It needs Go, and CI runs it.
 - Architectural decisions are in `docs/adr/`.
 
 ## Coverage exceptions
 
-- `packages/driver-conformance` is excluded from coverage. It is test infrastructure, a Vitest suite run against each driver, and is never shipped. Its only uncovered lines are guards that fail a test loudly when a fixture is broken. (Approved by Mark, 2026-11-08.)
+- `packages/driver-conformance` is excluded from coverage. It is test infrastructure: Vitest suites run against each driver. Since 2026-11-09 it is also published, so third-party drivers can run the suites. Its only uncovered lines are guards that fail a test loudly when a fixture is broken. (Approved by Mark, 2026-11-08. The rationale was updated when it became publishable.)
 
 ## Commands
 
 - Run `docker compose up -d` first. The AWS tests need Floci on :4566 and do not skip without it.
-- `pnpm test`, `pnpm test:coverage` (fails below 100% on any metric), `pnpm typecheck` (the whole workspace).
+- `pnpm test`, `pnpm test:coverage` (fails below 100% on any metric), `pnpm typecheck` (the whole workspace, plus `tsconfig.browser.json`, which has no Node types).
+- `pnpm build` (`tsc -p tsconfig.build.json` per package), then `bash scripts/pack-smoke/run.sh`.
 
 ## Working rules for this repo
 
@@ -51,6 +57,16 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - **Push only after GREEN.** CI runs on the latest pushed commit, so pushing a RED commit on its own turns `main` red.
 - **Workspace TypeScript can't run under plain Node.** Imports use `.js` specifiers that map to `.ts` files, so CLIs and scripts run through `tsx`.
 
+- **D1 binds JS numbers as doubles.** Even `next + ?` with a small count rounds above 2^53. Indices go in as `CAST(? AS INTEGER)` with string bindings, and come out as `CAST(… AS TEXT)`.
+- **An empty batch must reserve nothing.** Shutdown used to flush an empty batch: D1 stored a zero-count row that collided with the next batch, and DynamoDB retried forever. The conformance suites now cover `sequence([])`.
+- **tlog-tiles entries are at most 65,535 bytes** (bundles use a uint16 length), not 64 KiB.
+- **macOS's listen backlog drops about 128+ concurrent connects** (ECONNRESET). Tests that hammer a real socket add in rounds.
+- **Miniflare's workerd supports compatibility dates only up to its build** (2026-08 for 4.20260730). Dispose Miniflare only after closing the Durable Objects that use its bindings, or background tasks hit "poisoned stub".
+- **`preserveSymlinks` breaks the AWS SDK's types under pnpm.** Package builds map `@tessellog/*` to built `.d.ts` files through `paths` in `tsconfig.build.json` instead.
+- **Headers are not iterable without `DOM.Iterable`.** Use `headers.forEach`. `Uint8Array<ArrayBufferLike>` is not `BodyInit`, so copy with `Uint8Array.from`.
+- **`changeset init` (v3) is interactive.** `.changeset/config.json` was written by hand from `@changesets/config`'s schema.
+- **Documenting is testing.** Writing the operations guide exposed that an appender didn't integrate a crashed writer's batches until its first `add`. Check every claim in a guide against the code.
+
 ## Patterns
 
 - Integration stays in `core` and is pure. Given `fromSize`, a tile reader and new leaf hashes, it returns the changed tiles and the new root. The root is computed from tiles alone, as the subtree hash of `[0, size)`.
@@ -65,3 +81,7 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - Antispam is layered and best-effort (ADR 6). Witnessing uses Ed25519 cosignatures and `tlog-policy` (ADR 7). Large caches use sealed mutable `Map`s (ADR 4 amendment).
 - Cosignature test vectors come from Go `formats/note` via a throwaway program, recorded in `packages/core/test/vectors/cosignatures/README.md`.
 - The "ENOENT means missing" check is duplicated on purpose in `driver-posix` and `client`, because the client must not depend on the driver.
+
+- Personalities depend on an `Appender`, not a driver. `appender.reader` and `createLogReader({ driver })` are valid client fetchers, which keeps example and doc tests free of HTTP.
+- Example CLIs exit through a `never`-typed helper (`const exitWith: (m: string) => never = …`) so TypeScript narrows after it.
+- Durable Objects hold the appender, memoise the opening promise, and drop it on failure so the next request retries. An evicted instance's lease simply runs out.
