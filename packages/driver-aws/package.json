@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/driver-aws",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stores a tessellog transparency log in S3, with DynamoDB for sequencing, tree state and antispam.",
   "keywords": [
     "transparency-log",

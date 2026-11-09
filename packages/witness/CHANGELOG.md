@@ -1,5 +1,11 @@
 # @tessellog/witness
 
+## 0.1.1
+
+### Patch Changes
+
+- @tessellog/core@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

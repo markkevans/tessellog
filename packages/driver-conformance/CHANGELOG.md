@@ -1,5 +1,14 @@
 # @tessellog/driver-conformance
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [d664216]
+  - @tessellog/appender@0.1.1
+  - @tessellog/core@0.1.1
+  - @tessellog/witness@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

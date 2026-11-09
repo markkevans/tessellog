@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/driver-conformance",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared Vitest suite that every tessellog storage driver must pass.",
   "keywords": [
     "transparency-log",

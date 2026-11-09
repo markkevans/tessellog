@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/driver-object-store",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A tessellog LogDriver built from an object store and a sequencing coordinator, shared by the AWS and Cloudflare drivers.",
   "keywords": [
     "transparency-log",

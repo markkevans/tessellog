@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/witness",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A C2SP tlog-witness for tessellog and other tlog-tiles logs, with a client for submitting checkpoints.",
   "keywords": [
     "transparency-log",

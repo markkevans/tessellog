@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/http",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A fetch-style HTTP handler for tessellog logs: add entries and serve tiles, bundles and checkpoints.",
   "keywords": [
     "transparency-log",

@@ -1,5 +1,13 @@
 # @tessellog/appender
 
+## 0.1.1
+
+### Patch Changes
+
+- d664216: Export types that appear in public signatures, so they can be named: `BundleReader` from `@tessellog/appender`, `EntriesPath` from `@tessellog/driver-object-store` and `CtEntryCommon` from `@tessellog/static-ct`.
+- @tessellog/core@0.1.1
+  - @tessellog/witness@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
