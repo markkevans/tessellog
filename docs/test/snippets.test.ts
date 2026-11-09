@@ -36,6 +36,20 @@ describe("documentation snippets", () => {
     },
   );
 
+  it.each(["quickstart/memory-log.ts", "keys/generate.ts", "client/verify-over-http.ts", "witnessing/policy.ts"])(
+    "runs %s without error",
+    async (path) => {
+      await expect(import(join(snippets, path))).resolves.toBeDefined();
+    },
+  );
+
+  it("has no TypeScript block that is not a checked snippet", () => {
+    const unchecked = documents.flatMap(({ file, text }) =>
+      [...text.matchAll(/(?<!-->\n)```ts\n/g)].map(() => relative(repo, file)),
+    );
+    expect(unchecked).toEqual([]);
+  });
+
   it("embeds every snippet file somewhere", async () => {
     const files = (await readdir(snippets, { recursive: true })).filter((name) => name.endsWith(".ts"));
     const used = new Set(embedded.map(({ path }) => path));
