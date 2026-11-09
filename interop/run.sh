@@ -105,4 +105,17 @@ tessellog_oneshot "$work/tessellog-witnessed" --witness-policy "$work/tessellog-
   --witness_vkey "$witness_vkey")
 stop_witness tessellog-witness
 
+echo "== tessellog writes a static-CT log, Tessera's ctonly and Go client verify it"
+ct_key_hex='0707070707070707070707070707070707070707070707070707070707070707'
+ct_vkey="$(cd "$here" && pnpm exec tsx write-static-ct.ts \
+  --storage-dir "$work/tessellog-ct" --name ct.example/interop --p256-key-hex "$ct_key_hex" --count 300)"
+(cd "$here/go" && go run ./cmd/verify-static-ct \
+  --storage_dir "$work/tessellog-ct" --vkey "$ct_vkey" --origin ct.example/interop --count 300)
+
+echo "== Tessera writes a static-CT log, tessellog's client verifies it"
+(cd "$here/go" && go run ./cmd/write-static-ct \
+  --storage_dir "$work/tessera-ct" --private_key "$work/log.key" --count 300)
+(cd "$here" && pnpm exec tsx verify-static-ct.ts \
+  --storage-dir "$work/tessera-ct" --vkey "$vkey" --origin "$origin" --count 300)
+
 echo "interop OK"

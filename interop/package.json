@@ -14,7 +14,8 @@
     "@tessellog/core": "workspace:*",
     "@tessellog/witness": "workspace:*",
     "@tessellog/appender": "workspace:*",
-    "@tessellog/driver-posix": "workspace:*"
+    "@tessellog/driver-posix": "workspace:*",
+    "@tessellog/static-ct": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.20.0"

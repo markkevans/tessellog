@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 18 of 20: The client and migration target read static-CT logs.
+Step 19 of 20: Interop: Tessera's Go code verifies a tessellog static-CT log, and vice versa.
 
 ## Status
 
@@ -27,8 +27,8 @@ Step 18 of 20: The client and migration target read static-CT logs.
 - [x] Step 15: pluggable entry layouts (internal refactor; the public layout option lands with static CT in step 17)
 - [x] Step 16: RFC 6962 tree-head signatures (verifies the real Rome log checkpoint)
 - [x] Step 17: static-CT layout: 17a entry encoding vs Go ctonly; 17b layout + appender/driver options
-- [ ] Step 18: client and migration read static CT ← current
-- [ ] Step 19: static-CT interop with Go
+- [x] Step 18: client and migration read static CT
+- [ ] Step 19: static-CT interop with Go (both directions) ← current
 - [ ] Step 20: ADRs and docs
 
 ## Blockers
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing static-CT client and migration tests.
+Extend interop/run.sh with static-CT scenarios, then write the Go and TS programs.

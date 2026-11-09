@@ -57,6 +57,9 @@ importers:
       '@tessellog/driver-posix':
         specifier: workspace:*
         version: link:../packages/driver-posix
+      '@tessellog/static-ct':
+        specifier: workspace:*
+        version: link:../packages/static-ct
       '@tessellog/witness':
         specifier: workspace:*
         version: link:../packages/witness
