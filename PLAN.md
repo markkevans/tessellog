@@ -6,7 +6,7 @@ tessellog logs run on AWS (S3 + DynamoDB) and Cloudflare (R2 + D1), can be migra
 
 ## Decisions (agreed 2026-11-09)
 
-- **AWS:** S3 holds objects; DynamoDB handles sequencing, tree state, a single-writer lease and antispam. Tests run against MinIO and DynamoDB Local in Docker, locally and as CI service containers.
+- **AWS:** S3 holds objects; DynamoDB handles sequencing, tree state, a single-writer lease and antispam. Tests run against [Floci](https://github.com/floci-io/floci) 2.4.0 (MIT-licensed LocalStack alternative; S3 and DynamoDB on one port), locally via `docker compose` and as a CI service container. *(Changed 2026-11-09 at Mark's suggestion: MinIO's images are no longer published.)*
 - **Cloudflare:** R2 holds objects; D1 handles sequencing, tree state and antispam. Tests use Miniflare's real R2 and D1, with no Docker.
 - **Static CT:** the data layer only, like Tessera (`ctonly`):
   - entries, `MerkleTreeLeaf` hashing and `tile/data` bundles;
@@ -20,7 +20,7 @@ Tessera v1.0.4: `storage/aws`, `storage/posix/files.go` (GC), `migrate_lifecycle
 
 ## Acceptance Criteria
 
-- [ ] A shared object-store driver core passes `describeLogDriver` on in-memory, S3 (MinIO) and R2 (Miniflare) object stores.
+- [ ] A shared object-store driver core passes `describeLogDriver` on in-memory, S3 (Floci) and R2 (Miniflare) object stores.
 - [ ] The AWS and Cloudflare drivers persist sequencing and tree state durably with compare-and-swap, survive restarts, enforce a single writer, and provide antispam stores passing `describeAntispamStore`.
 - [ ] Garbage collection removes obsolete partial tiles, partial bundles and integrated sequencing state, and clients still verify old checkpoints via full-tile fallback.
 - [ ] A migration target imports a tlog-tiles log (including a Tessera-written one), verifies the source root, publishes nothing until an appender takes over, and the result stays consistent.
@@ -34,15 +34,15 @@ Tessera v1.0.4: `storage/aws`, `storage/posix/files.go` (GC), `migrate_lifecycle
 
 1. **An object-store driver core passes conformance on an in-memory object store.**
    `ObjectStore` (get, put, delete) and `Coordinator` (sequence, read sequenced, tree state with compare-and-swap) contracts, composed into a `LogDriver`.
-2. **An S3 object store passes the ObjectStore contract against MinIO.**
+2. **An S3 object store passes the ObjectStore contract against Floci.**
    Uses the AWS SDK v3 `S3Client`, with `docker compose` for local services.
-3. **A DynamoDB coordinator passes the Coordinator contract against DynamoDB Local.**
+3. **A DynamoDB coordinator passes the Coordinator contract against Floci.**
    Conditional writes on the next index, batches stored as items, compare-and-swap on tree state.
 4. **The AWS driver passes LogDriver conformance, survives restarts and enforces a single writer with a DynamoDB lease.**
 5. **A DynamoDB antispam store passes `describeAntispamStore`.**
 6. **An R2 object store and a D1 coordinator pass their contracts under Miniflare.**
 7. **The Cloudflare driver passes LogDriver conformance, survives restarts, enforces a single writer and provides a D1 antispam store.**
-8. **CI runs the cloud suites with MinIO and DynamoDB Local service containers.**
+8. **CI runs the cloud suites with a Floci service container.**
 
 ### Phase 8: Garbage collection and migration
 
