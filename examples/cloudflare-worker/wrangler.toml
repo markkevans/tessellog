@@ -1,0 +1,23 @@
+name = "tessellog-log"
+main = "src/worker.ts"
+compatibility_date = "2026-11-01"
+
+[[durable_objects.bindings]]
+name = "LOG"
+class_name = "LogDurableObject"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["LogDurableObject"]
+
+[[r2_buckets]]
+binding = "LOG_BUCKET"
+bucket_name = "tessellog-log"
+
+[[d1_databases]]
+binding = "LOG_DB"
+database_name = "tessellog-log"
+database_id = "replace-with-your-database-id"
+
+# Set the signing key as a secret, never in this file:
+#   wrangler secret put LOG_PRIVATE_KEY

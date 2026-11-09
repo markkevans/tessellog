@@ -1,0 +1,20 @@
+{
+  "name": "@tessellog/example-cloudflare-worker",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "description": "A tessellog log on Cloudflare: a Worker in front of a Durable Object, with tiles in R2 and sequencing in D1.",
+  "type": "module",
+  "dependencies": {
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/core": "workspace:*",
+    "@tessellog/driver-cloudflare": "workspace:*",
+    "@tessellog/http": "workspace:*"
+  },
+  "devDependencies": {
+    "@tessellog/client": "workspace:*",
+    "esbuild": "^0.28.2",
+    "miniflare": "^4.20260730.0"
+  }
+}
