@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 4 of 20: The AWS driver passes LogDriver conformance, survives restarts and enforces a single writer.
+Step 5 of 20: A DynamoDB antispam store passes describeAntispamStore.
 
 ## Status
 
@@ -13,8 +13,8 @@ Step 4 of 20: The AWS driver passes LogDriver conformance, survives restarts and
 - [x] Step 1: object-store driver core
 - [x] Step 2: S3 object store (Floci)
 - [x] Step 3: DynamoDB coordinator (Floci): counter + batch pointers in one transaction, payloads in the object store
-- [ ] Step 4: AWS driver (conformance, restart, lease renewed on integration) ← current
-- [ ] Step 5: DynamoDB antispam store
+- [x] Step 4: AWS driver (conformance, restart, lease renewed on integration)
+- [ ] Step 5: DynamoDB antispam store ← current
 - [ ] Step 6: R2 object store and D1 coordinator (Miniflare)
 - [ ] Step 7: Cloudflare driver (conformance, restart, single writer, antispam)
 - [x] Step 8: CI Floci service container (brought forward to step 2 so main stays green)
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing AWS driver tests.
+Write failing DynamoDB antispam tests.
