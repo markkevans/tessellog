@@ -89,4 +89,8 @@ describe("a log service on S3 and DynamoDB", () => {
     await prepareAwsLog(resources);
     await expect(prepareAwsLog(resources)).resolves.toBeUndefined();
   });
+
+  it("reports any other failure to prepare", async () => {
+    await expect(prepareAwsLog({ ...freshResources(), table: "!" })).rejects.toThrow();
+  });
 });
