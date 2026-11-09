@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 12 of 14: The client can require a witness quorum when opening checkpoints.
+Step 13 of 14: Interop: Go verifies our cosignatures, and Tessera's posix-oneshot is witnessed by our witness.
 
 ## Status
 
@@ -21,8 +21,8 @@ Step 12 of 14: The client can require a witness quorum when opening checkpoints.
 - [x] Step 9: witness add-checkpoint server
 - [x] Step 10: witness client with 409 recovery
 - [x] Step 11: appender publishes only witnessed checkpoints
-- [ ] Step 12: client requires a quorum ← current
-- [ ] Step 13: witnessing interop with Go/Tessera
+- [x] Step 12: client requires a quorum
+- [ ] Step 13: witnessing interop with Go/Tessera ← current
 - [ ] Step 14: ADRs and docs
 
 ## Blockers
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing client quorum tests.
+Add --witness-policy to posix-oneshot (TDD), then extend interop/run.sh.

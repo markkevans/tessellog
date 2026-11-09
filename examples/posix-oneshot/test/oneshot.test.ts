@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { createLogClient, type LogClient } from "@tessellog/client";
 import { createFileFetcher } from "@tessellog/client/node";
-import { parseVerifierKey, type Checkpoint } from "@tessellog/core";
+import { parseCosignerKey, parsePolicy, parseVerifierKey, type Checkpoint } from "@tessellog/core";
+import { createMemoryWitnessStore, createWitness } from "@tessellog/witness";
 import { describe, expect, it } from "vitest";
 import { oneshot } from "../src/index.js";
 
@@ -144,4 +145,58 @@ describe("running posix-oneshot from the command line", () => {
     },
     CLI_TIMEOUT_MS,
   );
+});
+
+const WITNESS_SKEY = "PRIVATE+KEY+WitnessOne+73f152b1+AaA1V+rFd0kL2T2VE6eN8l3w436FpdT7Gv8oGE1lCS4H";
+const WITNESS_VKEY = "WitnessOne+3f2acfb9+BG/0vdadeZvB98cEdVaMBfkts+OT6iw8cVehe9i4nUTx";
+const WITNESS_URL = "https://witness.example/submit";
+
+describe("witnessing a one-shot log", () => {
+  const inProcessWitness = (): typeof fetch => {
+    const cosigner = parseCosignerKey(WITNESS_SKEY);
+    const logKey = parseVerifierKey(VKEY);
+    if (!cosigner.ok || !logKey.ok) {
+      throw new Error("fixture keys did not parse");
+    }
+    const witness = createWitness({
+      cosigners: [cosigner.value],
+      logs: [{ origin: "PeterNeumann", verifiers: [logKey.value] }],
+      store: createMemoryWitnessStore(),
+    });
+    return async (input, init) => witness.handle(new Request(String(input), init));
+  };
+
+  it("publishes a checkpoint the policy's witnesses cosigned", () =>
+    withWorkspace(async ({ dir, logDir, keyFile }) => {
+      const policyFile = join(dir, "witness.policy");
+      await writeFile(policyFile, `witness W1 ${WITNESS_VKEY} ${WITNESS_URL}\nquorum W1\n`);
+      await oneshot({
+        storageDir: logDir,
+        privateKeyFile: keyFile,
+        files: await writeEntries(dir, ["a.txt"]),
+        witnessPolicyFile: policyFile,
+        fetch: inProcessWitness(),
+      });
+      const policy = parsePolicy(`witness W1 ${WITNESS_VKEY}\nquorum W1`);
+      const logKey = parseVerifierKey(VKEY);
+      if (!policy.ok || !logKey.ok) {
+        throw new Error("fixtures did not parse");
+      }
+      const client = createLogClient({
+        fetcher: createFileFetcher({ root: logDir }),
+        origin: "PeterNeumann",
+        logVerifier: logKey.value,
+        witnessPolicy: policy.value,
+      });
+      expect((await client.latestCheckpoint()).ok).toBe(true);
+    }));
+
+  it("refuses a witness policy file it cannot parse", () =>
+    withWorkspace(async ({ dir, logDir, keyFile }) => {
+      const policyFile = join(dir, "bad.policy");
+      await writeFile(policyFile, "witness\n");
+      await expect(
+        oneshot({ storageDir: logDir, privateKeyFile: keyFile, files: [], witnessPolicyFile: policyFile }),
+      ).rejects.toThrow(/invalid witness policy/);
+    }));
 });

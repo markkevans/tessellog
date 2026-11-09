@@ -36,6 +36,9 @@ importers:
       '@tessellog/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@tessellog/witness':
+        specifier: workspace:*
+        version: link:../../packages/witness
       tsx:
         specifier: ^4.20.0
         version: 4.23.15

@@ -6,7 +6,9 @@
   "author": "Mark Evans",
   "description": "Adds files to a tessellog log stored in a POSIX directory, like Tessera's posix-oneshot.",
   "type": "module",
-  "bin": { "posix-oneshot": "./bin/posix-oneshot.ts" },
+  "bin": {
+    "posix-oneshot": "./bin/posix-oneshot.ts"
+  },
   "scripts": {
     "oneshot": "tsx bin/posix-oneshot.ts"
   },
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "@tessellog/client": "workspace:*",
-    "tsx": "^4.20.0"
+    "tsx": "^4.20.0",
+    "@tessellog/witness": "workspace:*"
   }
 }
