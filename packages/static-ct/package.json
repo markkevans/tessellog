@@ -9,6 +9,16 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
   "dependencies": {
     "@noble/hashes": "^1.8.0",
     "@tessellog/appender": "workspace:*",
@@ -18,5 +28,14 @@
     "zod": "^3.25.76",
     "@tessellog/driver-posix": "workspace:*",
     "@tessellog/client": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
   }
 }

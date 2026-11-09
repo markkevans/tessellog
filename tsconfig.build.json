@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@tessellog/client/node": ["./packages/client/dist/node.d.ts"],
+      "@tessellog/*": ["./packages/*/dist/index.d.ts"]
+    }
+  }
+}

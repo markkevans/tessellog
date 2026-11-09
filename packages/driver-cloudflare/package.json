@@ -9,6 +9,16 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
   "dependencies": {
     "@tessellog/appender": "workspace:*",
     "@tessellog/core": "workspace:*",
@@ -20,5 +30,14 @@
     "@noble/hashes": "^1.8.0",
     "@tessellog/driver-conformance": "workspace:*",
     "miniflare": "^4.20260730.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
   }
 }
