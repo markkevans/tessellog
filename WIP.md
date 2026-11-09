@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 13 of 20: Interop: tessellog migrates in a log written by Tessera's posix-oneshot.
+Step 14 of 20: Oversized entries are rejected at add.
 
 ## Status
 
@@ -22,8 +22,8 @@ Step 13 of 20: Interop: tessellog migrates in a log written by Tessera's posix-o
 - [x] Step 10: garbage collection (10a–c together in one GREEN, since the contract requires it; 10d appender interval)
 - [x] Step 11: migration target
 - [x] Step 12: appender takes over a migrated log (characterisation, passed on first run)
-- [ ] Step 13: migrate a Tessera log (interop) ← current
-- [ ] Step 14: reject oversized entries
+- [x] Step 13: migrate a Tessera log (interop)
+- [ ] Step 14: reject oversized entries ← current
 - [ ] Step 15: pluggable entry layouts
 - [ ] Step 16: RFC 6962 tree-head signatures
 - [ ] Step 17: static-CT layout
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Extend interop/run.sh with a migration scenario, then write migrate-log.ts.
+Write failing entry size tests.
