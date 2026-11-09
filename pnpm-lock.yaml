@@ -80,6 +80,9 @@ importers:
       '@tessellog/driver-posix':
         specifier: workspace:*
         version: link:../driver-posix
+      '@tessellog/witness':
+        specifier: workspace:*
+        version: link:../witness
 
   packages/core:
     dependencies:

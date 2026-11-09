@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 11 of 14: The appender only publishes checkpoints that satisfy the witness policy.
+Step 12 of 14: The client can require a witness quorum when opening checkpoints.
 
 ## Status
 
@@ -20,8 +20,8 @@ Step 11 of 14: The appender only publishes checkpoints that satisfy the witness 
 - [x] Step 8: tlog-policy parsing and quorum
 - [x] Step 9: witness add-checkpoint server
 - [x] Step 10: witness client with 409 recovery
-- [ ] Step 11: appender publishes only witnessed checkpoints ← current
-- [ ] Step 12: client requires a quorum
+- [x] Step 11: appender publishes only witnessed checkpoints
+- [ ] Step 12: client requires a quorum ← current
 - [ ] Step 13: witnessing interop with Go/Tessera
 - [ ] Step 14: ADRs and docs
 
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Write failing witnessed-publication tests.
+Write failing client quorum tests.

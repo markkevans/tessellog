@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@tessellog/appender": "workspace:*",
-    "@tessellog/driver-posix": "workspace:*"
+    "@tessellog/driver-posix": "workspace:*",
+    "@tessellog/witness": "workspace:*"
   }
 }

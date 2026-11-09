@@ -1,4 +1,4 @@
-import { createAppender, createMemoryDriver, type Appender } from "@tessellog/appender";
+import { createAppender, createMemoryDriver, type Appender, type AppenderOptions } from "@tessellog/appender";
 import { entriesPath, tileLayout, tilePath, TILE_WIDTH } from "@tessellog/core";
 import { logSigner } from "./keys.js";
 
@@ -42,11 +42,15 @@ const filesOf = async (appender: Appender, size: bigint) => {
   );
 };
 
-export const servedLog = async (entries: readonly Uint8Array[]): Promise<ServedLog> => {
+export const servedLog = async (
+  entries: readonly Uint8Array[],
+  options?: Partial<AppenderOptions>,
+): Promise<ServedLog> => {
   const appender = createAppender({
     driver: createMemoryDriver(),
     signer: logSigner(),
     batching: { maxSize: 256, maxAge: 0 },
+    ...options,
   });
   await Promise.all(entries.map((entry) => appender.add(entry)));
   await appender.shutdown();
