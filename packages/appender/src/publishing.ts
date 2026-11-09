@@ -11,11 +11,11 @@ type PublisherOptions = {
   readonly witnessed: Witnessed;
 };
 
-type Publication = { readonly size: bigint; readonly at: number };
+type Publication = { readonly size: bigint; readonly at: number; readonly checkpoint: Uint8Array };
 
 type Publisher = {
   readonly publish: (now: number) => Promise<void>;
-  readonly publishedSize: () => bigint | undefined;
+  readonly latest: () => Publication | undefined;
 };
 
 const createPublisher = ({
@@ -40,16 +40,26 @@ const createPublisher = ({
     if (!signed.ok) {
       throw new Error(`cannot sign checkpoint: ${signed.error}`);
     }
-    await driver.writeCheckpoint(new TextEncoder().encode(await witnessed(signed.value, size)));
-    last = { size, at: now };
+    const checkpoint = new TextEncoder().encode(await witnessed(signed.value, size));
+    await driver.writeCheckpoint(checkpoint);
+    last = { size, at: now, checkpoint };
   };
-  return { publish, publishedSize: () => last?.size };
+  return { publish, latest: () => last };
 };
 
 export type Publishing = {
   readonly stop: () => Promise<void>;
   readonly publishedSize: () => bigint | undefined;
+  readonly awaitPublication: (index: bigint) => Promise<Uint8Array>;
 };
+
+type Waiter = {
+  readonly index: bigint;
+  readonly resolve: (checkpoint: Uint8Array) => void;
+  readonly reject: (error: Error) => void;
+};
+
+const unpublished = (index: bigint): Error => new Error(`appender shut down before index ${index} was published`);
 
 export const startPublishing = ({
   interval,
@@ -59,17 +69,56 @@ export const startPublishing = ({
   readonly interval: number;
   readonly onError: (error: unknown) => void;
 }): Publishing => {
-  const { publish, publishedSize } = createPublisher(publisher);
+  const { publish, latest } = createPublisher(publisher);
   const tasks = serialTasks(onError);
-  const timer = setInterval(() => {
-    tasks.run(() => publish(Date.now()));
-  }, interval);
+  let waiters: readonly Waiter[] = [];
+  let stopped = false;
+  const covering = (index: bigint): Uint8Array | undefined => {
+    const published = latest();
+    return published !== undefined && index < published.size ? published.checkpoint : undefined;
+  };
+  const settleWaiters = (): void => {
+    const remaining = waiters.filter(({ index, resolve }) => {
+      const checkpoint = covering(index);
+      if (checkpoint === undefined) {
+        return true;
+      }
+      resolve(checkpoint);
+      return false;
+    });
+    waiters = remaining;
+  };
+  const publishAndSettle = (): void => {
+    tasks.run(async () => {
+      await publish(Date.now());
+      settleWaiters();
+    });
+  };
+  const timer = setInterval(publishAndSettle, interval);
   return {
     stop: async () => {
       clearInterval(timer);
-      tasks.run(() => publish(Date.now()));
+      publishAndSettle();
       await tasks.idle();
+      stopped = true;
+      waiters.forEach(({ index, reject }) => reject(unpublished(index)));
+      waiters = [];
     },
-    publishedSize,
+    publishedSize: () => latest()?.size,
+    awaitPublication: (index) => {
+      if (index < 0n) {
+        return Promise.reject(new RangeError(`index must not be negative, got ${index}`));
+      }
+      const checkpoint = covering(index);
+      if (checkpoint !== undefined) {
+        return Promise.resolve(checkpoint);
+      }
+      if (stopped) {
+        return Promise.reject(unpublished(index));
+      }
+      return new Promise((resolve, reject) => {
+        waiters = [...waiters, { index, resolve, reject }];
+      });
+    },
   };
 };

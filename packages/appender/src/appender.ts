@@ -31,6 +31,7 @@ export type LogReader = {
 
 export type Appender = {
   readonly add: (entry: Uint8Array) => Promise<AddResult>;
+  readonly awaitPublication: (index: bigint) => Promise<Uint8Array>;
   readonly shutdown: () => Promise<void>;
   readonly reader: LogReader;
 };
@@ -136,6 +137,7 @@ export const createAppender = (options: AppenderOptions): Appender => {
       }
       return deduplicate(entry, (unique) => outstanding.guard(() => batch.add(unique)));
     },
+    awaitPublication: publishing.awaitPublication,
     shutdown: async () => {
       shutDown = true;
       await batch.drain();
