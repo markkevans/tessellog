@@ -1,6 +1,22 @@
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": { "composite": false, "noEmit": true, "types": [] },
-  "include": ["packages/core/src", "packages/client/src", "packages/static-ct/src", "packages/witness/src"],
-  "exclude": ["packages/client/src/node.ts", "packages/client/src/file-fetcher.ts"]
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "types": []
+  },
+  "include": [
+    "packages/core/src",
+    "packages/client/src",
+    "packages/static-ct/src",
+    "packages/witness/src",
+    "packages/http/src",
+    "packages/appender/src",
+    "packages/driver-object-store/src",
+    "packages/driver-cloudflare/src"
+  ],
+  "exclude": [
+    "packages/client/src/node.ts",
+    "packages/client/src/file-fetcher.ts"
+  ]
 }
