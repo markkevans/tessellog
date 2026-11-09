@@ -58,7 +58,7 @@ const deduplicationFor = (
       );
 };
 
-const readerFor = (driver: LogDriver): LogReader => ({
+export const createLogReader = ({ driver }: { readonly driver: LogDriver }): LogReader => ({
   integratedSize: async () => (await driver.readTreeState()).size,
   readTile: (address) => driver.readTile(address),
   readEntryBundle: (address) => driver.readEntryBundle(address),
@@ -147,6 +147,6 @@ export const createAppender = (options: AppenderOptions): Appender => {
       await publishing.stop();
       await collector.stop();
     },
-    reader: readerFor(driver),
+    reader: createLogReader({ driver }),
   };
 };

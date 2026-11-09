@@ -1,4 +1,4 @@
-export { createAppender, type Appender, type LogReader } from "./appender.js";
+export { createAppender, createLogReader, type Appender, type LogReader } from "./appender.js";
 export {
   AppenderOptionsSchema,
   type AppenderOptions,
