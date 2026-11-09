@@ -37,6 +37,6 @@ Tiles and bundles are written before the tree state advances, so a lost compare-
 
 ## Consequences
 
-- D1 returns integers as JS numbers, so Cloudflare indices are exact only up to 2^53 (about 9×10^15 entries).
+- D1 binds and returns JS numbers as doubles. Indices therefore cross the D1 boundary as decimal text (`CAST(? AS INTEGER)` in, `CAST(… AS TEXT)` out) and stay exact up to SQLite's signed 64-bit limit, 2^63 − 1 entries. (Amended 2026-11-09; it was exact only to 2^53 before.)
 - Object stores delete obsolete partials by enumerating the 255 possible widths in batches of 1,000 keys, which needs no `list` permission.
 - The lease is fail-fast protection. Correctness rests on the transactions and the tree-state compare-and-swap.

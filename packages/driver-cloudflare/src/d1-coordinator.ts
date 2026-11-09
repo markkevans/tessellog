@@ -59,10 +59,10 @@ export const createD1Coordinator = async ({
       const [inserted] = await db.batch([
         db
           .prepare(
-            "INSERT INTO tessellog_batches (first_index, count, payload) SELECT next, ?, ? FROM tessellog_state WHERE id = 0 RETURNING first_index",
+            "INSERT INTO tessellog_batches (first_index, count, payload) SELECT next, ?, ? FROM tessellog_state WHERE id = 0 RETURNING CAST(first_index AS TEXT) AS first_index",
           )
           .bind(entries.length, payload),
-        db.prepare("UPDATE tessellog_state SET next = next + ? WHERE id = 0").bind(entries.length),
+        db.prepare("UPDATE tessellog_state SET next = next + CAST(? AS INTEGER) WHERE id = 0").bind(entries.length),
       ]);
       const row = z.object({ results: z.tuple([FirstIndexRow]) }).parse(inserted);
       return row.results[0].first_index;
@@ -71,9 +71,9 @@ export const createD1Coordinator = async ({
       const rows = BatchRows.parse(
         await db
           .prepare(
-            "SELECT first_index, payload FROM tessellog_batches WHERE first_index + count > ? ORDER BY first_index",
+            "SELECT CAST(first_index AS TEXT) AS first_index, payload FROM tessellog_batches WHERE first_index + count > CAST(? AS INTEGER) ORDER BY first_index",
           )
-          .bind(Number(fromIndex))
+          .bind(fromIndex.toString())
           .all(),
       );
       const parts = await Promise.all(
@@ -83,21 +83,21 @@ export const createD1Coordinator = async ({
     },
     forgetSequencedBefore: async (size) => {
       const { results } = PayloadRows.parse(
-        await db.prepare("SELECT payload FROM tessellog_batches WHERE first_index + count <= ?").bind(Number(size)).all(),
+        await db.prepare("SELECT payload FROM tessellog_batches WHERE first_index + count <= CAST(? AS INTEGER)").bind(size.toString()).all(),
       );
-      await db.prepare("DELETE FROM tessellog_batches WHERE first_index + count <= ?").bind(Number(size)).run();
+      await db.prepare("DELETE FROM tessellog_batches WHERE first_index + count <= CAST(? AS INTEGER)").bind(size.toString()).run();
       await payloads.deleteMany(results.map(({ payload }) => payload));
     },
     readTreeState: async (): Promise<TreeState> => {
       const { size, root } = StateRow.parse(
-        await db.prepare("SELECT size, root FROM tessellog_state WHERE id = 0").first(),
+        await db.prepare("SELECT CAST(size AS TEXT) AS size, root FROM tessellog_state WHERE id = 0").first(),
       );
       return { size, rootHash: root };
     },
     advanceTreeState: async (expectedSize, next) => {
       const { meta } = await db
-        .prepare("UPDATE tessellog_state SET size = ?, root = ? WHERE id = 0 AND size = ?")
-        .bind(Number(next.size), next.rootHash, Number(expectedSize))
+        .prepare("UPDATE tessellog_state SET size = CAST(? AS INTEGER), root = ? WHERE id = 0 AND size = CAST(? AS INTEGER)")
+        .bind(next.size.toString(), next.rootHash, expectedSize.toString())
         .run();
       return meta.changes === 1;
     },

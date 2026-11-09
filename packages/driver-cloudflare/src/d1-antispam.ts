@@ -16,16 +16,16 @@ export const createD1AntispamStore = async ({ db }: { readonly db: D1DatabaseLik
   ]);
   return {
     lookup: async (identity) =>
-      IndexRow.parse(await db.prepare("SELECT idx FROM tessellog_antispam WHERE identity = ?").bind(identity).first())
+      IndexRow.parse(await db.prepare("SELECT CAST(idx AS TEXT) AS idx FROM tessellog_antispam WHERE identity = ?").bind(identity).first())
         ?.idx,
     followedSize: async () =>
-      ProgressRow.parse(await db.prepare("SELECT size FROM tessellog_antispam_progress WHERE id = 0").first()).size,
+      ProgressRow.parse(await db.prepare("SELECT CAST(size AS TEXT) AS size FROM tessellog_antispam_progress WHERE id = 0").first()).size,
     record: async (entries, followedSize) => {
       await db.batch([
         ...entries.map(({ identity, index }) =>
-          db.prepare("INSERT OR IGNORE INTO tessellog_antispam (identity, idx) VALUES (?, ?)").bind(identity, Number(index)),
+          db.prepare("INSERT OR IGNORE INTO tessellog_antispam (identity, idx) VALUES (?, CAST(? AS INTEGER))").bind(identity, index.toString()),
         ),
-        db.prepare("UPDATE tessellog_antispam_progress SET size = ? WHERE id = 0").bind(Number(followedSize)),
+        db.prepare("UPDATE tessellog_antispam_progress SET size = CAST(? AS INTEGER) WHERE id = 0").bind(followedSize.toString()),
       ]);
     },
   };
