@@ -11,7 +11,7 @@ const markdownFiles = async (): Promise<readonly string[]> => {
   const guides = (await readdir(join(repo, "docs", "guides"))).map((name) => join(repo, "docs", "guides", name));
   const packages = await readdir(join(repo, "packages"));
   const readmes = packages.map((name) => join(repo, "packages", name, "README.md"));
-  return [join(repo, "README.md"), join(repo, "docs", "README.md"), ...guides, ...readmes].filter((file) =>
+  return [join(repo, "README.md"), join(repo, "docs", "README.md"), join(repo, "docs", "index.md"), ...guides, ...readmes].filter((file) =>
     file.endsWith(".md"),
   );
 };

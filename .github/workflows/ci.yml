@@ -51,6 +51,21 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/pack-smoke/run.sh
 
+  docs:
+    name: Docs site builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.11.2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @tessellog/docs build
+
   interop:
     name: Interop with Tessera (Go)
     runs-on: ubuntu-latest

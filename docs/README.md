@@ -2,6 +2,8 @@
 
 tessellog is a TypeScript library for building **tile-based transparency logs**, ported from [Tessera](https://github.com/transparency-dev/tessera). Its logs are append-only and tamper-evident, and anyone can verify them from static files. Logs written by tessellog and by Tessera can each be read and verified by the other.
 
+The docs are published at **[markkevans.github.io/tessellog](https://markkevans.github.io/tessellog/)**, with search and an API reference for every package.
+
 ## Start here
 
 1. [Concepts](./guides/concepts.md): what a transparency log is, the life of an entry, and how tessellog maps to Tessera.

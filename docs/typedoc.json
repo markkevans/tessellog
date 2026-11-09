@@ -1,0 +1,45 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPointStrategy": "packages",
+  "entryPoints": [
+    "../packages/core",
+    "../packages/appender",
+    "../packages/client",
+    "../packages/http",
+    "../packages/witness",
+    "../packages/static-ct",
+    "../packages/driver-object-store",
+    "../packages/driver-posix",
+    "../packages/driver-aws",
+    "../packages/driver-cloudflare",
+    "../packages/driver-conformance"
+  ],
+  "packageOptions": {
+    "entryPoints": [
+      "src/index.ts"
+    ],
+    "readme": "none",
+    "excludeExternals": true
+  },
+  "name": "API reference",
+  "out": "./api",
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "typedoc-vitepress-theme"
+  ],
+  "docsRoot": ".",
+  "readme": "none",
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "useCodeBlocks": true,
+  "parametersFormat": "table",
+  "excludePrivate": true,
+  "githubPages": false,
+  "validation": {
+    "notDocumented": false,
+    "invalidLink": true,
+    "notExported": true
+  },
+  "treatWarningsAsErrors": false,
+  "gitRevision": "main"
+}

@@ -51,6 +51,8 @@ To swap memory for disk or the cloud, change the driver. To serve the log over H
 
 ## Documentation
 
+**[markkevans.github.io/tessellog](https://markkevans.github.io/tessellog/)** has the guides, the API reference for every package, and the architecture decisions, with search.
+
 - [Concepts](./docs/guides/concepts.md): the life of an entry, tiles, and how tessellog maps to Tessera.
 - [Getting started](./docs/guides/getting-started.md): a verified log over HTTP in ten minutes.
 - [Keys and signing](./docs/guides/keys-and-signing.md), [storage drivers](./docs/guides/drivers.md), [personalities](./docs/guides/personalities.md), [verifying and monitoring](./docs/guides/verifying.md), [witnessing](./docs/guides/witnessing.md), [antispam](./docs/guides/antispam.md), [operations](./docs/guides/operations.md) and [static CT](./docs/guides/static-ct.md).

@@ -9,7 +9,7 @@ const read = (path: string): string => readFileSync(join(snippets, path), "utf8"
 
 const documents = [
   join(repo, "README.md"),
-  join(repo, "docs", "README.md"),
+  join(repo, "docs", "README.md"), join(repo, "docs", "index.md"),
   ...readdirSync(join(repo, "docs", "guides")).map((name) => join(repo, "docs", "guides", name)),
   ...readdirSync(join(repo, "packages")).map((name) => join(repo, "packages", name, "README.md")),
 ].filter((file) => file.endsWith(".md"));

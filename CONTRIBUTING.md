@@ -30,7 +30,7 @@ Code in the guides and package READMEs lives in [`docs/snippets`](./docs/snippet
 1. Edit the snippet file.
 2. Run `pnpm --filter @tessellog/docs sync` to update the markdown.
 
-A test fails if they drift, or if a TypeScript block isn't a snippet. Write new guides in plain, direct English, and add self-contained snippets to the list the docs test runs.
+A test fails if they drift, or if a TypeScript block isn't a snippet. Preview the site with `pnpm --filter @tessellog/docs dev`. Its build (`pnpm --filter @tessellog/docs build`) generates the API reference with TypeDoc and fails on dead links. CI runs the build, and pushes to `main` deploy it to GitHub Pages. Write new guides in plain, direct English, and add self-contained snippets to the list the docs test runs.
 
 ## Releasing
 
