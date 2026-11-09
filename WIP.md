@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 9 of 14: `@tessellog/witness` serves a spec-conformant `add-checkpoint`.
+Step 10 of 14: A witness client submits checkpoints and recovers from a size conflict.
 
 ## Status
 
@@ -18,8 +18,8 @@ Step 9 of 14: `@tessellog/witness` serves a spec-conformant `add-checkpoint`.
 - [x] Step 6: POSIX antispam store
 - [x] Step 7: Ed25519 checkpoint cosignatures (byte-identical with Go formats/note)
 - [x] Step 8: tlog-policy parsing and quorum
-- [ ] Step 9: witness add-checkpoint server ← current
-- [ ] Step 10: witness client with 409 recovery
+- [x] Step 9: witness add-checkpoint server
+- [ ] Step 10: witness client with 409 recovery ← current
 - [ ] Step 11: appender publishes only witnessed checkpoints
 - [ ] Step 12: client requires a quorum
 - [ ] Step 13: witnessing interop with Go/Tessera
@@ -31,4 +31,4 @@ None.
 
 ## Next Action
 
-Scaffold @tessellog/witness and write failing add-checkpoint tests.
+Write failing witness client tests.
