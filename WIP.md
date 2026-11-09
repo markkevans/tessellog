@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 7 of 20: The Cloudflare driver passes conformance, survives restarts, enforces a single writer and provides a D1 antispam store.
+Step 9 of 20: Core lists the partial tiles and bundles made obsolete between two tree sizes.
 
 ## Status
 
@@ -16,9 +16,9 @@ Step 7 of 20: The Cloudflare driver passes conformance, survives restarts, enfor
 - [x] Step 4: AWS driver (conformance, restart, lease renewed on integration)
 - [x] Step 5: DynamoDB antispam store
 - [x] Step 6: R2 object store and D1 coordinator (Miniflare; payloads in R2, D1 rows hold pointers)
-- [ ] Step 7: Cloudflare driver (conformance, restart, single writer, antispam) ← current
+- [x] Step 7: Cloudflare driver (conformance, restart, single writer, antispam)
 - [x] Step 8: CI Floci service container (brought forward to step 2 so main stays green)
-- [ ] Step 9: obsolete partials in core
+- [ ] Step 9: obsolete partials in core (tiles that became full; all their .p/ widths go, as in Tessera) ← current
 - [ ] Step 10: garbage collection
 - [ ] Step 11: migration target
 - [ ] Step 12: appender takes over a migrated log
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing Cloudflare driver tests.
+Write failing tilesFilledBetween tests.
