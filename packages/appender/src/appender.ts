@@ -9,6 +9,7 @@ import {
   type Deduplicate,
 } from "./dedup.js";
 import { createFollower, noFollower } from "./follower.js";
+import { startGarbageCollection } from "./garbage-collection.js";
 import { createIntegrator } from "./integrator.js";
 import {
   resolveAppenderOptions,
@@ -71,6 +72,7 @@ export const createAppender = (options: AppenderOptions): Appender => {
     pushback,
     antispam,
     witnessing,
+    garbageCollection,
     onError,
   } = resolveAppenderOptions(options);
   const deduplicate = deduplicationFor(antispam, driver);
@@ -99,6 +101,12 @@ export const createAppender = (options: AppenderOptions): Appender => {
         : witnessedPublication(witnessing, driver),
     onError,
   });
+  const collector = startGarbageCollection({
+    driver,
+    interval: garbageCollection.interval,
+    publishedSize: publishing.publishedSize,
+    onError,
+  });
   const batch = createBatcher({
     ...batching,
     sequence: async (entries) => {
@@ -122,6 +130,7 @@ export const createAppender = (options: AppenderOptions): Appender => {
       follower.schedule();
       await follower.idle();
       await publishing.stop();
+      await collector.stop();
     },
     reader: readerFor(driver),
   };

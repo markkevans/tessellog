@@ -58,6 +58,7 @@ const fetchSchema = z.custom<typeof fetch>((value) => typeof value === "function
 });
 
 const DEFAULT_WITNESS_TIMEOUT_MS = 1000;
+const DEFAULT_GARBAGE_COLLECTION_INTERVAL_MS = 60_000;
 
 const hasUrl = (witness: PolicyWitness): witness is PolicyWitness & { readonly url: string } =>
   witness.url !== undefined;
@@ -107,6 +108,9 @@ export const AppenderOptionsSchema = z
       .default({}),
     pushback: z.object({ maxOutstanding: positiveInteger.default(4096) }).default({}),
     witnessing: witnessingSchema.optional(),
+    garbageCollection: z
+      .object({ interval: z.number().int().nonnegative().default(DEFAULT_GARBAGE_COLLECTION_INTERVAL_MS) })
+      .default({}),
     antispam: z
       .object({
         inMemoryEntries: positiveInteger.default(DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES),

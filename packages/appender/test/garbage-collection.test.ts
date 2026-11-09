@@ -50,8 +50,9 @@ describe("collecting garbage in the background", () => {
   it("can be disabled", async () => {
     vi.useFakeTimers();
     const { driver, collected } = recordingGarbage();
-    appenderWith({ driver, garbageCollection: { interval: 0 } });
+    const appender = appenderWith({ driver, garbageCollection: { interval: 0 } });
     await vi.advanceTimersByTimeAsync(600_000);
+    await appender.shutdown();
     expect(collected()).toEqual([]);
   });
 

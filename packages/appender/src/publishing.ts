@@ -13,17 +13,22 @@ type PublisherOptions = {
 
 type Publication = { readonly size: bigint; readonly at: number };
 
+type Publisher = {
+  readonly publish: (now: number) => Promise<void>;
+  readonly publishedSize: () => bigint | undefined;
+};
+
 const createPublisher = ({
   driver,
   signers,
   origin,
   republishInterval,
   witnessed,
-}: PublisherOptions): ((now: number) => Promise<void>) => {
+}: PublisherOptions): Publisher => {
   let last: Publication | undefined;
   const isDue = (size: bigint, now: number): boolean =>
     last === undefined || last.size !== size || now - last.at >= republishInterval;
-  return async (now) => {
+  const publish = async (now: number): Promise<void> => {
     const { size, rootHash } = await driver.readTreeState();
     if (!isDue(size, now)) {
       return;
@@ -38,10 +43,12 @@ const createPublisher = ({
     await driver.writeCheckpoint(new TextEncoder().encode(await witnessed(signed.value, size)));
     last = { size, at: now };
   };
+  return { publish, publishedSize: () => last?.size };
 };
 
 export type Publishing = {
   readonly stop: () => Promise<void>;
+  readonly publishedSize: () => bigint | undefined;
 };
 
 export const startPublishing = ({
@@ -52,7 +59,7 @@ export const startPublishing = ({
   readonly interval: number;
   readonly onError: (error: unknown) => void;
 }): Publishing => {
-  const publish = createPublisher(publisher);
+  const { publish, publishedSize } = createPublisher(publisher);
   const tasks = serialTasks(onError);
   const timer = setInterval(() => {
     tasks.run(() => publish(Date.now()));
@@ -63,5 +70,6 @@ export const startPublishing = ({
       tasks.run(() => publish(Date.now()));
       await tasks.idle();
     },
+    publishedSize,
   };
 };
