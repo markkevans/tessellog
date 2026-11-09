@@ -95,6 +95,15 @@ export const describeCoordinator = (name: string, setup: Setup<Coordinator>): vo
         );
       }));
 
+    it("reserves no indices for an empty batch", () =>
+      using(setup, async (coordinator) => {
+        expect(await coordinator.sequence([])).toBe(0n);
+        expect(await coordinator.sequence([bytes("a")])).toBe(0n);
+        expect(await coordinator.sequence([])).toBe(1n);
+        expect(await coordinator.sequence([bytes("b")])).toBe(1n);
+        expect(await coordinator.readSequenced(0n)).toEqual([bytes("a"), bytes("b")]);
+      }));
+
     it("reads back sequenced entries from an index in order", () =>
       using(setup, async (coordinator) => {
         await coordinator.sequence([bytes("a"), bytes("b")]);

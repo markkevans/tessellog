@@ -42,6 +42,14 @@ export const describeLogDriver = (name: string, setup: DriverSetup): void => {
         expect(await driver.sequence([entry(2)])).toBe(2n);
       }));
 
+    it("reserves no indices for an empty batch", () =>
+      withDriver(setup, async (driver) => {
+        await driver.sequence([entry(0)]);
+        expect(await driver.sequence([])).toBe(1n);
+        expect(await driver.sequence([entry(1)])).toBe(1n);
+        expect(await driver.readSequenced(0n)).toEqual([entry(0), entry(1)]);
+      }));
+
     it("reads back sequenced entries in index order", () =>
       withDriver(setup, async (driver) => {
         await driver.sequence([entry(0), entry(1)]);

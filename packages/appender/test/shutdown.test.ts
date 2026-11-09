@@ -53,6 +53,24 @@ describe("shutting down", () => {
     ]);
   });
 
+  it("sequences nothing when no entries are waiting", async () => {
+    const memory = createMemoryDriver();
+    const batches: (readonly Uint8Array[])[] = [];
+    const appender = appenderWith({
+      driver: {
+        ...memory,
+        sequence: async (entries) => {
+          batches.push(entries);
+          return memory.sequence(entries);
+        },
+      },
+      batching: { maxSize: 1 },
+    });
+    await appender.add(entry(0));
+    await appender.shutdown();
+    expect(batches).toEqual([[entry(0)]]);
+  });
+
   it("publishes a checkpoint covering every added entry", async () => {
     const appender = appenderWith();
     const pending = [0, 1, 2].map((i) => appender.add(entry(i)));
