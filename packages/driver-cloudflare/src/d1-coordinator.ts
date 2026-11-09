@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import type { TreeState } from "@tessellog/appender";
 import { rootHash } from "@tessellog/core";
 import {
@@ -13,6 +12,7 @@ import { Blob, Count } from "./rows.js";
 
 const StateRow = z.object({ size: Count, root: Blob });
 const FirstIndexRow = z.object({ first_index: Count });
+const NextRow = z.object({ next: Count });
 const PayloadRows = z.object({ results: z.array(z.object({ payload: z.string() })) });
 const BatchRows = z.object({
   results: z.array(z.object({ first_index: Count, payload: z.string() })),
@@ -54,7 +54,10 @@ export const createD1Coordinator = async ({
 
   return {
     sequence: async (entries) => {
-      const payload = `.state/sequenced/${randomUUID()}`;
+      if (entries.length === 0) {
+        return NextRow.parse(await db.prepare("SELECT CAST(next AS TEXT) AS next FROM tessellog_state WHERE id = 0").first()).next;
+      }
+      const payload = `.state/sequenced/${crypto.randomUUID()}`;
       await payloads.put(payload, encodeEntries(entries));
       const [inserted] = await db.batch([
         db

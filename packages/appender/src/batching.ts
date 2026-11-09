@@ -44,7 +44,9 @@ export const createBatcher = ({
     timer = undefined;
     const batch = pending;
     pending = [];
-    sequencing = sequencing.then(() => sequenceBatch(batch));
+    if (batch.length > 0) {
+      sequencing = sequencing.then(() => sequenceBatch(batch));
+    }
   };
 
   return {

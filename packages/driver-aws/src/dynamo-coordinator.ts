@@ -140,6 +140,9 @@ export const createDynamoCoordinator = async ({
 
   return {
     sequence: async (entries) => {
+      if (entries.length === 0) {
+        return CounterItem.parse(await read(COUNTER)).next;
+      }
       const key = `.state/sequenced/${randomUUID()}`;
       await payloads.put(key, encodeEntries(entries));
       return reserve(entries.length, key);
