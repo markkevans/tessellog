@@ -9,7 +9,7 @@
     "build": "pnpm -r --filter './packages/*' run build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.browser.json"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
