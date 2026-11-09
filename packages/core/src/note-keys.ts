@@ -4,7 +4,7 @@ import { concatBytes } from "@noble/hashes/utils";
 import { decodeBase64 } from "./base64.js";
 import { failure, success, type Result } from "./result.js";
 
-const ALGORITHM_ED25519 = 0x01;
+export const ALGORITHM_ED25519 = 0x01;
 const ED25519_KEY_BYTES = 32;
 const ED25519_SIGNATURE_BYTES = 64;
 const SIGNER_KEY_PREFIX = "PRIVATE+KEY+";
@@ -80,7 +80,7 @@ export const checkKeyId = <T>(
     ? success(build())
     : failure(`key ID does not match key for ${name}`);
 
-const ed25519PublicKey = (raw: Uint8Array): Uint8Array =>
+export const ed25519PublicKey = (raw: Uint8Array): Uint8Array =>
   concatBytes(Uint8Array.of(ALGORITHM_ED25519), raw);
 
 export type VerifierKeyFields = {
