@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/static-ct",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The C2SP static-ct-api data layer for tessellog: CT entries, TileLeaf bundles and MerkleTreeLeaf hashing, matching Tessera's ctonly.",
   "keywords": [
     "transparency-log",

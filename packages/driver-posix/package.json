@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/driver-posix",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Stores a tessellog transparency log in a POSIX directory at tlog-tiles paths.",
   "keywords": [
     "transparency-log",
