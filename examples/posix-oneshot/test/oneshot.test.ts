@@ -140,7 +140,7 @@ describe("running posix-oneshot from the command line", () => {
       );
       expect(failure).toMatchObject({ code: 2 });
       expect("stderr" in failure && failure.stderr).toContain(
-        "usage: posix-oneshot --storage-dir DIR --private-key FILE FILE...",
+        "usage: posix-oneshot --storage-dir DIR --private-key FILE [--witness-policy FILE] FILE...",
       );
     },
     CLI_TIMEOUT_MS,

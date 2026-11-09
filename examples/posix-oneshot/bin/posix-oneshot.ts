@@ -1,13 +1,15 @@
 import { parseArgs } from "node:util";
 import { oneshot } from "../src/index.js";
 
-const USAGE = "usage: posix-oneshot --storage-dir DIR --private-key FILE FILE...";
+const USAGE =
+  "usage: posix-oneshot --storage-dir DIR --private-key FILE [--witness-policy FILE] FILE...";
 const USAGE_EXIT_CODE = 2;
 
 const { values, positionals } = parseArgs({
   options: {
     "storage-dir": { type: "string" },
     "private-key": { type: "string" },
+    "witness-policy": { type: "string" },
   },
   allowPositionals: true,
 });
@@ -20,7 +22,12 @@ if (storageDir === undefined || privateKeyFile === undefined) {
   process.exit(USAGE_EXIT_CODE);
 }
 
-const added = await oneshot({ storageDir, privateKeyFile, files: positionals });
+const added = await oneshot({
+  storageDir,
+  privateKeyFile,
+  files: positionals,
+  witnessPolicyFile: values["witness-policy"],
+});
 added.forEach(({ file, index }) => {
   console.log(`${file}: ${index}`);
 });
