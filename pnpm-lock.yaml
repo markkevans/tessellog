@@ -149,6 +149,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^5.20261108.1
         version: 5.20261108.1
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@tessellog/driver-conformance':
         specifier: workspace:*
         version: link:../driver-conformance
