@@ -1,11 +1,32 @@
 {
   "name": "@tessellog/driver-aws",
   "version": "0.0.0",
+  "description": "Stores a tessellog transparency log in S3, with DynamoDB for sequencing, tree state and antispam.",
+  "keywords": [
+    "transparency-log",
+    "tlog-tiles",
+    "tessera",
+    "aws",
+    "s3",
+    "dynamodb",
+    "driver"
+  ],
   "license": "Apache-2.0",
   "author": "Mark Evans",
-  "repository": "github:markkevans/tessellog",
-  "description": "Stores a tessellog transparency log in S3, with DynamoDB for sequencing, tree state and antispam.",
+  "homepage": "https://github.com/markkevans/tessellog/tree/main/packages/driver-aws#readme",
+  "bugs": {
+    "url": "https://github.com/markkevans/tessellog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkevans/tessellog.git",
+    "directory": "packages/driver-aws"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -38,6 +59,7 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
-    }
+    },
+    "provenance": true
   }
 }

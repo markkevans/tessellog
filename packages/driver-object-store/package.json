@@ -1,11 +1,30 @@
 {
   "name": "@tessellog/driver-object-store",
   "version": "0.0.0",
+  "description": "A tessellog LogDriver built from an object store and a sequencing coordinator, shared by the AWS and Cloudflare drivers.",
+  "keywords": [
+    "transparency-log",
+    "tlog-tiles",
+    "tessera",
+    "object-storage",
+    "driver"
+  ],
   "license": "Apache-2.0",
   "author": "Mark Evans",
-  "repository": "github:markkevans/tessellog",
-  "description": "A tessellog LogDriver built from an object store and a sequencing coordinator, shared by the AWS and Cloudflare drivers.",
+  "homepage": "https://github.com/markkevans/tessellog/tree/main/packages/driver-object-store#readme",
+  "bugs": {
+    "url": "https://github.com/markkevans/tessellog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkevans/tessellog.git",
+    "directory": "packages/driver-object-store"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -34,6 +53,7 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
-    }
+    },
+    "provenance": true
   }
 }

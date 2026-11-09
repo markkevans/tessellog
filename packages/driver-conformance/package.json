@@ -1,10 +1,31 @@
 {
   "name": "@tessellog/driver-conformance",
   "version": "0.0.0",
+  "description": "Shared Vitest suite that every tessellog storage driver must pass.",
+  "keywords": [
+    "transparency-log",
+    "tlog-tiles",
+    "tessera",
+    "conformance",
+    "vitest",
+    "driver"
+  ],
   "license": "Apache-2.0",
   "author": "Mark Evans",
-  "description": "Shared Vitest suite that every tessellog storage driver must pass.",
+  "homepage": "https://github.com/markkevans/tessellog/tree/main/packages/driver-conformance#readme",
+  "bugs": {
+    "url": "https://github.com/markkevans/tessellog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkevans/tessellog.git",
+    "directory": "packages/driver-conformance"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -37,6 +58,7 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
-    }
+    },
+    "provenance": true
   }
 }

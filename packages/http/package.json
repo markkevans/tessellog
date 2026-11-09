@@ -1,11 +1,30 @@
 {
   "name": "@tessellog/http",
   "version": "0.0.0",
+  "description": "A fetch-style HTTP handler for tessellog logs: add entries and serve tiles, bundles and checkpoints.",
+  "keywords": [
+    "transparency-log",
+    "tlog-tiles",
+    "tessera",
+    "http",
+    "fetch-handler"
+  ],
   "license": "Apache-2.0",
   "author": "Mark Evans",
-  "repository": "github:markkevans/tessellog",
-  "description": "A fetch-style HTTP handler for tessellog logs: add entries and serve tiles, bundles and checkpoints.",
+  "homepage": "https://github.com/markkevans/tessellog/tree/main/packages/http#readme",
+  "bugs": {
+    "url": "https://github.com/markkevans/tessellog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkevans/tessellog.git",
+    "directory": "packages/http"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
     "./node": "./src/node.ts"
@@ -37,6 +56,7 @@
         "types": "./dist/node.d.ts",
         "default": "./dist/node.js"
       }
-    }
+    },
+    "provenance": true
   }
 }

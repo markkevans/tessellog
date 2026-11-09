@@ -1,11 +1,32 @@
 {
   "name": "@tessellog/core",
   "version": "0.0.0",
+  "description": "Core primitives for tessellog: RFC 6962 Merkle hashing, tlog-tiles, signed notes and checkpoints.",
+  "keywords": [
+    "transparency-log",
+    "tlog-tiles",
+    "tessera",
+    "merkle-tree",
+    "signed-note",
+    "checkpoint",
+    "rfc6962"
+  ],
   "license": "Apache-2.0",
   "author": "Mark Evans",
-  "repository": "github:markkevans/tessellog",
-  "description": "Core primitives for tessellog: RFC 6962 Merkle hashing, tlog-tiles, signed notes and checkpoints.",
+  "homepage": "https://github.com/markkevans/tessellog/tree/main/packages/core#readme",
+  "bugs": {
+    "url": "https://github.com/markkevans/tessellog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkevans/tessellog.git",
+    "directory": "packages/core"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -33,6 +54,7 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
-    }
+    },
+    "provenance": true
   }
 }

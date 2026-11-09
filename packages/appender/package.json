@@ -1,11 +1,30 @@
 {
   "name": "@tessellog/appender",
   "version": "0.0.0",
+  "description": "Sequences, integrates and publishes entries to a tessellog transparency log.",
+  "keywords": [
+    "transparency-log",
+    "tlog-tiles",
+    "tessera",
+    "append-only-log",
+    "sequencing"
+  ],
   "license": "Apache-2.0",
   "author": "Mark Evans",
-  "repository": "github:markkevans/tessellog",
-  "description": "Sequences, integrates and publishes entries to a tessellog transparency log.",
+  "homepage": "https://github.com/markkevans/tessellog/tree/main/packages/appender#readme",
+  "bugs": {
+    "url": "https://github.com/markkevans/tessellog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkevans/tessellog.git",
+    "directory": "packages/appender"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -32,6 +51,7 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
-    }
+    },
+    "provenance": true
   }
 }

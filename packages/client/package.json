@@ -1,11 +1,31 @@
 {
   "name": "@tessellog/client",
   "version": "0.0.0",
+  "description": "Fetches and verifies tessellog transparency logs over HTTP or from disk.",
+  "keywords": [
+    "transparency-log",
+    "tlog-tiles",
+    "tessera",
+    "verification",
+    "inclusion-proof",
+    "consistency-proof"
+  ],
   "license": "Apache-2.0",
   "author": "Mark Evans",
-  "repository": "github:markkevans/tessellog",
-  "description": "Fetches and verifies tessellog transparency logs over HTTP or from disk.",
+  "homepage": "https://github.com/markkevans/tessellog/tree/main/packages/client#readme",
+  "bugs": {
+    "url": "https://github.com/markkevans/tessellog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkevans/tessellog.git",
+    "directory": "packages/client"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
     "./node": "./src/node.ts"
@@ -40,6 +60,7 @@
         "types": "./dist/node.d.ts",
         "default": "./dist/node.js"
       }
-    }
+    },
+    "provenance": true
   }
 }

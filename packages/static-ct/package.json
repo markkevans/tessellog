@@ -1,11 +1,31 @@
 {
   "name": "@tessellog/static-ct",
   "version": "0.0.0",
+  "description": "The C2SP static-ct-api data layer for tessellog: CT entries, TileLeaf bundles and MerkleTreeLeaf hashing, matching Tessera's ctonly.",
+  "keywords": [
+    "transparency-log",
+    "tlog-tiles",
+    "tessera",
+    "certificate-transparency",
+    "static-ct-api",
+    "ct"
+  ],
   "license": "Apache-2.0",
   "author": "Mark Evans",
-  "repository": "github:markkevans/tessellog",
-  "description": "The C2SP static-ct-api data layer for tessellog: CT entries, TileLeaf bundles and MerkleTreeLeaf hashing, matching Tessera's ctonly.",
+  "homepage": "https://github.com/markkevans/tessellog/tree/main/packages/static-ct#readme",
+  "bugs": {
+    "url": "https://github.com/markkevans/tessellog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkevans/tessellog.git",
+    "directory": "packages/static-ct"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -36,6 +56,7 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
-    }
+    },
+    "provenance": true
   }
 }

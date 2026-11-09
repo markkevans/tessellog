@@ -1,0 +1,30 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@4.0.1/schema.json",
+  "baseBranch": "main",
+  "access": "public",
+  "format": "auto",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "ignore": [],
+  "fixed": [
+    [
+      "@tessellog/core",
+      "@tessellog/appender",
+      "@tessellog/client",
+      "@tessellog/http",
+      "@tessellog/witness",
+      "@tessellog/static-ct",
+      "@tessellog/driver-object-store",
+      "@tessellog/driver-posix",
+      "@tessellog/driver-aws",
+      "@tessellog/driver-cloudflare",
+      "@tessellog/driver-conformance"
+    ]
+  ],
+  "linked": [],
+  "updateInternalDependencies": "patch",
+  "privatePackages": {
+    "version": false,
+    "tag": false
+  }
+}

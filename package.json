@@ -9,9 +9,12 @@
     "build": "pnpm -r --filter './packages/*' run build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.browser.json"
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.browser.json",
+    "changeset": "changeset",
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@types/node": "^24.19.2",
     "@vitest/coverage-v8": "^3.2.7",
     "typescript": "^5.9.3",

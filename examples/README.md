@@ -12,4 +12,4 @@ Each example is a workspace package with tests, which CI runs.
 | [`witness-server`](./witness-server) | a standalone witness with persistent state |
 | [`monitor`](./monitor) | watching a log for forks, rollbacks and unprovable entries |
 
-Run them from the repository root after `pnpm install`. For example: `pnpm --filter @tessellog/example-http-log start --help`.
+Run them from the repository root after `pnpm install`. A CLI run without arguments prints its usage. For example: `pnpm --filter @tessellog/example-http-log start`.
