@@ -212,6 +212,22 @@ importers:
         specifier: workspace:*
         version: link:../driver-conformance
 
+  packages/static-ct:
+    dependencies:
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
+      '@tessellog/appender':
+        specifier: workspace:*
+        version: link:../appender
+      '@tessellog/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+
   packages/witness:
     dependencies:
       '@tessellog/core':

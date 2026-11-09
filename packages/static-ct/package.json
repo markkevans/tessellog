@@ -1,0 +1,20 @@
+{
+  "name": "@tessellog/static-ct",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "Mark Evans",
+  "repository": "github:markkevans/tessellog",
+  "description": "The C2SP static-ct-api data layer for tessellog: CT entries, TileLeaf bundles and MerkleTreeLeaf hashing, matching Tessera's ctonly.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "@tessellog/appender": "workspace:*",
+    "@tessellog/core": "workspace:*"
+  },
+  "devDependencies": {
+    "zod": "^3.25.76"
+  }
+}

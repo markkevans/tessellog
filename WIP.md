@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 16 of 20: Core signs and verifies RFC 6962 tree-head note signatures (0x05), matching Go formats/note.
+Step 17 of 20 (17a): A static-CT package encodes TileLeaf entries and MerkleTreeLeaf hashes exactly as Go ctonly.
 
 ## Status
 
@@ -25,8 +25,8 @@ Step 16 of 20: Core signs and verifies RFC 6962 tree-head note signatures (0x05)
 - [x] Step 13: migrate a Tessera log (interop)
 - [x] Step 14: reject oversized entries
 - [x] Step 15: pluggable entry layouts (internal refactor; the public layout option lands with static CT in step 17)
-- [ ] Step 16: RFC 6962 tree-head signatures ← current
-- [ ] Step 17: static-CT layout
+- [x] Step 16: RFC 6962 tree-head signatures (verifies the real Rome log checkpoint)
+- [ ] Step 17: static-CT layout: 17a entry encoding vs Go ctonly; 17b layout + appender/driver options ← current
 - [ ] Step 18: client and migration read static CT
 - [ ] Step 19: static-CT interop with Go
 - [ ] Step 20: ADRs and docs
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing RFC 6962 signature tests using Go formats/note vectors and the real Rome checkpoint.
+Write failing static-CT entry tests against Go ctonly vectors.
