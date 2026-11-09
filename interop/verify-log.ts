@@ -2,7 +2,14 @@ import { readFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
 import { createLogClient, type LogClient } from "@tessellog/client";
 import { createFileFetcher } from "@tessellog/client/node";
-import { openCheckpoint, parseVerifierKey, type Checkpoint, type NoteVerifier } from "@tessellog/core";
+import {
+  openCheckpoint,
+  parsePolicy,
+  parseVerifierKey,
+  type Checkpoint,
+  type NoteVerifier,
+  type Policy,
+} from "@tessellog/core";
 
 const fail = (message: string): never => {
   console.error(`verify-log: ${message}`);
@@ -15,6 +22,7 @@ const { values, positionals } = parseArgs({
     vkey: { type: "string" },
     origin: { type: "string" },
     "previous-checkpoint": { type: "string" },
+    "witness-policy": { type: "string" },
   },
   allowPositionals: true,
 });
@@ -25,10 +33,16 @@ const previousFile = values["previous-checkpoint"] ?? fail("--previous-checkpoin
 const parsedKey = parseVerifierKey(values.vkey ?? fail("--vkey is required"));
 const verifier: NoteVerifier = parsedKey.ok ? parsedKey.value : fail(parsedKey.error);
 
+const policyFile = values["witness-policy"];
+const parsedPolicy = policyFile === undefined ? undefined : parsePolicy(await readFile(policyFile, "utf8"));
+const witnessPolicy: Policy | undefined =
+  parsedPolicy === undefined ? undefined : parsedPolicy.ok ? parsedPolicy.value : fail(parsedPolicy.error);
+
 const client: LogClient = createLogClient({
   fetcher: createFileFetcher({ root: storageDir }),
   origin,
   logVerifier: verifier,
+  ...(witnessPolicy === undefined ? {} : { witnessPolicy }),
 });
 
 const latestOpened = await client.latestCheckpoint();
@@ -63,5 +77,7 @@ if (expected.length !== actual.length || expected.some((entry, i) => entry !== a
 }
 
 console.log(
-  `tessellog's client verified ${logged.length} entries and consistency with the previous checkpoint`,
+  `tessellog's client verified ${logged.length} entries and consistency with the previous checkpoint${
+    witnessPolicy === undefined ? "" : ", and the witness quorum"
+  }`,
 );

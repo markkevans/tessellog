@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	"github.com/transparency-dev/formats/log"
+	fnote "github.com/transparency-dev/formats/note"
 	"github.com/transparency-dev/merkle/proof"
 	"github.com/transparency-dev/merkle/rfc6962"
 	"github.com/transparency-dev/tessera/client"
@@ -23,6 +24,7 @@ var (
 	origin             = flag.String("origin", "", "Origin of the log.")
 	previousCheckpoint = flag.String("previous_checkpoint", "", "An earlier checkpoint the latest must be consistent with.")
 	entriesGlob        = flag.String("entries", "", "Glob of files whose contents must be exactly the log's entries.")
+	witnessVkey        = flag.String("witness_vkey", "", "Optional cosignature verifier key of a witness that must have cosigned the latest checkpoint.")
 )
 
 func main() {
@@ -57,7 +59,14 @@ func run(ctx context.Context) error {
 	if err := checkEntriesMatch(logged); err != nil {
 		return err
 	}
-	fmt.Printf("Tessera's client verified %d entries and consistency with the previous checkpoint\n", len(logged))
+	if err := checkCosigned(ctx, fetcher); err != nil {
+		return err
+	}
+	cosigned := ""
+	if *witnessVkey != "" {
+		cosigned = ", and formats/note verified the witness cosignature"
+	}
+	fmt.Printf("Tessera's client verified %d entries and consistency with the previous checkpoint%s\n", len(logged), cosigned)
 	return nil
 }
 
@@ -123,6 +132,28 @@ func checkEntriesMatch(logged []string) error {
 	sorted := slices.Sorted(slices.Values(logged))
 	if !slices.Equal(expected, sorted) {
 		return fmt.Errorf("log holds %d entries that differ from the %d input files", len(sorted), len(expected))
+	}
+	return nil
+}
+
+func checkCosigned(ctx context.Context, fetcher client.FileFetcher) error {
+	if *witnessVkey == "" {
+		return nil
+	}
+	witness, err := fnote.NewVerifierForCosignatureV1(*witnessVkey)
+	if err != nil {
+		return fmt.Errorf("parse witness key: %w", err)
+	}
+	raw, err := fetcher.ReadCheckpoint(ctx)
+	if err != nil {
+		return fmt.Errorf("read checkpoint: %w", err)
+	}
+	n, err := note.Open(raw, note.VerifierList(witness))
+	if err != nil {
+		return fmt.Errorf("verify witness cosignature: %w", err)
+	}
+	if len(n.Sigs) != 1 {
+		return fmt.Errorf("want 1 witness cosignature, got %d", len(n.Sigs))
 	}
 	return nil
 }

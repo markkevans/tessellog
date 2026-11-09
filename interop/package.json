@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@tessellog/client": "workspace:*",
-    "@tessellog/core": "workspace:*"
+    "@tessellog/core": "workspace:*",
+    "@tessellog/witness": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.20.0"

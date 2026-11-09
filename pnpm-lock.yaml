@@ -51,6 +51,9 @@ importers:
       '@tessellog/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@tessellog/witness':
+        specifier: workspace:*
+        version: link:../packages/witness
     devDependencies:
       tsx:
         specifier: ^4.20.0
