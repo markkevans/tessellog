@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 3 of 20: A DynamoDB coordinator passes the Coordinator contract against Floci.
+Step 4 of 20: The AWS driver passes LogDriver conformance, survives restarts and enforces a single writer.
 
 ## Status
 
@@ -12,8 +12,8 @@ Step 3 of 20: A DynamoDB coordinator passes the Coordinator contract against Flo
 
 - [x] Step 1: object-store driver core
 - [x] Step 2: S3 object store (Floci)
-- [ ] Step 3: DynamoDB coordinator (Floci): counter + batch pointers in one transaction, payloads in the object store ← current
-- [ ] Step 4: AWS driver (conformance, restart, lease)
+- [x] Step 3: DynamoDB coordinator (Floci): counter + batch pointers in one transaction, payloads in the object store
+- [ ] Step 4: AWS driver (conformance, restart, lease renewed on integration) ← current
 - [ ] Step 5: DynamoDB antispam store
 - [ ] Step 6: R2 object store and D1 coordinator (Miniflare)
 - [ ] Step 7: Cloudflare driver (conformance, restart, single writer, antispam)
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing DynamoDB coordinator tests.
+Write failing AWS driver tests.

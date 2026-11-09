@@ -6,6 +6,12 @@ Earlier learnings live in `CLAUDE.md` and `docs/adr/`.
 
 ## Patterns That Worked
 
+### Inject AWS failures with SDK middleware, not type hacks
+- `client.middlewareStack.add((next) => async (args) => …, { step: "initialize" })` on a real client can fail one command type, such as `TransactWriteItems`, while everything else still reaches Floci.
+
+### Parse DynamoDB items with Zod at the boundary
+- `?? "0"` fallbacks on attributes would turn a damaged counter into "start again from 0", which reuses indices. Zod schemas make damage fail loudly, with no untested branches in our code.
+
 ## Decisions Made
 
 ### Floci instead of MinIO and DynamoDB Local
