@@ -17,3 +17,4 @@ export type {
   TreeState,
 } from "./driver.js";
 export { createMemoryDriver } from "./memory-driver.js";
+export { createMigrationTarget, type MigrationSource, type MigrationTarget } from "./migration.js";

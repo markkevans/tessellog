@@ -13,7 +13,7 @@ export const requireTile =
     return tile;
   };
 
-const integrateOutstanding = async (driver: LogDriver): Promise<bigint> => {
+export const integrateOutstanding = async (driver: LogDriver): Promise<bigint> => {
   const { size: fromSize } = await driver.readTreeState();
   const entries = await driver.readSequenced(fromSize);
   if (entries.length === 0) {

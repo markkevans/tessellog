@@ -124,3 +124,27 @@ describe("migrating a log into a new driver", () => {
     expect(await store.followedSize()).toBe(10n);
   });
 });
+
+describe("handling unusual migrations", () => {
+  it("fails when the source serves a corrupt bundle", async () => {
+    expect(
+      await createMigrationTarget({ driver: createMemoryDriver() }).migrate({
+        readEntryBundle: async () => Uint8Array.of(0x00),
+        sourceSize: 5n,
+        sourceRoot: new Uint8Array(32),
+      }),
+    ).toEqual({
+      ok: false,
+      error: "corrupt entry bundle tile/entries/000.p/5: truncated length prefix at offset 0",
+    });
+  });
+
+  it("treats re-running a completed migration as harmless", async () => {
+    const source = await sourceLog(entries(5));
+    const migration = createMigrationTarget({ driver: createMemoryDriver() });
+    const run = () =>
+      migration.migrate({ readEntryBundle: bundlesOf(source), sourceSize: source.size, sourceRoot: source.root });
+    await run();
+    expect(await run()).toEqual({ ok: true, value: undefined });
+  });
+});

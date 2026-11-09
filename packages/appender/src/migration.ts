@@ -1,0 +1,77 @@
+import {
+  decodeBundle,
+  entriesPath,
+  TILE_WIDTH,
+  TILE_WIDTH_BIGINT as WIDTH,
+  toHex,
+  type BundleAddress,
+  type Result,
+} from "@tessellog/core";
+import type { AntispamStore } from "./antispam-store.js";
+import type { BundleReader } from "./bundling.js";
+import type { LogDriver } from "./driver.js";
+import { followOutstanding } from "./follower.js";
+import { integrateOutstanding } from "./integrator.js";
+
+export type MigrationSource = {
+  readonly readEntryBundle: BundleReader;
+  readonly sourceSize: bigint;
+  readonly sourceRoot: Uint8Array;
+};
+
+export type MigrationTarget = {
+  readonly migrate: (source: MigrationSource) => Promise<Result<void>>;
+};
+
+const sourceEntries = async (read: BundleReader, address: BundleAddress): Promise<readonly Uint8Array[]> => {
+  const exact = await read(address);
+  const stored = exact ?? (await read({ ...address, width: TILE_WIDTH }));
+  if (stored === undefined) {
+    throw new Error(`missing entry bundle ${entriesPath(address)}`);
+  }
+  const decoded = decodeBundle(stored);
+  if (!decoded.ok) {
+    throw new Error(`corrupt entry bundle ${entriesPath(address)}: ${decoded.error}`);
+  }
+  return decoded.value.slice(0, address.width);
+};
+
+const bundlesBetween = (from: bigint, to: bigint): readonly bigint[] =>
+  from >= to
+    ? []
+    : Array.from({ length: Number((to - 1n) / WIDTH - from / WIDTH + 1n) }, (_, i) => from / WIDTH + BigInt(i));
+
+const copyBundle = async (
+  driver: LogDriver,
+  { readEntryBundle, sourceSize }: MigrationSource,
+  bundleIndex: bigint,
+): Promise<void> => {
+  const width = bundleIndex < sourceSize / WIDTH ? TILE_WIDTH : Number(sourceSize % WIDTH);
+  const entries = await sourceEntries(readEntryBundle, { index: bundleIndex, width });
+  const { size } = await driver.readTreeState();
+  await driver.sequence(entries.slice(Number(size - bundleIndex * WIDTH)));
+  await integrateOutstanding(driver);
+};
+
+export const createMigrationTarget = ({
+  driver,
+  antispam,
+}: {
+  readonly driver: LogDriver;
+  readonly antispam?: AntispamStore;
+}): MigrationTarget => ({
+  migrate: (source) =>
+    (async (): Promise<Result<void>> => {
+      await integrateOutstanding(driver);
+      const { size: from } = await driver.readTreeState();
+      await bundlesBetween(from, source.sourceSize).reduce<Promise<void>>(async (previous, bundleIndex) => {
+        await previous;
+        await copyBundle(driver, source, bundleIndex);
+      }, Promise.resolve());
+      await (antispam === undefined ? Promise.resolve() : followOutstanding(driver, antispam));
+      const { size, rootHash } = await driver.readTreeState();
+      return size === source.sourceSize && toHex(rootHash) === toHex(source.sourceRoot)
+        ? { ok: true, value: undefined }
+        : { ok: false, error: `migrated root does not match the source root at size ${source.sourceSize}` };
+    })().catch((error: Error): Result<void> => ({ ok: false, error: error.message })),
+});

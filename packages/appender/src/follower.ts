@@ -38,7 +38,7 @@ const followBundle = async (
   await store.record(followed, first + BigInt(entries.length));
 };
 
-const followOutstanding = async (driver: LogDriver, store: AntispamStore): Promise<void> => {
+export const followOutstanding = async (driver: LogDriver, store: AntispamStore): Promise<void> => {
   const from = await store.followedSize();
   const { size } = await driver.readTreeState();
   await bundlesBetween(from, size).reduce<Promise<void>>(async (previous, bundleIndex) => {
