@@ -4,6 +4,11 @@ Earlier learnings live in `CLAUDE.md` and `docs/adr/`.
 
 ## Gotchas
 
+### Miniflare's proxy resets connections under thousands of concurrent reads
+- **Context**: The conformance end-to-end check built 300 proofs concurrently, each reading tiles separately.
+- **Issue**: `TypeError: fetch failed … ECONNRESET` from Miniflare's Node proxy.
+- **Solution**: Share one read per tile path in the suite, as real clients cache tiles. Avoid unbounded fan-out against any remote store.
+
 ## Patterns That Worked
 
 ### Inject AWS failures with SDK middleware, not type hacks

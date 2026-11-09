@@ -125,12 +125,19 @@ export const describeLogDriver = (name: string, setup: DriverSetup): void => {
             throw new Error("published checkpoint did not open");
           }
           const { size, rootHash: root } = opened.value.checkpoint;
-          const readTile = async (address: Parameters<LogDriver["readTile"]>[0]) => {
+          const tileReads = new Map<string, Promise<Uint8Array>>();
+          const readOnce = async (address: Parameters<LogDriver["readTile"]>[0]) => {
             const tile = await driver.readTile(address);
             if (tile === undefined) {
               throw new Error(`missing tile ${tilePath(address)}`);
             }
             return tile;
+          };
+          const readTile = (address: Parameters<LogDriver["readTile"]>[0]) => {
+            const path = tilePath(address);
+            const pending = tileReads.get(path) ?? readOnce(address);
+            tileReads.set(path, pending);
+            return pending;
           };
           const verified = await Promise.all(
             added.map(async ({ entry: e, index }) =>
