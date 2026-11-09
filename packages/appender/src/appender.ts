@@ -12,6 +12,7 @@ import { createFollower, noFollower } from "./follower.js";
 import { startGarbageCollection } from "./garbage-collection.js";
 import { EntryTooLargeError } from "./errors.js";
 import { createIntegrator } from "./integrator.js";
+import { tlogTilesLayout, type EntryLayout } from "./layout.js";
 import {
   resolveAppenderOptions,
   type AppenderOptions,
@@ -37,24 +38,24 @@ export type Appender = {
 const deduplicationFor = (
   antispam: ResolvedAppenderOptions["antispam"],
   driver: LogDriver,
+  layout: EntryLayout,
 ): Deduplicate => {
   if (antispam === undefined) {
     return withoutDeduplication;
   }
-  const inMemory = inMemoryDeduplication(antispam.inMemoryEntries);
+  const inMemory = inMemoryDeduplication(antispam.inMemoryEntries, layout.identity);
   return antispam.store === undefined
     ? inMemory
     : layered(
         inMemory,
         persistentDeduplication({
           store: antispam.store,
+          identify: layout.identity,
           integratedSize: async () => (await driver.readTreeState()).size,
           pushbackThreshold: antispam.pushbackThreshold,
         }),
       );
 };
-
-const MAX_ENTRY_BYTES = 65_535;
 
 const readerFor = (driver: LogDriver): LogReader => ({
   integratedSize: async () => (await driver.readTreeState()).size,
@@ -78,14 +79,16 @@ export const createAppender = (options: AppenderOptions): Appender => {
     garbageCollection,
     onError,
   } = resolveAppenderOptions(options);
-  const deduplicate = deduplicationFor(antispam, driver);
+  const layout = tlogTilesLayout;
+  const deduplicate = deduplicationFor(antispam, driver, layout);
   const outstanding = createPushback(pushback);
   const follower =
     antispam?.store === undefined
       ? noFollower
-      : createFollower({ driver, store: antispam.store, onError });
+      : createFollower({ driver, layout, store: antispam.store, onError });
   const integrator = createIntegrator({
     driver,
+    layout,
     onError,
     onIntegrated: (count) => {
       outstanding.integrated(count);
@@ -124,8 +127,8 @@ export const createAppender = (options: AppenderOptions): Appender => {
       if (shutDown) {
         throw new Error("appender has been shut down");
       }
-      if (entry.length > MAX_ENTRY_BYTES) {
-        throw new EntryTooLargeError(entry.length, MAX_ENTRY_BYTES);
+      if (entry.length > layout.maxEntryBytes) {
+        throw new EntryTooLargeError(entry.length, layout.maxEntryBytes);
       }
       return deduplicate(entry, (unique) => outstanding.guard(() => batch.add(unique)));
     },

@@ -2,7 +2,7 @@
 
 ## Current Step
 
-Step 14 of 20: Oversized entries are rejected at add.
+Step 16 of 20: Core signs and verifies RFC 6962 tree-head note signatures (0x05), matching Go formats/note.
 
 ## Status
 
@@ -23,9 +23,9 @@ Step 14 of 20: Oversized entries are rejected at add.
 - [x] Step 11: migration target
 - [x] Step 12: appender takes over a migrated log (characterisation, passed on first run)
 - [x] Step 13: migrate a Tessera log (interop)
-- [ ] Step 14: reject oversized entries ← current
-- [ ] Step 15: pluggable entry layouts
-- [ ] Step 16: RFC 6962 tree-head signatures
+- [x] Step 14: reject oversized entries
+- [x] Step 15: pluggable entry layouts (internal refactor; the public layout option lands with static CT in step 17)
+- [ ] Step 16: RFC 6962 tree-head signatures ← current
 - [ ] Step 17: static-CT layout
 - [ ] Step 18: client and migration read static CT
 - [ ] Step 19: static-CT interop with Go
@@ -37,4 +37,4 @@ None. Docker is running; Floci 2.4.0 serves S3 and DynamoDB on :4566.
 
 ## Next Action
 
-Write failing entry size tests.
+Read Go formats/note note_rfc6962.go and generate vectors.

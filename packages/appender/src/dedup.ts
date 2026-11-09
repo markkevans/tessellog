@@ -1,4 +1,3 @@
-import { sha256 } from "@noble/hashes/sha2";
 import { toHex } from "@tessellog/core";
 import type { AntispamStore } from "./antispam-store.js";
 import type { AddResult } from "./batching.js";
@@ -8,11 +7,11 @@ export type Add = (entry: Uint8Array) => Promise<AddResult>;
 
 export type Deduplicate = (entry: Uint8Array, add: Add) => Promise<AddResult>;
 
-const identityOf = (entry: Uint8Array): string => toHex(sha256(entry));
+type Identify = (entry: Uint8Array) => Uint8Array;
 
 export const withoutDeduplication: Deduplicate = (entry, add) => add(entry);
 
-export const inMemoryDeduplication = (capacity: number): Deduplicate => {
+export const inMemoryDeduplication = (capacity: number, identify: Identify): Deduplicate => {
   const recent = new Map<string, Promise<AddResult>>();
   const remember = (identity: string, result: Promise<AddResult>): void => {
     recent.delete(identity);
@@ -25,7 +24,7 @@ export const inMemoryDeduplication = (capacity: number): Deduplicate => {
     }
   };
   return (entry, add) => {
-    const identity = identityOf(entry);
+    const identity = toHex(identify(entry));
     const previous = recent.get(identity);
     if (previous !== undefined) {
       remember(identity, previous);
@@ -41,10 +40,12 @@ export const inMemoryDeduplication = (capacity: number): Deduplicate => {
 export const persistentDeduplication =
   ({
     store,
+    identify,
     integratedSize,
     pushbackThreshold,
   }: {
     readonly store: AntispamStore;
+    readonly identify: Identify;
     readonly integratedSize: () => Promise<bigint>;
     readonly pushbackThreshold: number;
   }): Deduplicate =>
@@ -52,7 +53,7 @@ export const persistentDeduplication =
     if ((await integratedSize()) - (await store.followedSize()) > BigInt(pushbackThreshold)) {
       throw new PushbackAntispamError();
     }
-    const index = await store.lookup(sha256(entry));
+    const index = await store.lookup(identify(entry));
     return index === undefined ? add(entry) : { index, isDup: true };
   };
 
