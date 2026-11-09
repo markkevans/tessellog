@@ -1,6 +1,4 @@
 import {
-  decodeBundle,
-  entriesPath,
   TILE_WIDTH,
   TILE_WIDTH_BIGINT as WIDTH,
   type BundleAddress,
@@ -9,6 +7,7 @@ import {
 } from "@tessellog/core";
 import type { LogFetcher } from "./fetcher.js";
 import { proveInclusionWith } from "./inclusion.js";
+import type { ClientLayout } from "./layouts.js";
 import { withTileCache } from "./tile-cache.js";
 
 export type StreamedEntry = {
@@ -34,20 +33,22 @@ const bundleIndices = (from: bigint, to: bigint): readonly bigint[] =>
 
 const readBundle = async (
   fetcher: LogFetcher,
+  layout: ClientLayout,
   address: BundleAddress,
 ): Promise<Result<readonly Uint8Array[]>> => {
   const bytes = await fetcher.readEntryBundle(address);
   if (bytes === undefined) {
-    return { ok: false, error: `missing entry bundle ${entriesPath(address)}` };
+    return { ok: false, error: `missing entry bundle ${layout.entriesPath(address)}` };
   }
-  const decoded = decodeBundle(bytes);
+  const decoded = layout.decodeBundle(bytes, address.index * WIDTH);
   return decoded.ok
     ? decoded
-    : { ok: false, error: `corrupt entry bundle ${entriesPath(address)}: ${decoded.error}` };
+    : { ok: false, error: `corrupt entry bundle ${layout.entriesPath(address)}: ${decoded.error}` };
 };
 
 export async function* streamEntries(
   fetcher: LogFetcher,
+  layout: ClientLayout,
   { checkpoint, from = 0n, to = checkpoint.size }: EntryRange,
 ): AsyncGenerator<Result<StreamedEntry>> {
   if (to > checkpoint.size) {
@@ -55,9 +56,9 @@ export async function* streamEntries(
     return;
   }
   const cached = withTileCache(fetcher);
-  const prove = proveInclusionWith(cached);
+  const prove = proveInclusionWith(cached, layout);
   for (const bundleIndex of bundleIndices(from, to)) {
-    const bundle = await readBundle(cached, bundleAddress(bundleIndex, checkpoint.size));
+    const bundle = await readBundle(cached, layout, bundleAddress(bundleIndex, checkpoint.size));
     if (!bundle.ok) {
       yield bundle;
       return;

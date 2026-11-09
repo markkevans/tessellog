@@ -12,6 +12,7 @@ import {
 import { checkConsistencyWith } from "./consistency.js";
 import type { LogFetcher } from "./fetcher.js";
 import { proveInclusionWith, type InclusionClaim } from "./inclusion.js";
+import { tlogTilesClientLayout, type ClientLayout } from "./layouts.js";
 import { streamEntries, type EntryRange, type StreamedEntry } from "./streaming.js";
 
 export type LogClientOptions = {
@@ -20,6 +21,7 @@ export type LogClientOptions = {
   readonly logVerifier: NoteVerifier;
   readonly otherVerifiers?: readonly NoteVerifier[];
   readonly witnessPolicy?: Policy;
+  readonly layout?: ClientLayout;
 };
 
 export type LogClient = {
@@ -52,6 +54,7 @@ export const createLogClient = ({
   logVerifier,
   otherVerifiers = [],
   witnessPolicy,
+  layout = tlogTilesClientLayout,
 }: LogClientOptions): LogClient => ({
   latestCheckpoint: async () => {
     const message = await fetcher.readCheckpoint();
@@ -67,7 +70,7 @@ export const createLogClient = ({
     });
     return opened.ok ? meetsPolicy(opened.value, witnessPolicy, logVerifier) : opened;
   },
-  proveInclusion: proveInclusionWith(fetcher),
+  proveInclusion: proveInclusionWith(fetcher, layout),
   checkConsistency: checkConsistencyWith(fetcher),
-  entries: (range) => streamEntries(fetcher, range),
+  entries: (range) => streamEntries(fetcher, layout, range),
 });

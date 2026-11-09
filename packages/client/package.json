@@ -11,6 +11,7 @@
     "./node": "./src/node.ts"
   },
   "dependencies": {
+    "@noble/hashes": "^1.8.0",
     "@tessellog/core": "workspace:*"
   },
   "devDependencies": {
