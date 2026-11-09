@@ -120,7 +120,7 @@ bash scripts/pack-smoke/run.sh   # installs the packed tarballs into a fresh pro
 bash interop/run.sh    # checks against Tessera; needs Go
 ```
 
-The project is built test-first, with 100% coverage, strict TypeScript and no type assertions. See [CLAUDE.md](./CLAUDE.md) for its working rules.
+The project is built test-first, with 100% coverage, strict TypeScript and no type assertions. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Origin and licence
 
