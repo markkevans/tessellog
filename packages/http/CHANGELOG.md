@@ -1,5 +1,14 @@
 # @tessellog/http
 
+## 0.1.2
+
+### Patch Changes
+
+- 891d113: Depend on zod 4.6.7, which fixes GHSA-mrhx-c7xc-m3w5 (high: memory exhaustion while validating oversized constrained collections). Zod 3 has no fixed release. Appender options and their defaults are unchanged.
+- Updated dependencies [891d113]
+  - @tessellog/appender@0.1.2
+  - @tessellog/core@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
