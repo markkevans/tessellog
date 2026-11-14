@@ -1,9 +1,11 @@
 import { encodeBundle, entriesPath, TILE_WIDTH, tilePath, type Result, type TileAddress } from "@tessellog/core";
 import { describe, expect, it } from "vitest";
 import type { StreamedEntry } from "../src/index.js";
+import { createHttpFetcher, createLogClient } from "../src/index.js";
 import { clientFor } from "./fixtures/client.js";
+import { LOG_KEY_NAME, logVerifier } from "./fixtures/keys.js";
 import { latestCheckpointOf } from "./fixtures/opened.js";
-import { entriesFor, servedLog } from "./fixtures/served-log.js";
+import { BASE_URL, entriesFor, fakeServer, servedLog } from "./fixtures/served-log.js";
 
 const STREAM_TIMEOUT_MS = 20_000;
 
@@ -290,5 +292,23 @@ describe("streaming logs at tile boundaries", () => {
     });
     const streamed = await Promise.all(ranges.map(([from, to]) => streamOf(files, files, { from: BigInt(from), to: BigInt(to) })));
     expect(streamed).toEqual(ranges.map(([from, to]) => asStreamed(entries.slice(from, to), from)));
+  });
+});
+
+describe("fetching while streaming", () => {
+  it("fetches each tile and bundle at most once for a whole log", async () => {
+    const entries = entriesFor(600);
+    const { files } = await servedLog(entries);
+    const server = fakeServer(files);
+    const client = createLogClient({
+      fetcher: createHttpFetcher({ baseUrl: BASE_URL, fetch: server.fetch }),
+      origin: LOG_KEY_NAME,
+      logVerifier: logVerifier(),
+    });
+    const checkpoint = await latestCheckpointOf(client);
+    const streamed = await collect(client.entries({ checkpoint }));
+    const fetched = server.requested().filter((url) => url.includes("/tile/"));
+    expect(streamed).toHaveLength(600);
+    expect(fetched).toEqual([...new Set(fetched)]);
   });
 });

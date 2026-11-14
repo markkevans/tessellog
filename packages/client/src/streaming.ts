@@ -26,6 +26,7 @@ export type EntryRange = {
 };
 
 type BundleCheck = {
+  readonly fetcher: LogFetcher;
   readonly cached: LogFetcher;
   readonly layout: ClientLayout;
   readonly checkpoint: Checkpoint;
@@ -67,12 +68,13 @@ const readBundle = async (
       };
 };
 
-const checkBundle = async ({ cached, layout, checkpoint, address, entries }: BundleCheck): Promise<Result<void>> => {
+const checkBundle = async ({ fetcher, cached, layout, checkpoint, address, entries }: BundleCheck): Promise<Result<void>> => {
   const readTile = requireTile(cached);
+  const readOwnTile = address.width === TILE_WIDTH ? requireTile(fetcher) : readTile;
   const tileAddress = { level: 0, index: address.index, width: address.width };
   const leafHashes = entries.map(({ entry, index }) => layout.leafHash(entry, index));
   const compared = async (): Promise<Result<void>> => {
-    if (!sameBytes(await readTile(tileAddress), concatBytes(...leafHashes))) {
+    if (!sameBytes(await readOwnTile(tileAddress), concatBytes(...leafHashes))) {
       return {
         ok: false,
         error: `entry bundle ${layout.entriesPath(address)} does not match tile ${tilePath(tileAddress)}`,
@@ -112,7 +114,7 @@ export async function* streamEntries(
     }
     const first = bundleIndex * WIDTH;
     const entries = bundle.value.map((entry, i) => ({ index: first + BigInt(i), entry }));
-    const checked = await checkBundle({ cached, layout, checkpoint, address, entries });
+    const checked = await checkBundle({ fetcher, cached, layout, checkpoint, address, entries });
     if (checked.ok) {
       yield* entries.filter(inRange).map((value): Result<StreamedEntry> => ({ ok: true, value }));
       continue;

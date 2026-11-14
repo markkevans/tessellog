@@ -21,5 +21,6 @@ Large caches and indices mutate a private `Map` that never leaves its module:
 - the antispam LRU (`appender/src/dedup.ts`);
 - the identity index shared by the antispam stores (`appender/src/identity-index.ts`);
 - the memory witness store.
+- the client's per-stream tile cache (`client/src/tile-cache.ts`).
 
 Copying a 262,144-entry map on every add would be O(n) per operation. The exception is limited to these modules, and their APIs stay immutable.

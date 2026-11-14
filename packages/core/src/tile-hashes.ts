@@ -10,19 +10,20 @@ export type SubtreeHasher = (start: bigint, end: bigint) => Promise<Uint8Array>;
 
 const BITS_PER_LEVEL = 8;
 
-export const readTileHashes = async (
-  readTile: TileReader,
-  address: TileAddress,
-): Promise<Hashes> => {
+const readTileBytes = async (readTile: TileReader, address: TileAddress): Promise<Uint8Array> => {
   const bytes = await readTile(address);
   const expected = address.width * HASH_BYTES;
   if (bytes.length !== expected) {
     throw new Error(`tile ${tilePath(address)} has ${bytes.length} bytes, want ${expected}`);
   }
-  return Array.from({ length: address.width }, (_, i) =>
-    bytes.slice(i * HASH_BYTES, (i + 1) * HASH_BYTES),
-  );
+  return bytes;
 };
+
+const hashesIn = (bytes: Uint8Array, offset: number, count: number): Hashes =>
+  Array.from({ length: count }, (_, i) => bytes.slice((offset + i) * HASH_BYTES, (offset + i + 1) * HASH_BYTES));
+
+export const readTileHashes = async (readTile: TileReader, address: TileAddress): Promise<Hashes> =>
+  hashesIn(await readTileBytes(readTile, address), 0, address.width);
 
 const tileWidth = (treeSize: bigint, level: number, index: bigint): number => {
   const hashesAtLevel = treeSize >> BigInt(BITS_PER_LEVEL * level);
@@ -37,12 +38,12 @@ export const subtreeHasher = (treeSize: bigint, readTile: TileReader): SubtreeHa
     const position = start >> BigInt(BITS_PER_LEVEL * level);
     const index = position / WIDTH;
     const offset = Number(position % WIDTH);
-    const tile = await readTileHashes(readTile, {
+    const tile = await readTileBytes(readTile, {
       level,
       index,
       width: tileWidth(treeSize, level, index),
     });
-    return rootHash(tile.slice(offset, offset + count));
+    return rootHash(hashesIn(tile, offset, count));
   };
   const rangeHash: SubtreeHasher = async (start, end) => {
     const size = end - start;

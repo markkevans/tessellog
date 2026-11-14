@@ -70,6 +70,7 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - **CI and Release run `pnpm audit --prod --audit-level high`.** A high-severity advisory in a published dependency blocks a release until it is fixed.
 - **Vitest 5 counts function coverage from the AST.** It caught two `.catch` handlers that Vitest 3 counted as covered. Expect stricter results after upgrading a coverage tool, and write the missing behaviour test rather than lowering the bar.
 - **`pnpm-workspace.yaml` overrides patch dev-only tools.** Miniflare pins vulnerable `undici` and `sharp`, and VitePress 1.6 pins Vite 5, which has no patched release (Vite 6 works). Drop each override once its parent ships a fix. TypeDoc crashes with `minimatch` 11, so its moderate `minimatch` advisory remains (it only sees our own globs).
+- **A stream used to drop a bundle's missing tail silently.** Per-entry proofs catch shifted indices, but not entries missing from the end of a bundle. Bundles are now refused unless they hold exactly their width.
 - **Documenting is testing.** Writing the operations guide exposed that an appender didn't integrate a crashed writer's batches until its first `add`. Check every claim in a guide against the code.
 
 ## Patterns
@@ -78,7 +79,7 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - A single subtree hasher (`core/src/tile-hashes.ts`) serves both tile roots and inclusion proofs from tiles.
 - Background work (integration, publication) runs through `serialTasks`: one task at a time, with failures sent to `onError`, which defaults to `console.error`.
 - Stateful runtime code reassigns closure `let` bindings with new immutable values. It never mutates in place.
-- The client proves every streamed entry against the signed checkpoint. Comparing entries with level-0 tiles alone would trust the server's tiles. Tile reads are cached per stream.
+- The client proves every streamed entry against the signed checkpoint, a whole bundle at a time. `rootFromTilesAndLeaves` (core) recomputes the checkpoint root from the bundle's leaves plus tile hashes for the rest of the tree, which handles partial edge bundles by RFC 6962's splits. Each bundle must also match its level-0 tile and hold exactly its width of entries. On any mismatch the stream falls back to per-entry proofs, so errors still name the first bad entry. Comparing entries with level-0 tiles alone would trust the server's tiles. Higher-level tiles and the edge tile are cached per stream. Full level-0 tiles are read once and not cached. `pnpm bench` times streaming and proofs.
 - Proof building from tiles (async) and from leaves (sync) are separate small recursions, kept in agreement by equality tests at boundary sizes.
 - The client's rejection handler is typed `(error: Error)`. Every rejection on that path comes from `Error`-throwing code, so a non-`Error` branch would be dead code.
 - Inject AWS failures with SDK middleware (`client.middlewareStack.add(…, { step: "initialize" })`) on a real client, not with type hacks.

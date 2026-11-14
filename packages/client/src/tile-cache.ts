@@ -2,7 +2,7 @@ import { tilePath } from "@tessellog/core";
 import type { LogFetcher } from "./fetcher.js";
 
 export const withTileCache = (fetcher: LogFetcher): LogFetcher => {
-  let cache: ReadonlyMap<string, Promise<Uint8Array | undefined>> = new Map();
+  const cache = new Map<string, Promise<Uint8Array | undefined>>();
   return {
     ...fetcher,
     readTile: (address) => {
@@ -12,7 +12,7 @@ export const withTileCache = (fetcher: LogFetcher): LogFetcher => {
         return cached;
       }
       const read = fetcher.readTile(address);
-      cache = new Map([...cache, [path, read]]);
+      cache.set(path, read);
       return read;
     },
   };
