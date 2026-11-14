@@ -170,6 +170,28 @@ describe("withholding unwitnessed checkpoints", () => {
     expect(await cosignersOfPublished(appender)).toEqual(["WitnessOne"]);
   });
 
+  it("counts a witness whose response breaks off as not cosigning", async () => {
+    const reported: unknown[] = [];
+    const brokenBody = (): ReadableStream<Uint8Array> =>
+      new ReadableStream({
+        start: (controller) => {
+          controller.error(new Error("connection reset"));
+        },
+      });
+    const appender = appenderWith({
+      witnessing: {
+        policy: oneWitnessPolicy(),
+        fetch: async () => new Response(brokenBody()),
+      },
+      onError: (error) => {
+        reported.push(error);
+      },
+    });
+    await appender.shutdown();
+    expect(await appender.reader.readCheckpoint()).toBeUndefined();
+    expect(String(reported.at(-1))).toContain("witness policy not satisfied: cosigned by no witnesses");
+  });
+
   it("gives up on a witness that does not answer in time", async () => {
     const appender = appenderWith({
       witnessing: {

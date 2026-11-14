@@ -76,6 +76,17 @@ describe("persisting the witness store", () => {
       await store.close();
     }));
 
+  it("keeps advancing other logs after advancing one fails on a damaged record", () =>
+    withTempDir(async (root) => {
+      const store = await openPosixWitnessStore({ root });
+      await store.advance(ORIGIN, 0n, checkpoint(3n));
+      const [file = ""] = await checkpointFiles(root);
+      await writeFile(join(root, "checkpoints", file), new Uint8Array(39));
+      await expect(store.advance(ORIGIN, 3n, checkpoint(4n))).rejects.toThrow(`corrupt witness record for ${ORIGIN}`);
+      expect(await store.advance("example.com/other", 0n, checkpoint(5n))).toBe(true);
+      await store.close();
+    }));
+
   it("refuses a record that belongs to a different origin", () =>
     withTempDir(async (root) => {
       const store = await openPosixWitnessStore({ root });
