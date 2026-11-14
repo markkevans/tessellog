@@ -65,6 +65,9 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - **`preserveSymlinks` breaks the AWS SDK's types under pnpm.** Package builds map `@tessellog/*` to built `.d.ts` files through `paths` in `tsconfig.build.json` instead.
 - **Headers are not iterable without `DOM.Iterable`.** Use `headers.forEach`. `Uint8Array<ArrayBufferLike>` is not `BodyInit`, so copy with `Uint8Array.from`.
 - **`changeset init` (v3) is interactive.** `.changeset/config.json` was written by hand from `@changesets/config`'s schema.
+- **Zod 4 `.default({})` skips the inner defaults.** It returns the `{}` as it is. Use `.prefault({})` so nested fields such as `batching.maxSize` still get their defaults.
+- **Upstream Merkle vectors hold 2^64 − 1**, and `JSON.parse` rounds it. The vector fixture quotes the size fields before parsing and reads them with `BigInt`. Zod 4's `.int()` rejects unsafe integers, which exposed this.
+- **CI and Release run `pnpm audit --prod --audit-level high`.** A high-severity advisory in a published dependency blocks a release until it is fixed.
 - **Documenting is testing.** Writing the operations guide exposed that an appender didn't integrate a crashed writer's batches until its first `add`. Check every claim in a guide against the code.
 
 ## Patterns
