@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/appender",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Sequences, integrates and publishes entries to a tessellog transparency log.",
   "keywords": [
     "transparency-log",

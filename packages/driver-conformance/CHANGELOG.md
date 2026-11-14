@@ -1,5 +1,15 @@
 # @tessellog/driver-conformance
 
+## 0.1.2
+
+### Patch Changes
+
+- 94a38a0: Accept Vitest 4 and 5 as well as Vitest 3, so third-party drivers can run the conformance suites on current Vitest.
+- Updated dependencies [891d113]
+  - @tessellog/appender@0.1.2
+  - @tessellog/core@0.1.2
+  - @tessellog/witness@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
