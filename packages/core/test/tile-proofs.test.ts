@@ -6,6 +6,8 @@ import {
   inclusionProofFromTiles,
   integrate,
   leafHash,
+  rootFromTilesAndLeaves,
+  rootHash,
   tilePath,
   type TileAddress,
 } from "../src/index.js";
@@ -130,6 +132,82 @@ describe("building consistency proofs from tiles", () => {
         newSize,
         readTile: await tileReaderFor(leafHashesFor(3)),
       }),
+    ).rejects.toThrow(RangeError);
+  });
+});
+
+describe("computing a tree's root from tiles and a run of known leaves", () => {
+  const bundleRuns = (size: number): readonly (readonly [number, number])[] =>
+    Array.from({ length: Math.ceil(size / 256) }, (_, bundle) => [bundle * 256, Math.min(size, bundle * 256 + 256)]);
+
+  it.each([1, 2, 3, 255, 256, 257, 512, 513, 600])(
+    "matches the root of all leaves for every bundle of a %i-leaf tree",
+    async (size) => {
+      const leafHashes = leafHashesFor(size);
+      const readTile = await tileReaderFor(leafHashes);
+      const roots = await Promise.all(
+        bundleRuns(size).map(([start, end]) =>
+          rootFromTilesAndLeaves({
+            treeSize: BigInt(size),
+            start: BigInt(start),
+            leafHashes: leafHashes.slice(start, end),
+            readTile,
+          }),
+        ),
+      );
+      expect(roots).toEqual(bundleRuns(size).map(() => rootHash(leafHashes)));
+    },
+  );
+
+  it("matches the root of all leaves for runs that do not align with tiles", async () => {
+    const leafHashes = leafHashesFor(600);
+    const readTile = await tileReaderFor(leafHashes);
+    const runs = [[0, 1], [5, 6], [100, 300], [255, 257], [599, 600], [0, 600]] as const;
+    const roots = await Promise.all(
+      runs.map(([start, end]) =>
+        rootFromTilesAndLeaves({ treeSize: 600n, start: BigInt(start), leafHashes: leafHashes.slice(start, end), readTile }),
+      ),
+    );
+    expect(roots).toEqual(runs.map(() => rootHash(leafHashes)));
+  });
+
+  it("gives a different root when any known leaf differs", async () => {
+    const leafHashes = leafHashesFor(513);
+    const readTile = await tileReaderFor(leafHashes);
+    const forged = leafHash(new TextEncoder().encode("forged"));
+    const roots = await Promise.all(
+      [256, 300, 511].map((replaced) =>
+        rootFromTilesAndLeaves({
+          treeSize: 513n,
+          start: 256n,
+          leafHashes: leafHashes.slice(256, 512).map((hash, i) => (256 + i === replaced ? forged : hash)),
+          readTile,
+        }),
+      ),
+    );
+    expect(roots.filter((root) => Buffer.from(root).equals(Buffer.from(rootHash(leafHashes))))).toEqual([]);
+  });
+
+  it("reads no tiles when the known leaves are the whole tree", async () => {
+    const leafHashes = leafHashesFor(300);
+    const root = await rootFromTilesAndLeaves({
+      treeSize: 300n,
+      start: 0n,
+      leafHashes,
+      readTile: async (address) => {
+        throw new Error(`unexpected read of ${tilePath(address)}`);
+      },
+    });
+    expect(root).toEqual(rootHash(leafHashes));
+  });
+
+  it.each([
+    ["no leaves", 0n, 0],
+    ["leaves beyond the tree", 2n, 2],
+  ])("refuses %s", async (_, start, count) => {
+    const leafHashes = leafHashesFor(3);
+    await expect(
+      rootFromTilesAndLeaves({ treeSize: 3n, start, leafHashes: leafHashes.slice(0, count), readTile: await tileReaderFor(leafHashes) }),
     ).rejects.toThrow(RangeError);
   });
 });
