@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/core",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Core primitives for tessellog: RFC 6962 Merkle hashing, tlog-tiles, signed notes and checkpoints.",
   "keywords": [
     "transparency-log",

@@ -1,6 +1,6 @@
 {
   "name": "@tessellog/driver-cloudflare",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Stores a tessellog transparency log in Cloudflare R2, with D1 for sequencing, tree state and antispam.",
   "keywords": [
     "transparency-log",
