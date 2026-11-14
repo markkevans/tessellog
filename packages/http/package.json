@@ -44,7 +44,7 @@
     "@noble/hashes": "^1.8.0",
     "@tessellog/appender": "workspace:*",
     "@tessellog/core": "workspace:*",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "publishConfig": {
     "access": "public",

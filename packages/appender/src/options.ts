@@ -85,7 +85,7 @@ const witnessingSchema = z
     const unreachable = witnessing.policy.witnesses.find((witness) => !hasUrl(witness));
     if (unreachable !== undefined) {
       context.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: `witness ${unreachable.name} has no URL to submit checkpoints to`,
       });
       return z.NEVER;
@@ -116,13 +116,13 @@ export const AppenderOptionsSchema = z
         maxSize: positiveInteger.default(256),
         maxAge: z.number().int().nonnegative().default(250),
       })
-      .default({}),
-    pushback: z.object({ maxOutstanding: positiveInteger.default(4096) }).default({}),
+      .prefault({}),
+    pushback: z.object({ maxOutstanding: positiveInteger.default(4096) }).prefault({}),
     witnessing: witnessingSchema.optional(),
     layout: layoutSchema.default(() => tlogTilesLayout),
     garbageCollection: z
       .object({ interval: z.number().int().nonnegative().default(DEFAULT_GARBAGE_COLLECTION_INTERVAL_MS) })
-      .default({}),
+      .prefault({}),
     antispam: z
       .object({
         inMemoryEntries: positiveInteger.default(DEFAULT_ANTISPAM_IN_MEMORY_ENTRIES),
@@ -135,7 +135,7 @@ export const AppenderOptionsSchema = z
   .superRefine((options, context) => {
     if (options.checkpointRepublishInterval < options.checkpointInterval) {
       context.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["checkpointRepublishInterval"],
         message: "republish interval must be at least the checkpoint interval",
       });
@@ -144,7 +144,7 @@ export const AppenderOptionsSchema = z
       .filter(({ name }) => name !== options.signer.name)
       .forEach(({ name }) => {
         context.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           path: ["additionalSigners"],
           message: `additional signer ${name} must be named ${options.signer.name}`,
         });

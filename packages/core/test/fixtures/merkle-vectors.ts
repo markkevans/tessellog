@@ -11,7 +11,7 @@ const hashOrNull = z.union([hash, z.null()]).transform((h) => h ?? new Uint8Arra
 const proof = z
   .union([z.array(hash), z.null()])
   .transform((hashes) => hashes ?? []);
-const size = z.number().int().nonnegative().transform(BigInt);
+const size = z.string().regex(/^(0|[1-9][0-9]*)$/).transform(BigInt);
 const expectation = { desc: z.string(), wantErr: z.boolean() };
 
 const InclusionProbe = z.object({
@@ -32,14 +32,17 @@ const ConsistencyProbe = z.object({
   ...expectation,
 });
 
-const loadProbes = <T>(directory: string, schema: z.ZodType<T, z.ZodTypeDef, unknown>) =>
+const quoteSizes = (json: string): string =>
+  json.replace(/("(?:leafIdx|treeSize|size1|size2)":\s*)([0-9]+)/g, '$1"$2"');
+
+const loadProbes = <T>(directory: string, schema: z.ZodType<T, unknown>) =>
   readdirSync(`${VECTOR_ROOT}${directory}`, { recursive: true, encoding: "utf8" })
     .filter((file) => file.endsWith(".json"))
     .sort()
     .map((file) => ({
       file,
       probe: schema.parse(
-        JSON.parse(readFileSync(`${VECTOR_ROOT}${directory}/${file}`, "utf8")),
+        JSON.parse(quoteSizes(readFileSync(`${VECTOR_ROOT}${directory}/${file}`, "utf8"))),
       ),
     }));
 
