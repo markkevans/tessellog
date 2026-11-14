@@ -68,6 +68,8 @@ TypeScript port of [Tessera](https://github.com/transparency-dev/tessera): tile-
 - **Zod 4 `.default({})` skips the inner defaults.** It returns the `{}` as it is. Use `.prefault({})` so nested fields such as `batching.maxSize` still get their defaults.
 - **Upstream Merkle vectors hold 2^64 − 1**, and `JSON.parse` rounds it. The vector fixture quotes the size fields before parsing and reads them with `BigInt`. Zod 4's `.int()` rejects unsafe integers, which exposed this.
 - **CI and Release run `pnpm audit --prod --audit-level high`.** A high-severity advisory in a published dependency blocks a release until it is fixed.
+- **Vitest 5 counts function coverage from the AST.** It caught two `.catch` handlers that Vitest 3 counted as covered. Expect stricter results after upgrading a coverage tool, and write the missing behaviour test rather than lowering the bar.
+- **`pnpm-workspace.yaml` overrides patch dev-only tools.** Miniflare pins vulnerable `undici` and `sharp`, and VitePress 1.6 pins Vite 5, which has no patched release (Vite 6 works). Drop each override once its parent ships a fix. TypeDoc crashes with `minimatch` 11, so its moderate `minimatch` advisory remains (it only sees our own globs).
 - **Documenting is testing.** Writing the operations guide exposed that an appender didn't integrate a crashed writer's batches until its first `add`. Check every claim in a guide against the code.
 
 ## Patterns

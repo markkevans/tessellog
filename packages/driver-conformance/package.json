@@ -47,10 +47,10 @@
     "@tessellog/witness": "workspace:*"
   },
   "peerDependencies": {
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4 || ^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "vitest": "^3.2.4"
+    "vitest": "^5.1.0"
   },
   "publishConfig": {
     "access": "public",
