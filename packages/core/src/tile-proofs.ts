@@ -1,4 +1,5 @@
 import { largestPowerOfTwoBelow } from "./bits.js";
+import { nodeHash, rootHash } from "./merkle.js";
 import { subtreeHasher, type Hashes, type SubtreeHasher, type TileReader } from "./tile-hashes.js";
 
 const path = async (
@@ -60,4 +61,33 @@ export const consistencyProofFromTiles = async ({
     throw new RangeError(`old size ${oldSize} must be between 1 and the new size ${newSize}`);
   }
   return subproof(oldSize, 0n, newSize, true, subtreeHasher(newSize, readTile));
+};
+
+export const rootFromTilesAndLeaves = async ({
+  treeSize,
+  start,
+  leafHashes,
+  readTile,
+}: {
+  readonly treeSize: bigint;
+  readonly start: bigint;
+  readonly leafHashes: Hashes;
+  readonly readTile: TileReader;
+}): Promise<Uint8Array> => {
+  const end = start + BigInt(leafHashes.length);
+  if (leafHashes.length === 0 || end > treeSize) {
+    throw new RangeError(`leaves [${start}, ${end}) are not a non-empty run within a tree of ${treeSize}`);
+  }
+  const fromTiles = subtreeHasher(treeSize, readTile);
+  const hash = async (from: bigint, to: bigint): Promise<Uint8Array> => {
+    if (to <= start || from >= end) {
+      return fromTiles(from, to);
+    }
+    if (from >= start && to <= end) {
+      return rootHash(leafHashes.slice(Number(from - start), Number(to - start)));
+    }
+    const middle = from + largestPowerOfTwoBelow(to - from);
+    return nodeHash(await hash(from, middle), await hash(middle, to));
+  };
+  return hash(0n, treeSize);
 };

@@ -38,7 +38,7 @@ Every method returns a `Result`. A log that serves bad data produces `{ ok: fals
 | `latestCheckpoint()` | The checkpoint is well-formed and has the expected origin. The log key signed it. With `witnessPolicy`, the policy's quorum cosigned it. |
 | `proveInclusion({ entry, index, checkpoint })` | The entry's leaf hash is at `index` in the tree that `checkpoint` commits to. |
 | `checkConsistency(older, newer)` | `newer` extends `older` without changing it, and is not smaller. |
-| `entries({ checkpoint, from?, to? })` | Streams entries, proving **each one** against the checkpoint. |
+| `entries({ checkpoint, from?, to? })` | Streams entries, proving **each one** against the checkpoint. It checks whole bundles: every entry in a bundle that overlaps the range must hash to the checkpoint root, so tampering just outside the range is caught too. A bundle with too many or too few entries is refused. |
 
 ## Fetchers
 

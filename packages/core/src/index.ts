@@ -1,6 +1,6 @@
 export { HASH_BYTES, leafHash, nodeHash, rootHash } from "./merkle.js";
 export { consistencyProof, inclusionProof } from "./proof-building.js";
-export { consistencyProofFromTiles, inclusionProofFromTiles } from "./tile-proofs.js";
+export { consistencyProofFromTiles, inclusionProofFromTiles, rootFromTilesAndLeaves } from "./tile-proofs.js";
 export { verifyConsistency, verifyInclusion } from "./proofs.js";
 export {
   entriesPath,

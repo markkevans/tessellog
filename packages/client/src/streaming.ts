@@ -1,6 +1,9 @@
+import { concatBytes } from "@noble/hashes/utils";
 import {
+  rootFromTilesAndLeaves,
   TILE_WIDTH,
   TILE_WIDTH_BIGINT as WIDTH,
+  tilePath,
   type BundleAddress,
   type Checkpoint,
   type Result,
@@ -9,6 +12,7 @@ import type { LogFetcher } from "./fetcher.js";
 import { proveInclusionWith } from "./inclusion.js";
 import type { ClientLayout } from "./layouts.js";
 import { withTileCache } from "./tile-cache.js";
+import { failureFrom, requireTile } from "./tiles.js";
 
 export type StreamedEntry = {
   readonly index: bigint;
@@ -21,6 +25,14 @@ export type EntryRange = {
   readonly to?: bigint;
 };
 
+type BundleCheck = {
+  readonly cached: LogFetcher;
+  readonly layout: ClientLayout;
+  readonly checkpoint: Checkpoint;
+  readonly address: BundleAddress;
+  readonly entries: readonly StreamedEntry[];
+};
+
 const bundleAddress = (index: bigint, size: bigint): BundleAddress => ({
   index,
   width: index < size / WIDTH ? TILE_WIDTH : Number(size % WIDTH),
@@ -30,6 +42,9 @@ const bundleIndices = (from: bigint, to: bigint): readonly bigint[] =>
   from >= to
     ? []
     : Array.from({ length: Number((to - 1n) / WIDTH - from / WIDTH + 1n) }, (_, i) => from / WIDTH + BigInt(i));
+
+const sameBytes = (a: Uint8Array, b: Uint8Array): boolean =>
+  a.length === b.length && a.every((byte, i) => byte === b[i]);
 
 const readBundle = async (
   fetcher: LogFetcher,
@@ -41,9 +56,39 @@ const readBundle = async (
     return { ok: false, error: `missing entry bundle ${layout.entriesPath(address)}` };
   }
   const decoded = layout.decodeBundle(bytes, address.index * WIDTH);
-  return decoded.ok
+  if (!decoded.ok) {
+    return { ok: false, error: `corrupt entry bundle ${layout.entriesPath(address)}: ${decoded.error}` };
+  }
+  return decoded.value.length === address.width
     ? decoded
-    : { ok: false, error: `corrupt entry bundle ${layout.entriesPath(address)}: ${decoded.error}` };
+    : {
+        ok: false,
+        error: `entry bundle ${layout.entriesPath(address)} holds ${decoded.value.length} entries, want ${address.width}`,
+      };
+};
+
+const checkBundle = async ({ cached, layout, checkpoint, address, entries }: BundleCheck): Promise<Result<void>> => {
+  const readTile = requireTile(cached);
+  const tileAddress = { level: 0, index: address.index, width: address.width };
+  const leafHashes = entries.map(({ entry, index }) => layout.leafHash(entry, index));
+  const compared = async (): Promise<Result<void>> => {
+    if (!sameBytes(await readTile(tileAddress), concatBytes(...leafHashes))) {
+      return {
+        ok: false,
+        error: `entry bundle ${layout.entriesPath(address)} does not match tile ${tilePath(tileAddress)}`,
+      };
+    }
+    const root = await rootFromTilesAndLeaves({
+      treeSize: checkpoint.size,
+      start: address.index * WIDTH,
+      leafHashes,
+      readTile,
+    });
+    return sameBytes(root, checkpoint.rootHash)
+      ? { ok: true, value: undefined }
+      : { ok: false, error: `entry bundle ${layout.entriesPath(address)} does not match the checkpoint` };
+  };
+  return compared().catch(failureFrom);
 };
 
 export async function* streamEntries(
@@ -57,23 +102,32 @@ export async function* streamEntries(
   }
   const cached = withTileCache(fetcher);
   const prove = proveInclusionWith(cached, layout);
+  const inRange = ({ index }: StreamedEntry): boolean => index >= from && index < to;
   for (const bundleIndex of bundleIndices(from, to)) {
-    const bundle = await readBundle(cached, layout, bundleAddress(bundleIndex, checkpoint.size));
+    const address = bundleAddress(bundleIndex, checkpoint.size);
+    const bundle = await readBundle(cached, layout, address);
     if (!bundle.ok) {
       yield bundle;
       return;
     }
     const first = bundleIndex * WIDTH;
-    const wanted = bundle.value
-      .map((entry, i) => ({ index: first + BigInt(i), entry }))
-      .filter(({ index }) => index >= from && index < to);
-    for (const streamed of wanted) {
+    const entries = bundle.value.map((entry, i) => ({ index: first + BigInt(i), entry }));
+    const checked = await checkBundle({ cached, layout, checkpoint, address, entries });
+    if (checked.ok) {
+      yield* entries.filter(inRange).map((value): Result<StreamedEntry> => ({ ok: true, value }));
+      continue;
+    }
+    for (const streamed of entries) {
       const proven = await prove({ ...streamed, checkpoint });
       if (!proven.ok) {
         yield { ok: false, error: `entry ${streamed.index}: ${proven.error}` };
         return;
       }
-      yield { ok: true, value: streamed };
+      if (inRange(streamed)) {
+        yield { ok: true, value: streamed };
+      }
     }
+    yield { ok: false, error: checked.error };
+    return;
   }
 }
